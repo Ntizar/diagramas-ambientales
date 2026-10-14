@@ -1,28 +1,36 @@
-# Diagramas y Logos Ambientales
+# Cuadros — editor de diagramas y logos
 
-Herramienta para crear **cuadros y esquemas a tu medida** para documentación de medio ambiente: 50 diagramas editables (tipo SmartArt) + 50 logotipos, con posibilidad de **incrustar el logo dentro del diagrama**. Todo en el navegador, sin instalar nada, sin conexión.
+Editor tipo Canva para crear **cuadros personalizados** (estilo SmartArt de Word, pero libre) con **logos ambientales** integrados. Todo en el navegador, sin instalar nada, sin conexión.
 
-## Qué hay
+## Qué es
 
-- **50 diagramas**: procesos, ciclos, comparativas, jerarquías, listas y matrices, relaciones, líneas de tiempo y flujos. Textos y número de elementos editables.
-- **50 logos**: 30 conceptos ambientales (árbol, carretera, montaña, aerogenerador, gota, ave, bicicleta…) en 5 estilos de diseño (Plano, Línea, Duotono, Degradado, Insignia) y 2 composiciones.
-- **Incrustación**: en los diagramas de ciclo, orbital, radial y Venn puedes colocar un logo en el centro (sobre disco blanco, con buen contraste).
-- **10 paletas de color** derivadas de una identidad corporativa sobria (azul, rojo, gris) con variantes ambientales. Cambiables en vivo desde el editor.
+Un lienzo donde colocas bloques arrastrando desde el panel izquierdo:
 
-## Cómo se usa
+- **Texto**: título, subtítulo, párrafo
+- **Visuales**: paso numerado (estilo informe ejecutivo), caja de color, KPI/dato, lista
+- **Logos**: 30 iconos ambientales (árbol, carretera, turbina, gota, ave…) en 10 paletas de color
 
-1. Abre index.html (doble clic) o la web publicada.
-2. Elige pestaña: Diagramas o Logos. Busca o filtra por categoría y color.
-3. Haz clic en una plantilla → se abre el editor.
-4. Diagramas: cambia los textos, el número de elementos, el color y (si quieres) el logo del centro.
-5. Logos: cambia el color y el fondo.
-6. Descarga PNG (hasta 3200 px), SVG vectorial o copia la imagen al portapapeles.
+Cada elemento se **mueve, redimensiona y edita** individualmente: texto, tamaño, color y paleta desde el panel de propiedades.
+
+## Plantillas incluidas
+
+- **Proceso** — pasos numerados estilo informe (01, 02, 03…) con logo y caja de resultado
+- **Comparativa** — antes/después con cajas roja/verde, KPI y lista de ventajas
+- **Resumen ejecutivo** — 3 KPIs + bloques numerados + logo
+
+## Exportación
+
+- **PNG** (2× resolución, listo para pegar en Word/PowerPoint)
+- **SVG** vectorial
+
+## Estilo
+
+Limpio corporativo (blanco, Inter, azul #2563eb): sin tarjetas con icono+texto que delatan diseño automático. Bloques numerados, listas con filete y cajas con borde lateral — el patrón de los informes consultoría.
 
 ## Desarrollo
 
 ```bash
-node scripts/verificar.js         # 50+50 items, render sin fallos, incrustación OK
-node scripts/verificar-bundle.js  # el bundle embebido ejecuta y renderiza
+node scripts/verificar.js         # 30 logos × 10 esquemas renderizan
 node scripts/verificar-higiene.js # sin CDN ni nombres de terceros
 node scripts/compilar.js          # regenerar index.html tras editar src/
 ```
@@ -30,12 +38,12 @@ node scripts/compilar.js          # regenerar index.html tras editar src/
 Estructura:
 
 ```
-src/paleta.js        10 esquemas de color, helpers de texto SVG
-src/smartart.js      30 generadores de diagramas
-src/generadores.js   30 dibujos geométricos de logos
-src/catalogo.js      Estilos, catálogo unificado (50+50) y render
-src/app-ui.html      Interfaz (plantilla del HTML final)
-scripts/compilar.js  Genera index.html autocontenido
+src/paleta.js              10 esquemas de color
+src/generadores.js         30 dibujos de logos
+src/catalogo-estilos.js    Piel de los logos (plano/línea/duotono/degradado/insignia)
+src/catalogo.js            Catálogo de conceptos y render de logos
+src/app-ui.html            El editor (lienzo, bloques, propiedades, export)
+scripts/compilar.js        Genera index.html autocontenido
 ```
 
 ## Publicación
@@ -44,4 +52,4 @@ GitHub Pages desde main. GitHub Actions verifica el catálogo en cada push.
 
 ---
 
-Herramienta de diagramación para documentación ambiental. Sin conexión, sin datos.
+Herramienta de creación de cuadros para documentación ambiental. Sin conexión, sin datos.

@@ -13,7 +13,7 @@ const limpiar = codigo =>
     .replace(/module\.exports = \{[^}]*\};?/g, '')
     .replace(/const \{[^}]*\} = require\([^)]*\);\n?/g, '');
 
-const bundle = ['paleta.js', 'generadores.js', 'catalogo-estilos.js', 'smartart.js', 'catalogo.js']
+const bundle = ['paleta.js', 'generadores.js', 'catalogo-estilos.js', 'catalogo.js']
   .map(f => limpiar(leer('src/' + f)))
   .join('\n');
 
@@ -22,7 +22,7 @@ if (/require\(/.test(bundle)) throw new Error('Bundle con require() pendiente');
 const ui = leer('src/app-ui.html');
 const html = ui.replace('/*BUNDLE*/', bundle);
 if (html.includes('/*BUNDLE*/')) throw new Error('Bundle no inyectado');
-if (!html.includes('CATALOGO')) throw new Error('CATALOGO no está en el HTML');
+if (!html.includes('CONCEPTOS')) throw new Error('CONCEPTOS no está en el HTML');
 
 fs.writeFileSync(path.join(raiz, 'index.html'), html);
 console.log('index.html generado: ' + (fs.statSync(path.join(raiz, 'index.html')).size / 1024).toFixed(1) + ' KB');
