@@ -1,61 +1,57 @@
-# Diagramas Ambientales
+# Logos Ambientales
 
-Catálogo de **300 plantillas de diagramas** para informes y presentaciones de medio ambiente. Funciona 100 % en el navegador, sin instalar nada, sin conexión.
+Catálogo de **300 logotipos vectoriales** con temática de medio ambiente: naturaleza, agua, energía, movilidad, fauna y territorio. Funciona 100 % en el navegador, sin instalar nada, sin conexión.
 
 ## Qué es
 
-Una galería de diagramas tipo SmartArt (procesos, ciclos, comparativas, jerarquías, matrices, líneas de tiempo, flujos) con una paleta cromática corporativa sobria y temática ambiental.
+30 conceptos (árbol, carretera, montaña, aerogenerador, gota, ave, bicicleta…) × 2 composiciones × 5 estilos de diseño (Plano, Línea, Duotono, Degradado, Insignia), cada uno con un esquema de color distinto. Todos los dibujos son únicos: el catálogo se verifica automáticamente para que no haya repeticiones.
 
 ## Cómo se usa
 
-1. Abre `index.html` (doble clic) o la web publicada.
-2. Busca o filtra por categoría, número de elementos o esquema de color.
-3. Haz clic en una plantilla → se abre el editor.
-4. Cambia los textos, el número de elementos o el esquema.
-5. **Descarga PNG** (alta resolución, listo para pegar en Word/PowerPoint), **descarga SVG** (vectorial, escalable sin pérdida) o **copia al portapapeles** y pega directamente.
+1. Abre index.html (doble clic) o la web publicada.
+2. Busca o filtra por categoría, estilo o paleta de color.
+3. Haz clic en un logo → se abre el editor.
+4. Elige color, fondo (transparente, blanco, gris, azul oscuro) y tamaño de exportación.
+5. Descarga PNG (hasta 2048 px), SVG vectorial o copia la imagen al portapapeles.
 
-## Esquemas de color
+## Paletas de color
 
-10 esquemas derivados de una paleta corporativa sobria (azul, rojo, gris) con variantes ambientales (verde sostenible, azul agua, tierra y bosque, biodiversidad…).
+10 esquemas: Corporativo, Azul profesional, Verde sostenible, Azul agua, Tierra y bosque, Energía limpia, Atardecer ambiental, Biodiversidad, Oceánico profundo y Monocromo sobrio.
 
 ## Categorías
 
-| Categoría | Tipos |
+| Categoría | Conceptos |
 |---|---|
-| Procesos | Flechas, chevrones, escalera, serpiente, pilares |
-| Ciclos | 4 fases, mejora continua, segmentos, órbita, espiral |
-| Comparativas | Dos columnas, VS, báscula, solapes |
-| Jerarquías | Pirámide, pirámide invertida, organigrama, árbol |
-| Listas y matrices | Lista numerada, tarjetas, checklist, matriz 2×2, prioridades |
-| Relaciones | Radial, convergente, triple intersección |
-| Líneas de tiempo | Lineal, hitos alternados |
-| Flujos | Con decisión, embudo |
+| Naturaleza | Árbol, pino, hoja, brote, flor, bosque |
+| Agua | Gota, olas |
+| Energía | Aerogenerador, panel solar, hidráulica, geotermia, energía limpia |
+| Movilidad | Carretera, camino, puente, sendero, bicicleta, transporte público |
+| Fauna | Ave, pez, huella, polinización |
+| Territorio | Montaña, reciclaje, planeta, ciudad verde, calidad del aire, paisaje, orientación |
 
 ## Desarrollo
 
 ```bash
-# Verificar que las 300 plantillas renderizan (Node)
-node scripts/verificar.js
-
-# Regenerar index.html tras editar src/
-node scripts/compilar.js
+node scripts/verificar.js         # 300 logos únicos, render sin fallos, cuotas equilibradas
+node scripts/verificar-bundle.js  # el bundle embebido ejecuta y renderiza
+node scripts/verificar-higiene.js # sin CDN ni nombres de terceros
+node scripts/compilar.js          # regenerar index.html tras editar src/
 ```
 
 Estructura:
 
 ```
-src/paleta.js        Esquemas de color, tipos de diagrama, helpers SVG
-src/generadores.js   Los 30 generadores de diagramas
-src/catalogo.js      Índice de las 300 combinaciones
+src/paleta.js        10 esquemas de color y helpers
+src/generadores.js   Los 30 dibujos geométricos
+src/catalogo.js      Estilos, selección de 300 y render
 src/app-ui.html      Interfaz (plantilla del HTML final)
 scripts/compilar.js  Genera index.html autocontenido
-scripts/verificar.js Prueba de humo: 300 renders sin fallos
 ```
 
 ## Publicación
 
-El sitio se publica en GitHub Pages desde `main`. GitHub Actions verifica el catálogo en cada push.
+GitHub Pages desde main. GitHub Actions verifica el catálogo en cada push.
 
 ---
 
-Herramienta de diagramación para documentación ambiental. Funciona sin conexión y sin recoger ningún dato.
+Herramienta de logotipos para proyectos de medio ambiente. Sin conexión, sin datos.

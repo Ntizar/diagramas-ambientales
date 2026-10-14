@@ -1,511 +1,346 @@
 // ============================================================
-// GENERADORES SVG — 30 tipos de diagrama.
-// Cada generador recibe { esquema, textos } y devuelve un SVG
-// string con viewBox 800x500, textos reales (editables) y
-// data-attrs para la edición en la UI.
+// GENERADORES DE LOGOS — 30 conceptos ambientales en SVG 512×512.
+// Cada generador: (esquema, variante, uid) → cuerpo SVG.
+// Colores por CLASES (.c1..c4 relleno, .st1..st4 trazo, .f blanco)
+// para que el estilo (plano/línea/duotono/degradado/insignia)
+// se aplique desde catálogo.js sin tocar el dibujo.
 // ============================================================
-
-const { tinte, textoSVG } = require('./paleta');
-
-const GRISES = {
-  oscuro: '#2B3440',
-  texto: '#33404F',
-  medio: '#8A94A0',
-  claro: '#C9D0D8',
-  fondo: '#F2F4F7',
-  blanco: '#FFFFFF',
-};
-
-function fondo() {
-  return `<rect width="800" height="500" fill="#FFFFFF"/>`;
-}
-
-function caja(x, y, w, h, fill, rx = 10, stroke = null) {
-  const s = stroke ? ` stroke="${stroke}" stroke-width="2"` : '';
-  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"${s}/>`;
-}
-
-function flecha(x1, y1, x2, y2, color, ancho = 3) {
-  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${ancho}" marker-end="url(#punta)"/>`;
-}
-
-function defs() {
-  return `<defs><marker id="punta" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8A94A0"/></marker></defs>`;
-}
 
 const G = {};
 
-// ---------- PROCESOS ----------
-
-G['proceso-flechas'] = (e, t) => {
-  const n = t.length, w = 128, h = 90, gap = (800 - n * w) / (n + 1);
-  let s = fondo() + defs();
-  t.forEach((txt, i) => {
-    const x = gap + i * (w + gap), y = 205;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 16 })}</g>`;
-    if (i < n - 1) s += flecha(x + w + 4, y + h / 2, x + w + gap - 4, y + h / 2, GRISES.medio);
-  });
-  return s + '</svg>';
+// 1. Árbol copudo
+G['arbol'] = (e, v, uid) => {
+  let s = '';
+  if (v === 1) s += `<circle cx="330" cy="180" r="60" class="c2"/>`;
+  s += `<rect x="242" y="270" width="28" height="110" rx="10" class="c4"/>`;
+  s += `<circle cx="256" cy="200" r="95" class="c1"/>`;
+  s += `<circle cx="200" cy="250" r="55" class="c2"/>`;
+  s += `<circle cx="315" cy="245" r="52" class="c2"/>`;
+  s += `<circle cx="310" cy="160" r="16" class="c3"/>`;
+  s += `<path d="M130 392 Q256 366 382 392" class="st4" stroke-width="12"/>`;
+  return s;
 };
 
-G['proceso-chevrons'] = (e, t) => {
-  const n = t.length, w = 150, h = 320, solape = 20;
-  const total = n * w - (n - 1) * solape, x0 = (800 - total) / 2;
-  let s = fondo();
-  t.forEach((txt, i) => {
-    const x = x0 + i * (w - solape);
-    const col = tinte(i % 2 === 0 ? e.primario : e.secundario, -i * 0.06);
-    const punta = i < n - 1 ? 24 : 0;
-    s += `<g data-i="${i}"><path d="M${x},90 L${x + w - punta},90 L${x + w},250 L${x + w - punta},410 L${x},410 L${x + (i > 0 ? 24 : 0)},250 Z" fill="${col}"/>`;
-    s += textoSVG(x + w / 2 + (i > 0 ? 12 : 0), 250, txt, { color: '#fff', size: 15, maxAncho: w - 50 }) + '</g>';
-  });
-  return s + '</svg>';
+// 2. Pino
+G['pino'] = (e, v, uid) => {
+  let s = `<polygon points="256,86 168,214 344,214" class="c1"/>
+  <polygon points="256,150 148,296 364,296" class="c1"/>
+  <polygon points="256,216 128,384 384,384" class="c2"/>
+  <rect x="240" y="378" width="32" height="56" rx="8" class="c4"/>`;
+  if (v === 1) s += `<circle cx="404" cy="120" r="26" class="c3"/>`;
+  return s;
 };
 
-G['proceso-escalera'] = (e, t) => {
-  const n = t.length, w = 150, h = 74, paso = Math.min(90, 330 / (n - 1));
-  let s = fondo() + defs();
-  t.forEach((txt, i) => {
-    const x = 60 + i * (w + 28), y = 380 - i * paso;
-    const col = tinte(e.primario, i * 0.1);
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 10)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 14 })}</g>`;
-    if (i < n - 1) s += flecha(x + w + 2, y - 6, x + w + 26, y - paso + h + 6, GRISES.medio);
-  });
-  return s + '</svg>';
+// 3. Hoja
+G['hoja'] = (e, v, uid) => {
+  let s = `<path d="M256 108 C168 152 152 288 256 404 C360 288 344 152 256 108 Z" class="c1"/>
+  <path d="M256 140 L256 380" class="fw" stroke-width="8"/>
+  <path d="M256 210 L320 176 M256 270 L318 238 M256 210 L192 176 M256 270 L194 238" class="fw" stroke-width="6"/>`;
+  if (v === 1) s += `<circle cx="392" cy="120" r="24" class="c3"/>`;
+  return s;
 };
 
-G['proceso-serpiente'] = (e, t) => {
-  const n = t.length, w = 170, h = 80;
-  const porFila = Math.ceil(n / 2);
-  const gap = Math.min(40, (800 - 80 - porFila * w) / Math.max(1, porFila - 1));
-  let s = fondo() + defs();
-  t.forEach((txt, i) => {
-    const fila = Math.floor(i / porFila), idx = i % porFila;
-    const izq = fila % 2 === 0;
-    const col = idxInFila => idxInFila % 2 === 0 ? e.primario : e.secundario;
-    const x = izq ? 40 + idx * (w + gap) : 40 + (porFila - 1 - idx) * (w + gap);
-    const y = fila === 0 ? 120 : 300;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col(idx), 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 16 })}</g>`;
-  });
-  // flechas serpiente
-  for (let i = 0; i < n - 1; i++) {
-    const fila = Math.floor(i / porFila), idx = i % porFila;
-    const izq = fila % 2 === 0;
-    const x = izq ? 40 + idx * (w + gap) : 40 + (porFila - 1 - idx) * (w + gap);
-    const y = fila === 0 ? 120 : 300;
-    if (idx < porFila - 1) {
-      const sigIzq = izq;
-      const xs = sigIzq ? x + w + 4 : x - 4;
-      const xe = sigIzq ? x + w + gap - 4 : x - gap + 4;
-      s += flecha(xs, y + h / 2, xe, y + h / 2, GRISES.medio);
-    } else {
-      s += flecha(x + w / 2, y + h + 4, x + w / 2, y + 160 - 4, GRISES.medio);
-    }
+// 4. Montaña
+G['montana'] = (e, v, uid) => {
+  let s = `<polygon points="84,368 206,182 328,368" class="c2"/>
+  <polygon points="204,368 328,150 452,368" class="c1"/>
+  <polygon points="304,182 328,150 352,182 336,196 316,182" class="f"/>
+  <circle cx="118" cy="132" r="34" class="c3"/>
+  <path d="M64 368 L448 368" class="st4" stroke-width="12"/>`;
+  if (v === 1) { s = s.replace('circle cx="118" cy="132" r="34" class="c3"', 'path d="M118 108 A30 30 0 1 0 148 146 A38 38 0 0 1 118 108 Z" class="c3"'); }
+  return s;
+};
+
+// 5. Carretera
+G['carretera'] = (e, v, uid) => {
+  let s = `<polygon points="196,84 316,84 448,428 64,428" class="c4"/>
+  <path d="M256 128 L256 412" class="fw" stroke-width="14" stroke-dasharray="34 30"/>
+  <polygon points="128,84 156,84 148,116 136,116" class="c3"/>
+  <polygon points="356,84 384,84 376,116 364,116" class="c3"/>
+  <circle cx="76" cy="60" r="24" class="c3" opacity="0.001"/>`;
+  if (v === 1) s = s.replace('opacity="0.001"', '') + `<path d="M64 428 L448 428" class="st2" stroke-width="10"/>`;
+  return s;
+};
+
+// 6. Camino serpenteante
+G['camino'] = (e, v, uid) => {
+  let s = `<path d="M120 436 C120 330 392 350 392 252 C392 158 130 180 150 76" class="st4" stroke-width="52"/>
+  <path d="M120 436 C120 330 392 350 392 252 C392 158 130 180 150 76" class="fw" stroke-width="9" stroke-dasharray="22 20"/>
+  <circle cx="418" cy="90" r="30" class="c3"/>`;
+  if (v === 1) s += `<circle cx="86" cy="120" r="22" class="c2"/>`;
+  return s;
+};
+
+// 7. Puente
+G['puente'] = (e, v, uid) => {
+  let s = `<path d="M112 262 Q256 116 400 262" class="st1" stroke-width="18"/>
+  <rect x="84" y="252" width="344" height="20" rx="10" class="c1"/>
+  <path d="M176 258 L176 216 M256 208 L256 216 M336 258 L336 216" class="st1" stroke-width="9"/>
+  <path d="M120 330 q22 -18 44 0 t44 0 t44 0 t44 0 t44 0" class="st2" stroke-width="10"/>
+  <path d="M150 372 q22 -18 44 0 t44 0 t44 0 t44 0" class="st2" stroke-width="10"/>`;
+  if (v === 1) s += `<circle cx="404" cy="120" r="24" class="c3"/>`;
+  return s;
+};
+
+// 8. Aerogenerador
+G['turbina'] = (e, v, uid) => {
+  let s = `<polygon points="248,248 264,248 274,428 238,428" class="c4"/>
+  <g class="c2"><path d="M256 234 L263 104 L249 104 Z"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(120 256 240)"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(240 256 240)"/></g>
+  <circle cx="256" cy="240" r="16" class="c1"/>
+  <path d="M128 428 L384 428" class="st4" stroke-width="12"/>`;
+  if (v === 1) s += `<g transform="translate(120 -40) scale(0.55)"><polygon points="248,248 264,248 274,428 238,428" class="c4"/><g class="c2"><path d="M256 234 L263 104 L249 104 Z"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(120 256 240)"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(240 256 240)"/></g><circle cx="256" cy="240" r="16" class="c1"/></g>`;
+  return s;
+};
+
+// 9. Panel solar
+G['panel-solar'] = (e, v, uid) => {
+  let s = `<polygon points="130,280 306,280 348,384 88,384" class="c1"/>
+  <path d="M187 280 L172 384 M249 280 L249 384 M293 280 L330 384 M109 332 L327 332" class="fw" stroke-width="6"/>
+  <path d="M218 384 L218 424" class="st4" stroke-width="12"/>
+  <circle cx="392" cy="140" r="38" class="c3"/>
+  <path d="M392 76 L392 58 M442 96 L456 82 M448 140 L468 140 M442 184 L456 198" class="st3" stroke-width="9"/>`;
+  if (v === 1) s = s.replace('392 76 L392 58 M442 96 L456 82 M448 140 L468 140 M442 184 L456 198', '');
+  return s;
+};
+
+// 10. Gota
+G['gota'] = (e, v, uid) => {
+  let s = `<path d="M256 88 C204 184 152 244 152 316 a104 104 0 0 0 208 0 C360 244 308 184 256 88 Z" class="c1"/>
+  <path d="M256 196 C226 248 208 274 208 310 a48 48 0 0 0 96 0 C304 274 286 248 256 196 Z" class="c2"/>`;
+  if (v === 1) s += `<path d="M392 140 C366 166 352 186 352 208 a40 40 0 0 0 80 0 C432 186 418 166 392 140 Z" class="c3"/>`;
+  return s;
+};
+
+// 11. Olas
+G['olas'] = (e, v, uid) => {
+  const sol = v === 1 ? '' : `<circle cx="400" cy="118" r="30" class="c3"/>\n  `;
+  return `${sol}<path d="M64 210 q32 -34 64 0 t64 0 t64 0 t64 0 t64 0" class="st2" stroke-width="18"/>
+  <path d="M64 290 q32 -34 64 0 t64 0 t64 0 t64 0 t64 0" class="st1" stroke-width="18"/>
+  <path d="M64 370 q32 -34 64 0 t64 0 t64 0 t64 0 t64 0" class="st2" stroke-width="18"/>`;
+};
+
+// 12. Reciclaje
+G['reciclaje'] = (e, v, uid) => {
+  // cada segmento: arco de 100° + punta triangular alineada con la tangente
+  const seg = (rot, cls, fillCls) => `<g transform="rotate(${rot} 256 256)">
+    <path d="M196 130 A116 116 0 0 1 334 178" class="${cls}" stroke-width="24"/>
+    <polygon points="302,132 372,164 306,222" class="${fillCls}"/>
+  </g>`;
+  const orden = v === 1 ? [['st1','c1'],['st2','c2'],['st3','c3']] : [['st2','c2'],['st3','c3'],['st1','c1']];
+  return orden.map((p, i) => seg(i * 120, p[0], p[1])).join('');
+};
+
+// 13. Planeta
+G['planeta'] = (e, v, uid) => {
+  const sol = v === 1 ? `<path d="M404 108 C382 130 370 148 370 166 a34 34 0 0 0 68 0 C438 148 426 130 404 108 Z" class="c3"/>` : '';
+  // anillo trasero (mitad superior, detrás del planeta)
+  const anilloDetras = `<path d="M96 244 A160 56 -18 0 1 416 214" class="st3" stroke-width="9"/>`;
+  const globo = `<circle cx="256" cy="256" r="118" class="c2"/>
+  <ellipse cx="216" cy="226" rx="54" ry="30" class="c1" transform="rotate(-18 216 226)"/>
+  <ellipse cx="298" cy="304" rx="44" ry="24" class="c1" transform="rotate(12 298 304)"/>`;
+  // anillo delantero (mitad inferior, delante)
+  const anilloDelante = `<path d="M416 214 A160 56 -18 0 1 96 244" class="st3" stroke-width="9"/>`;
+  return sol + anilloDetras + globo + anilloDelante;
+};
+
+// 14. Brote
+G['brote'] = (e, v, uid) => {
+  let s = `<path d="M256 392 C256 310 252 280 256 224" class="st1" stroke-width="14"/>
+  <path d="M256 268 C204 264 180 212 176 164 C230 170 252 214 256 268 Z" class="c2"/>
+  <path d="M256 268 C308 264 332 212 336 164 C282 170 260 214 256 268 Z" class="c1"/>
+  <path d="M136 396 Q256 356 376 396 L376 416 L136 416 Z" class="c4"/>`;
+  if (v === 1) s += `<circle cx="404" cy="112" r="26" class="c3"/>`;
+  return s;
+};
+
+// 15. Flor
+G['flor'] = (e, v, uid) => {
+  let s = '';
+  for (let i = 0; i < 5; i++) {
+    const cls = i % 2 === 0 ? 'c1' : 'c2';
+    s += `<ellipse cx="256" cy="160" rx="36" ry="72" class="${cls}" transform="rotate(${i * 72} 256 256)"/>`;
   }
-  return s + '</svg>';
+  s += `<circle cx="256" cy="256" r="42" class="c3"/>`;
+  if (v === 1) s += `<path d="M256 298 L256 428" class="st1" stroke-width="12"/><path d="M256 380 C220 376 204 344 200 314 C236 318 252 348 256 380 Z" class="c2"/>`;
+  return s;
 };
 
-G['proceso-pilares'] = (e, t) => {
-  const n = t.length, w = 140, gap = (800 - 60 - n * w) / (n + 1);
-  let s = fondo();
-  t.forEach((txt, i) => {
-    const x = 60 + gap + i * (w + gap);
-    const col = tinte(e.primario, i * 0.08);
-    const h = 200 + (i % 3) * 30, y = 400 - h;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 8)}${textoSVG(x + w / 2, y + 30, `${i + 1}. ${txt}`, { color: '#fff', size: 14, maxAncho: w - 14 })}</g>`;
-  });
-  return s + '</svg>';
+// 16. Ave
+G['ave'] = (e, v, uid) => {
+  let s = `<path d="M256 292 C210 216 140 210 84 250 C140 262 190 282 256 292 Z" class="c2"/>
+  <path d="M256 292 C302 216 372 210 428 250 C372 262 322 282 256 292 Z" class="c1"/>
+  <ellipse cx="256" cy="306" rx="56" ry="30" class="c1"/>
+  <polygon points="306,296 344,306 306,318" class="c3"/>
+  <circle cx="292" cy="296" r="7" class="f"/>`;
+  if (v === 1) s += `<path d="M96 168 q18 -14 36 0 M132 190 q18 -14 36 0" class="st2" stroke-width="8"/>`;
+  else s += `<circle cx="112" cy="132" r="30" class="c3"/>`;
+  return s;
 };
 
-// ---------- CICLOS ----------
-
-function cicloCircular(e, t, anguloIni = -90) {
-  const cx = 400, cy = 250, rCaja = 165, w = 150, h = 64;
-  let s = fondo() + defs();
-  s += `<circle cx="${cx}" cy="${cy}" r="58" fill="${e.acento}" opacity="0.92"/>`;
-  s += textoSVG(cx, cy + 5, 'Mejora continua', { color: '#fff', size: 13, maxAncho: 100 });
-  const n = t.length;
-  t.forEach((txt, i) => {
-    const ang = (anguloIni + (360 / n) * i) * Math.PI / 180;
-    const x = cx + rCaja * Math.cos(ang) - w / 2;
-    const y = cy + rCaja * Math.sin(ang) - h / 2;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 32)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', size: 13, maxAncho: w - 20 })}</g>`;
-    const angMedio = (anguloIni + (360 / n) * (i + 0.5)) * Math.PI / 180;
-    s += flecha(cx + 80 * Math.cos(angMedio), cy + 80 * Math.sin(angMedio),
-                cx + (rCaja - 42) * Math.cos(angMedio), cy + (rCaja - 42) * Math.sin(angMedio), GRISES.medio);
-  });
-  return s + '</svg>';
-}
-
-G['ciclo-4'] = (e, t) => cicloCircular(e, t.slice(0, 4));
-G['ciclo-6'] = (e, t) => cicloCircular(e, t.slice(0, 6));
-G['ciclo-segmentos'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250, r = 150;
-  let s = fondo();
-  t.forEach((txt, i) => {
-    const a0 = (-90 + (360 / n) * i + 2) * Math.PI / 180, a1 = (-90 + (360 / n) * (i + 1) - 2) * Math.PI / 180;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
-    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-    s += `<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${col}" stroke="#fff" stroke-width="3"/>`;
-    const am = (-90 + (360 / n) * (i + 0.5)) * Math.PI / 180;
-    const amx = cx + r * 0.62 * Math.cos(am), amy = cy + r * 0.62 * Math.sin(am);
-    s += `<g data-i="${i}">` + textoSVG(amx, amy, txt, { color: '#fff', size: 12, maxAncho: 90 }) + '</g>';
-  });
-  return s + '</svg>';
+// 17. Pez
+G['pez'] = (e, v, uid) => {
+  let s = `<path d="M132 262 C176 192 316 192 376 262 C316 332 176 332 132 262 Z" class="c1"/>
+  <polygon points="376,262 442,214 442,310" class="c2"/>
+  <circle cx="188" cy="244" r="11" class="f"/>
+  <path d="M232 262 q24 -20 48 0 q-24 20 -48 0 Z" class="c2"/>`;
+  if (v === 1) s += `<circle cx="416" cy="130" r="10" class="c3"/><circle cx="440" cy="98" r="6" class="c3"/>`;
+  return s;
 };
 
-G['ciclo-orbital'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250, r = 140, w = 140, h = 52;
-  let s = fondo();
-  s += `<circle cx="${cx}" cy="${cy}" r="70" fill="none" stroke="${e.neutro}" stroke-width="2" stroke-dasharray="6 6"/>`;
-  s += `<circle cx="${cx}" cy="${cy}" r="52" fill="${e.acento}"/>`;
-  s += textoSVG(cx, cy + 5, 'Objetivo', { color: '#fff', size: 14 });
-  t.forEach((txt, i) => {
-    const ang = (-90 + (360 / n) * i) * Math.PI / 180;
-    const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}"><circle cx="${x}" cy="${y}" r="26" fill="${col}"/>${textoSVG(x, y - 40, `${i + 1}`, { color: GRISES.medio, size: 12 })}`;
-    const lx = cx + (r + 52) * Math.cos(ang), ly = cy + (r + 52) * Math.sin(ang);
-    s += `<rect x="${lx - 52}" y="${ly - 22}" width="104" height="44" rx="22" fill="${tinte(col, 0.85)}" stroke="${col}" stroke-width="1.5"/>`;
-    s += textoSVG(lx, ly + 5, txt, { color: GRISES.texto, size: 12, maxAncho: 94 }) + '</g>';
-  });
-  return s + '</svg>';
+// 18. Bosque
+G['bosque'] = (e, v, uid) => {
+  let s = `<polygon points="140,196 84,300 196,300" class="c2"/>
+  <rect x="130" y="296" width="20" height="44" rx="6" class="c4"/>
+  <polygon points="256,120 176,292 336,292" class="c1"/>
+  <rect x="242" y="288" width="28" height="52" rx="8" class="c4"/>
+  <circle cx="386" cy="248" r="56" class="c2"/>
+  <rect x="374" y="296" width="24" height="44" rx="6" class="c4"/>
+  <path d="M84 388 L428 388" class="st4" stroke-width="12"/>`;
+  if (v === 1) s += `<circle cx="66" cy="110" r="24" class="c3"/>`;
+  return s;
 };
 
-G['ciclo-espiral'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250;
-  let s = fondo() + defs();
-  s += `<path d="M ${cx} ${cy} ${Array.from({length: 60}, (_, k) => {
-    const ang = k * 0.16, r = 8 + k * 3.2;
-    return `L ${(cx + r * Math.cos(ang)).toFixed(1)} ${(cy + r * Math.sin(ang)).toFixed(1)}`;
-  }).join(' ')}" fill="none" stroke="${e.secundario}" stroke-width="3"/>`;
-  t.forEach((txt, i) => {
-    const ang = -0.6 + i * 1.15, r = 70 + i * 38;
-    const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
-    const col = i % 2 === 0 ? e.primario : e.acento;
-    s += `<g data-i="${i}"><circle cx="${x}" cy="${y}" r="30" fill="${col}"/>${textoSVG(x, y + 5, `${i + 1}`, { color: '#fff', size: 16 })}`;
-    s += textoSVG(x, y + 52, txt, { color: GRISES.texto, size: 13, maxAncho: 120 }) + '</g>';
-  });
-  return s + '</svg>';
+// 19. Sendero
+G['sendero'] = (e, v, uid) => {
+  let s = `<path d="M40 330 Q152 186 282 330 Z" class="c2"/>
+  <path d="M236 330 Q366 200 474 330 Z" class="c1"/>
+  <circle cx="416" cy="130" r="30" class="c3"/>
+  <polygon points="232,330 280,330 330,432 182,432" class="c4"/>`;
+  if (v === 1) s = s.replace('416 130', '150 130') + `<path d="M60 432 L452 432" class="st4" stroke-width="10"/>`;
+  return s;
 };
 
-// ---------- COMPARATIVAS ----------
-
-G['comparativa-2col'] = (e, t) => {
-  let s = fondo() + defs();
-  const filas = Math.ceil(t.length / 2), fh = 78, gapY = 18;
-  const y0 = 250 - (filas * fh + (filas - 1) * gapY) / 2;
-  const Izq = t.slice(0, Math.ceil(t.length / 2)), Der = t.slice(Math.ceil(t.length / 2));
-  Izq.forEach((txt, i) => {
-    const y = y0 + i * (fh + gapY);
-    s += `<g data-i="${i}">${caja(50, y, 320, fh, e.primario, 10)}${textoSVG(210, y + fh / 2 + 5, txt, { color: '#fff', maxAncho: 300 })}</g>`;
-  });
-  Der.forEach((txt, i) => {
-    const y = y0 + i * (fh + gapY);
-    s += `<g data-i="${i + Izq.length}">${caja(430, y, 320, fh, e.secundario, 10)}${textoSVG(590, y + fh / 2 + 5, txt, { color: '#fff', maxAncho: 300 })}</g>`;
-  });
-  s += textoSVG(210, 60, 'Opción A', { color: e.primario, size: 17, peso: 700 });
-  s += textoSVG(590, 60, 'Opción B', { color: e.secundario, size: 17, peso: 700 });
-  s += `<circle cx="400" cy="250" r="26" fill="${e.acento}"/>` + textoSVG(400, 255, 'VS', { color: '#fff', size: 15, peso: 700 });
-  return s + '</svg>';
+// 20. Ciudad verde
+G['ciudad-verde'] = (e, v, uid) => {
+  let s = `<rect x="122" y="228" width="72" height="180" rx="8" class="c1"/>
+  <rect x="216" y="168" width="84" height="240" rx="8" class="c2"/>
+  <rect x="322" y="258" width="64" height="150" rx="8" class="c1"/>
+  <rect x="140" y="252" width="16" height="16" rx="3" class="f"/><rect x="164" y="252" width="16" height="16" rx="3" class="f"/><rect x="140" y="286" width="16" height="16" rx="3" class="f"/><rect x="238" y="196" width="18" height="18" rx="3" class="f"/><rect x="266" y="196" width="18" height="18" rx="3" class="f"/><rect x="238" y="232" width="18" height="18" rx="3" class="f"/>
+  <circle cx="92" cy="382" r="28" class="c2"/><rect x="84" y="402" width="16" height="26" rx="5" class="c4"/>
+  <circle cx="424" cy="384" r="26" class="c2"/><rect x="416" y="402" width="16" height="24" rx="5" class="c4"/>`;
+  if (v === 1) s += `<path d="M258 120 C234 144 220 166 220 186 a38 38 0 0 0 76 0 C296 166 282 144 258 120 Z" class="c3"/>`;
+  return s;
 };
 
-G['comparativa-vs'] = (e, t) => {
-  let s = fondo();
-  s += `<rect x="40" y="80" width="340" height="360" rx="14" fill="${tinte(e.primario, 0.88)}" stroke="${e.primario}" stroke-width="2"/>`;
-  s += `<rect x="420" y="80" width="340" height="360" rx="14" fill="${tinte(e.secundario, 0.88)}" stroke="${e.secundario}" stroke-width="2"/>`;
-  s += textoSVG(210, 130, 'Escenario A', { color: e.primario, size: 18, peso: 700 });
-  s += textoSVG(590, 130, 'Escenario B', { color: e.secundario, size: 18, peso: 700 });
-  const half = Math.ceil(t.length / 2);
-  t.slice(0, half).forEach((txt, i) => {
-    s += `<g data-i="${i}">${caja(65, 165 + i * 62, 290, 50, '#fff', 8, e.primario)}${textoSVG(210, 190 + i * 62, txt, { color: GRISES.texto, size: 13, maxAncho: 270 })}</g>`;
-  });
-  t.slice(half).forEach((txt, i) => {
-    s += `<g data-i="${i + half}">${caja(445, 165 + i * 62, 290, 50, '#fff', 8, e.secundario)}${textoSVG(590, 190 + i * 62, txt, { color: GRISES.texto, size: 13, maxAncho: 270 })}</g>`;
-  });
-  return s + '</svg>';
+// 21. Calidad del aire
+G['aire'] = (e, v, uid) => {
+  let s = `<g class="c1"><circle cx="168" cy="258" r="46"/><circle cx="228" cy="222" r="58"/><circle cx="298" cy="252" r="50"/><rect x="146" y="252" width="204" height="56" rx="28"/></g>
+  <path d="M384 118 C362 140 350 160 350 180 a34 34 0 0 0 68 0 C418 160 406 140 384 118 Z" class="c2"/>
+  <path d="M96 340 q26 -20 52 0 M130 376 q26 -20 52 0" class="st2" stroke-width="10"/>`;
+  if (v === 1) s = s.replace('384 118 C362 140 350 160 350 180 a34 34 0 0 0 68 0 C418 160 406 140 384 118 Z', '384 128 C366 146 356 162 356 178 a28 28 0 0 0 56 0 C412 162 402 146 384 128 Z') + `<circle cx="300" cy="330" r="0" class="c3"/>`;
+  return s;
 };
 
-G['comparativa-bascula'] = (e, t) => {
-  let s = fondo() + defs();
-  const half = Math.ceil(t.length / 2);
-  s += `<polygon points="400,120 140,220 660,220" fill="${tinte(e.neutro, 0.7)}"/>`;
-  s += `<polygon points="400,440 140,340 660,340" fill="${tinte(e.neutro, 0.7)}"/>`;
-  s += textoSVG(400, 100, 'Decisión', { color: GRISES.texto, size: 16, peso: 700 });
-  t.slice(0, half).forEach((txt, i) => {
-    s += `<g data-i="${i}">${caja(70, 170 + i * 56, 240, 46, e.primario, 23)}${textoSVG(190, 193 + i * 56, txt, { color: '#fff', size: 13, maxAncho: 220 })}</g>`;
-  });
-  t.slice(half).forEach((txt, i) => {
-    s += `<g data-i="${i + half}">${caja(490, 310 + i * 56, 240, 46, e.secundario, 23)}${textoSVG(610, 333 + i * 56, txt, { color: '#fff', size: 13, maxAncho: 220 })}</g>`;
-  });
-  return s + '</svg>';
+// 22. Energía hidráulica
+G['hidro'] = (e, v, uid) => {
+  let s = `<path d="M176 96 Q240 230 196 356 L116 356 Q170 230 146 96 Z" class="c1"/>
+  <path d="M226 318 q22 -16 44 0 t44 0 t44 0" class="st2" stroke-width="11"/>
+  <path d="M246 364 q22 -16 44 0 t44 0" class="st2" stroke-width="11"/>
+  <path d="M368 128 C350 154 338 172 338 192 a30 30 0 0 0 60 0 C398 172 386 154 368 128 Z" class="c3"/>
+  <path d="M96 388 L416 388" class="st4" stroke-width="12"/>`;
+  if (v === 1) s = s.replace('368 128 C350 154 338 172 338 192 a30 30 0 0 0 60 0 C398 172 386 154 368 128 Z', '300 110 C276 146 262 168 262 192 a38 38 0 0 0 76 0 C338 168 324 146 300 110 Z');
+  return s;
 };
 
-G['comparativa-solapes'] = (e, t) => {
-  let s = fondo();
-  const t3 = t.slice(0, 3);
-  s += `<circle cx="320" cy="220" r="120" fill="${e.primario}" opacity="0.75"/>`;
-  s += `<circle cx="480" cy="220" r="120" fill="${e.secundario}" opacity="0.75"/>`;
-  if (t3[0]) s += `<g data-i="0">` + textoSVG(270, 220, t3[0], { color: '#fff', size: 14, maxAncho: 130 }) + '</g>';
-  if (t3[1]) s += `<g data-i="1">` + textoSVG(530, 220, t3[1], { color: '#fff', size: 14, maxAncho: 130 }) + '</g>';
-  if (t3[2]) s += `<g data-i="2">` + textoSVG(400, 100, t3[2], { color: GRISES.texto, size: 14, maxAncho: 160 }) + '</g>';
-  return s + '</svg>';
+// 23. Geotermia
+G['geotermia'] = (e, v, uid) => {
+  let s = `<rect x="104" y="340" width="304" height="16" rx="8" class="c4"/>
+  <path d="M186 326 C166 282 204 262 186 214 C172 178 196 152 190 118" class="st1" stroke-width="15"/>
+  <path d="M262 326 C242 282 280 262 262 214 C248 178 272 152 266 118" class="st2" stroke-width="15"/>
+  <path d="M338 326 C318 282 356 262 338 214 C324 178 348 152 342 118" class="st1" stroke-width="15"/>
+  <circle cx="112" cy="140" r="24" class="c3"/>`;
+  if (v === 1) s = s.replace('circle cx="112" cy="140" r="24" class="c3"', 'path d="M108 116 C92 142 82 158 82 174 a26 26 0 0 0 52 0 C134 158 124 142 108 116 Z" class="c3"');
+  return s;
 };
 
-// ---------- JERARQUÍAS ----------
-
-G['piramide-4'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 320, y0 = 70, W = 560;
-  t.forEach((txt, i) => {
-    const f1 = y0 + (h / n) * i, f2 = y0 + (h / n) * (i + 1);
-    const w1 = (W / n) * i * 0.9 + 90, w2 = (W / n) * (i + 1) * 0.9 + 90;
-    const col = tinte(e.primario, -(i * 0.07));
-    s += `<g data-i="${i}"><polygon points="${400 - w1 / 2},${f1} ${400 + w1 / 2},${f1} ${400 + w2 / 2},${f2} ${400 - w2 / 2},${f2}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-    s += textoSVG(400, (f1 + f2) / 2 + 5, txt, { color: '#fff', size: 14, maxAncho: Math.min(w2 - 30, 380) }) + '</g>';
-  });
-  return s + '</svg>';
+// 24. Bicicleta
+G['bici'] = (e, v, uid) => {
+  let s = `<circle cx="150" cy="322" r="60" class="st1" stroke-width="12"/>
+  <circle cx="366" cy="322" r="60" class="st1" stroke-width="12"/>
+  <path d="M150 322 L226 322 L266 232 L330 232 M226 322 L266 232 L366 322 M330 232 L346 190 M334 186 L362 184 M266 232 L254 196 L232 198" class="st2" stroke-width="11"/>
+  <circle cx="266" cy="232" r="13" class="c3"/>
+  <circle cx="226" cy="322" r="9" class="c3"/>`;
+  if (v === 1) s += `<path d="M430 118 C400 150 384 176 384 198 a46 46 0 0 0 92 0 C476 176 460 150 430 118 Z" class="c3"/>`;
+  return s;
 };
 
-G['piramide-invertida'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 320, y0 = 70, W = 560;
-  t.forEach((txt, i) => {
-    const f1 = y0 + (h / n) * i, f2 = y0 + (h / n) * (i + 1);
-    const w1 = (W / n) * (n - i) * 0.9 + 90, w2 = (W / n) * (n - i - 1) * 0.9 + 90;
-    const col = tinte(e.primario, i * 0.09);
-    s += `<g data-i="${i}"><polygon points="${400 - w1 / 2},${f1} ${400 + w1 / 2},${f1} ${400 + w2 / 2},${f2} ${400 - w2 / 2},${f2}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-    s += textoSVG(400, (f1 + f2) / 2 + 5, txt, { color: '#fff', size: 14, maxAncho: Math.min(w1 - 30, 380) }) + '</g>';
-  });
-  return s + '</svg>';
+// 25. Transporte público
+G['bus'] = (e, v, uid) => {
+  let s = `<rect x="104" y="168" width="304" height="164" rx="26" class="c1"/>
+  <rect x="128" y="196" width="256" height="58" rx="12" class="f"/>
+  <path d="M213 196 L213 254 M298 196 L298 254" class="st1" stroke-width="8"/>
+  <circle cx="164" cy="348" r="27" class="c4"/><circle cx="348" cy="348" r="27" class="c4"/>
+  <circle cx="382" cy="308" r="11" class="c3"/>
+  <path d="M96 396 L416 396" class="st4" stroke-width="11"/>`;
+  if (v === 1) s = s.replace('rx="26" class="c1"', 'rx="26" class="c2"') + `<path d="M256 120 L232 168 L276 168 L246 214" class="st3" stroke-width="12"/>`;
+  return s;
 };
 
-G['jerarquia-organica'] = (e, t) => {
-  let s = fondo() + defs();
-  s += `<g data-i="0">${caja(310, 50, 180, 62, e.acento, 10)}${textoSVG(400, 81, t[0], { color: '#fff', maxAncho: 160 })}</g>`;
-  const hijos = t.slice(1);
-  const w = 150, gap = Math.min(36, (720 - hijos.length * w) / Math.max(1, hijos.length - 1));
-  hijos.forEach((txt, i) => {
-    const x = 400 - ((hijos.length * w + (hijos.length - 1) * gap) / 2) + i * (w + gap);
-    const y = 230;
-    s += `<line x1="400" y1="112" x2="400" y2="170" stroke="${GRISES.claro}" stroke-width="2"/><line x1="400" y1="170" x2="${x + w / 2}" y2="170" stroke="${GRISES.claro}" stroke-width="2"/><line x1="${x + w / 2}" y1="170" x2="${x + w / 2}" y2="${y - 4}" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i + 1}">${caja(x, y, w, 130, col, 10)}${textoSVG(x + w / 2, y + 65, txt, { color: '#fff', maxAncho: w - 16 })}</g>`;
-    if (i === 0) s += '';
-  });
-  return s + '</svg>';
+// 26. Energía limpia
+G['rayo'] = (e, v, uid) => {
+  if (v === 2) {
+    // composición B: rayo dentro de círculo con hoja exterior
+    return `<circle cx="256" cy="256" r="140" class="c2"/>
+    <polygon points="286,140 176,292 244,292 226,404 340,252 272,252" class="c1"/>
+    <path d="M404 120 C362 162 340 196 340 226 a64 64 0 0 0 128 0 C468 196 446 162 404 120 Z" class="c3" transform="scale(0.42) translate(560 -80)"/>
+    <path d="M420 96 C392 126 376 150 376 170 a44 44 0 0 0 88 0 C464 150 448 126 420 96 Z" class="c3"/>`;
+  }
+  return `<polygon points="282,72 158,262 236,262 212,428 356,226 276,226" class="c1"/>
+  <path d="M380 300 C336 300 308 268 306 228 C354 230 378 262 380 300 Z" class="c2"/>
+  <path d="M306 228 C330 244 348 266 356 296" class="fw" stroke-width="7"/>`;
 };
 
-G['jerarquia-arbol'] = (e, t) => {
-  let s = fondo() + defs();
-  s += `<g data-i="0">${caja(320, 40, 160, 56, e.acento, 10)}${textoSVG(400, 68, t[0], { color: '#fff', size: 13, maxAncho: 140 })}</g>`;
-  const resto = t.slice(1);
-  const mitad = Math.ceil(resto.length / 2);
-  const ramas = [resto.slice(0, mitad), resto.slice(mitad)];
-  ramas.forEach((rama, r) => {
-    const cx = r === 0 ? 210 : 590;
-    const col = r === 0 ? e.primario : e.secundario;
-    s += `<line x1="400" y1="96" x2="${cx}" y2="150" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    rama.forEach((txt, i) => {
-      const y = 180 + i * 92;
-      s += `<g data-i="${1 + (r === 0 ? i : mitad + i)}">${caja(cx - 80, y, 160, 60, col, 10)}${textoSVG(cx, y + 30, txt, { color: '#fff', size: 12, maxAncho: 144 })}</g>`;
-      if (i < rama.length - 1) s += `<line x1="${cx}" y1="${y + 60}" x2="${cx}" y2="${y + 92}" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    });
-  });
-  return s + '</svg>';
+// 27. Huella
+G['huella'] = (e, v, uid) => {
+  let s = `<ellipse cx="186" cy="182" rx="25" ry="34" class="c2" transform="rotate(-14 186 182)"/>
+  <ellipse cx="240" cy="152" rx="25" ry="36" class="c2"/>
+  <ellipse cx="294" cy="158" rx="25" ry="34" class="c2" transform="rotate(10 294 158)"/>
+  <ellipse cx="338" cy="198" rx="22" ry="29" class="c2" transform="rotate(26 338 198)"/>
+  <path d="M256 236 C198 236 166 288 178 330 C188 368 228 380 256 372 C284 380 324 368 334 330 C346 288 314 236 256 236 Z" class="c1"/>
+  <ellipse cx="222" cy="304" rx="14" ry="18" class="f"/><ellipse cx="290" cy="304" rx="14" ry="18" class="f"/>`;
+  if (v === 1) { s = s.replace(/class="c2"/g, 'class="c1"').replace('class="c1"/>', 'class="c2"/>'); }
+  return s;
 };
 
-// ---------- LISTAS Y MATRICES ----------
-
-G['lista-vertical'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 56, gap = Math.min(18, (380 - n * h) / Math.max(1, n - 1));
-  const y0 = 250 - (n * h + (n - 1) * gap) / 2;
-  t.forEach((txt, i) => {
-    const y = y0 + i * (h + gap);
-    const col = tinte(e.primario, i * 0.07);
-    s += `<g data-i="${i}">${caja(80, y, 640, h, col, 28)}
-      <circle cx="118" cy="${y + h / 2}" r="19" fill="#fff"/>
-      ${textoSVG(118, y + h / 2 + 5, `${i + 1}`, { color: col, size: 15, peso: 700 })}
-      ${textoSVG(160, y + h / 2 + 5, txt, { color: '#fff', ancla: 'start', size: 15, maxAncho: 520 })}</g>`;
-  });
-  return s + '</svg>';
+// 28. Colmena
+G['colmena'] = (e, v, uid) => {
+  const panal = `<polygon points="256,120 348,174 348,286 256,340 164,286 164,174" class="c1"/>
+  <polygon points="256,160 314,194 314,264 256,298 198,264 198,194" class="st2" stroke-width="9"/>
+  <polygon points="256,196 288,215 288,251 256,270 224,251 224,215" class="c2"/>`;
+  const abeja = `<g transform="translate(388 122) rotate(${v === 1 ? -12 : 12})">
+    <ellipse cx="0" cy="0" rx="26" ry="17" class="c3"/>
+    <path d="M-8 -16 L-8 16 M8 -15 L8 15" class="f" stroke-width="5"/>
+    <circle cx="-26" cy="-2" r="11" class="c4"/>
+    <ellipse cx="-2" cy="-20" rx="14" ry="8" class="f" transform="rotate(-24 -2 -20)"/>
+    <ellipse cx="8" cy="-19" rx="12" ry="7" class="f" transform="rotate(10 8 -19)"/>
+  </g>`;
+  return panal + abeja;
 };
 
-G['lista-tarjetas'] = (e, t) => {
-  let s = fondo();
-  const cols = 3, w = 210, h = 150, gapX = 30, gapY = 30;
-  const x0 = (800 - cols * w - (cols - 1) * gapX) / 2;
-  t.forEach((txt, i) => {
-    const c = i % cols, f = Math.floor(i / cols);
-    const x = x0 + c * (w + gapX), y = 80 + f * (h + gapY);
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(x, y, w, h, '#fff', 12, GRISES.claro)}
-      <rect x="${x}" y="${y}" width="${w}" height="10" rx="5" fill="${col}"/>
-      <circle cx="${x + 34}" cy="${y + 48}" r="17" fill="${col}"/>
-      ${textoSVG(x + 34, y + 53, `${i + 1}`, { color: '#fff', size: 14, peso: 700 })}
-      ${textoSVG(x + w / 2, y + 100, txt, { color: GRISES.texto, size: 13, maxAncho: w - 24 })}</g>`;
-  });
-  return s + '</svg>';
+// 29. Paisaje en ventana
+G['paisaje'] = (e, v, uid) => {
+  const anillo = v === 1 ? 'stroke-dasharray="2 26" stroke-linecap="round"' : '';
+  return `<defs><clipPath id="cp${uid}"><circle cx="256" cy="256" r="140"/></clipPath></defs>
+  <g clip-path="url(#cp${uid})">
+    <rect x="106" y="106" width="300" height="300" class="c2"/>
+    <circle cx="150" cy="170" r="30" class="c3"/>
+    <path d="M106 356 L200 240 L272 356 Z" class="c1"/>
+    <path d="M228 356 L318 228 L420 356 L420 396 L228 396 Z" class="c4"/>
+    <rect x="106" y="352" width="300" height="60" class="c1"/>
+  </g>
+  <circle cx="256" cy="256" r="150" class="st1" stroke-width="16" ${anillo}/>`;
 };
 
-G['lista-checklist'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 54, gap = 20;
-  const y0 = 250 - (n * h + (n - 1) * gap) / 2;
-  s += `<rect x="110" y="${y0 - 26}" width="580" height="${n * h + (n - 1) * gap + 52}" rx="14" fill="${tinte(e.neutro, 0.9)}"/>`;
-  t.forEach((txt, i) => {
-    const y = y0 + i * (h + gap);
-    s += `<g data-i="${i}"><rect x="135" y="${y}" width="530" height="${h}" rx="10" fill="#fff"/>
-      <path d="M158 ${y + h / 2} l10 10 l20 -22" stroke="${e.acento}" stroke-width="4" fill="none" stroke-linecap="round"/>
-      ${textoSVG(210, y + h / 2 + 5, txt, { color: GRISES.texto, ancla: 'start', size: 14, maxAncho: 430 })}</g>`;
-  });
-  return s + '</svg>';
+// 30. Brujula
+G['brujula'] = (e, v, uid) => {
+  let s = `<circle cx="256" cy="256" r="132" class="st1" stroke-width="15"/>
+  <path d="M256 100 L256 126 M256 386 L256 412 M100 256 L126 256 M386 256 L412 256" class="st4" stroke-width="10"/>
+  <polygon points="256,136 290,256 222,256" class="c3"/>
+  <polygon points="256,376 290,256 222,256" class="c1"/>
+  <circle cx="256" cy="256" r="17" class="f"/>
+  <circle cx="256" cy="256" r="17" class="st1" stroke-width="8"/>`;
+  if (v === 1) s = s.replace('<circle cx="256" cy="256" r="132" class="st1" stroke-width="15"/>', '<circle cx="256" cy="256" r="132" class="st1" stroke-width="15"/><circle cx="256" cy="256" r="96" class="st2" stroke-width="8" stroke-dasharray="4 18"/>');
+  return s;
 };
 
-G['matriz-2x2'] = (e, t) => {
-  let s = fondo();
-  const w = 330, h = 180, x0 = 70, y0 = 60;
-  const cols = [e.primario, e.secundario, tinte(e.primario, 0.35), tinte(e.secundario, 0.35)];
-  t.slice(0, 4).forEach((txt, i) => {
-    const x = x0 + (i % 2) * (w + 30), y = y0 + Math.floor(i / 2) * (h + 20);
-    s += `<g data-i="${i}">${caja(x, y, w, h, cols[i], 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 30 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-G['matriz-eisenhower'] = (e, t) => {
-  let s = fondo();
-  const w = 330, h = 185, x0 = 70, y0 = 55;
-  const etiq = ['Urgente', 'No urgente'];
-  etiq.forEach((lab, i) => s += textoSVG(x0 + w / 2 + i * (w + 30), y0 - 22, lab, { color: GRISES.medio, size: 13, peso: 700 }));
-  s += textoSVG(38, y0 + h / 2, 'Imp', { color: GRISES.medio, size: 12, peso: 700 });
-  const cols = [e.primario, e.secundario, e.acento, tinte(e.neutro, 0.3)];
-  t.slice(0, 4).forEach((txt, i) => {
-    const x = x0 + (i % 2) * (w + 30), y = y0 + Math.floor(i / 2) * (h + 25);
-    s += `<g data-i="${i}">${caja(x, y, w, h, cols[i], 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 30 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-// ---------- RELACIONES ----------
-
-G['relacion-radial'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250;
-  let s = fondo() + defs();
-  s += `<circle cx="${cx}" cy="${cy}" r="62" fill="${e.acento}"/>`;
-  s += textoSVG(cx, cy + 5, 'Núcleo', { color: '#fff', size: 15, peso: 700 });
-  t.forEach((txt, i) => {
-    const ang = (-90 + (360 / n) * i) * Math.PI / 180;
-    const x1 = cx + 66 * Math.cos(ang), y1 = cy + 66 * Math.sin(ang);
-    const x2 = cx + 158 * Math.cos(ang), y2 = cy + 158 * Math.sin(ang);
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="3" marker-end="url(#punta)"/>`;
-    const bx = cx + 218 * Math.cos(ang), by = cy + 218 * Math.sin(ang);
-    s += `<g data-i="${i}"><rect x="${bx - 62}" y="${by - 30}" width="124" height="60" rx="12" fill="${tinte(col, 0.85)}" stroke="${col}" stroke-width="2"/>`;
-    s += textoSVG(bx, by + 5, txt, { color: GRISES.texto, size: 12, maxAncho: 112 }) + '</g>';
-  });
-  return s + '</svg>';
-};
-
-G['relacion-convergente'] = (e, t) => {
-  let s = fondo() + defs();
-  const filas = t.length - 1;
-  t.slice(0, filas).forEach((txt, i) => {
-    const y = 60 + i * (340 / Math.max(1, filas - 1)) - (filas > 1 ? 0 : 0);
-    const yy = 55 + i * (330 / Math.max(1, filas));
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(50, yy, 260, 58, col, 29)}${textoSVG(180, yy + 29 + 5, txt, { color: '#fff', maxAncho: 240 })}</g>`;
-    s += `<path d="M310 ${yy + 29} C 420 ${yy + 29}, 480 250, 545 250" fill="none" stroke="${col}" stroke-width="2.5" marker-end="url(#punta)"/>`;
-  });
-  s += `<g data-i="${t.length - 1}">${caja(550, 190, 200, 120, e.acento, 14)}${textoSVG(650, 250, t[t.length - 1], { color: '#fff', maxAncho: 180 })}</g>`;
-  return s + '</svg>';
-};
-
-G['relacion-venn-3'] = (e, t) => {
-  let s = fondo();
-  const t3 = t.slice(0, 3);
-  const cols = [e.primario, e.secundario, e.acento];
-  const pos = [[330, 190], [470, 190], [400, 310]];
-  pos.forEach(([x, y], i) => s += `<circle cx="${x}" cy="${y}" r="105" fill="${cols[i]}" opacity="0.72"/>`);
-  pos.forEach(([x, y], i) => {
-    if (t3[i]) s += `<g data-i="${i}">` + textoSVG(x, y - 20, t3[i], { color: '#fff', size: 13, maxAncho: 120 }) + '</g>';
-  });
-  return s + '</svg>';
-};
-
-// ---------- LÍNEAS DE TIEMPO ----------
-
-G['tiempo-lineal'] = (e, t) => {
-  let s = fondo() + defs();
-  const n = t.length, paso = (720 - 40) / (n - 1);
-  s += `<line x1="40" y1="250" x2="760" y2="250" stroke="${GRISES.claro}" stroke-width="4"/>`;
-  t.forEach((txt, i) => {
-    const x = 60 + i * paso;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<circle cx="${x}" cy="250" r="13" fill="${col}"/>`;
-    const arriba = i % 2 === 0;
-    const yCaja = arriba ? 130 : 285;
-    s += `<line x1="${x}" y1="${arriba ? 237 : 263}" x2="${x}" y2="${arriba ? yCaja + 84 : yCaja}" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    s += `<g data-i="${i}">${caja(x - 62, yCaja, 124, 84, tinte(col, arriba ? 0 : 0), 10)}${textoSVG(x, yCaja + 42, txt, { color: '#fff', size: 13, maxAncho: 108 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-G['tiempo-hitos'] = (e, t) => {
-  let s = fondo() + defs();
-  const n = t.length, paso = (700 - 30) / (n - 1);
-  s += `<line x1="50" y1="250" x2="750" y2="250" stroke="${e.neutro}" stroke-width="3" marker-end="url(#punta)"/>`;
-  t.forEach((txt, i) => {
-    const x = 65 + i * paso;
-    const col = i % 2 === 0 ? e.primario : e.acento;
-    const arriba = i % 2 === 0;
-    s += `<polygon points="${x},${arriba ? 235 : 265} ${x - 9},${arriba ? 250 : 250} ${x + 9},${arriba ? 250 : 250}" fill="${col}"/>`;
-    s += `<circle cx="${x}" cy="250" r="7" fill="#fff" stroke="${col}" stroke-width="3"/>`;
-    const yCaja = arriba ? 120 : 300;
-    s += `<g data-i="${i}">${caja(x - 58, yCaja, 116, 70, '#fff', 10, col)}${textoSVG(x, yCaja + 35, txt, { color: GRISES.texto, size: 12, maxAncho: 100 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-// ---------- FLUJOS ----------
-
-G['flujo-decision'] = (e, t) => {
-  let s = fondo() + defs();
-  s += `<g data-i="0">${caja(310, 40, 180, 60, e.primario, 10)}${textoSVG(400, 70, t[0], { color: '#fff', maxAncho: 160 })}</g>`;
-  s += `<line x1="400" y1="100" x2="400" y2="140" stroke="${GRISES.medio}" stroke-width="2.5" marker-end="url(#punta)"/>`;
-  s += `<g data-i="1"><polygon points="400,145 520,210 400,275 280,210" fill="${e.acento}"/>${textoSVG(400, 210, t[1], { color: '#fff', size: 13, maxAncho: 180 })}</g>`;
-  const ramas = [['Sí', t.slice(2, Math.ceil((t.length - 2) / 2) + 2), 130], ['No', t.slice(Math.ceil((t.length - 2) / 2) + 2), 670]];
-  ramas.forEach(([lab, items, x], r) => {
-    if (!items.length) return;
-    const col = r === 0 ? e.secundario : e.neutro;
-    s += `<line x1="${r === 0 ? 280 : 520}" y1="210" x2="${x}" y2="210" stroke="${GRISES.medio}" stroke-width="2.5" marker-end="url(#punta)"/>`;
-    s += textoSVG((r === 0 ? 280 : 520) + (r === 0 ? 30 : -30), 195, lab, { color: GRISES.medio, size: 13, peso: 700 });
-    items.forEach((txt, i) => {
-      const y = 140 + i * 100;
-      s += `<g data-i="${2 + (r === 0 ? i : ramas[0][1].length + i)}">${caja(x - 75, y, 150, 70, col, 10)}${textoSVG(x, y + 35, txt, { color: '#fff', size: 12, maxAncho: 134 })}</g>`;
-      if (i < items.length - 1) s += `<line x1="${x}" y1="${y + 70}" x2="${x}" y2="${y + 100}" stroke="${GRISES.medio}" stroke-width="2" marker-end="url(#punta)"/>`;
-    });
-  });
-  return s + '</svg>';
-};
-
-G['flujo-embudo'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 62, gap = 14;
-  const y0 = 70, Wmax = 560, Wmin = 160;
-  t.forEach((txt, i) => {
-    const y = y0 + i * (h + gap);
-    const w1 = Wmax - ((Wmax - Wmin) / n) * i;
-    const w2 = Wmax - ((Wmax - Wmin) / n) * (i + 1);
-    const col = tinte(e.primario, i * 0.09);
-    s += `<g data-i="${i}"><polygon points="${400 - w1 / 2},${y} ${400 + w1 / 2},${y} ${400 + w2 / 2},${y + h} ${400 - w2 / 2},${y + h}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-    s += textoSVG(400, y + h / 2 + 5, `${i + 1}. ${txt}`, { color: '#fff', size: 14, maxAncho: w2 - 40 }) + '</g>';
-  });
-  return s + '</svg>';
-};
-
-module.exports = { GRISES, G, tinte, textoSVG, caja, flecha, defs, fondo };
+module.exports = { G };

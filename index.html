@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diagramas Ambientales — Catálogo de plantillas</title>
+<title>Logos Ambientales — Catálogo de 300 logotipos</title>
 <style>
 :root {
   --primario: #1A4488;
-  --primario-suave: #3D6AB5;
   --acento: #CB1823;
   --texto: #33404F;
   --medio: #8A94A0;
@@ -37,155 +36,89 @@ header .marca { width: 42px; height: 42px; flex: none; }
 header h1 { font-size: 20px; font-weight: 700; color: var(--primario); }
 header p { font-size: 13px; color: var(--medio); }
 main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 60px; }
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 8px;
-}
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; }
 #buscador {
-  flex: 1 1 260px;
-  min-width: 220px;
-  padding: 11px 16px;
-  border: 1.5px solid var(--claro);
-  border-radius: 10px;
-  font-size: 15px;
-  outline: none;
-  background: var(--blanco);
+  flex: 1 1 260px; min-width: 220px;
+  padding: 11px 16px; border: 1.5px solid var(--claro); border-radius: 10px;
+  font-size: 15px; outline: none; background: var(--blanco);
 }
-#buscador:focus { border-color: var(--primario-suave); }
+#buscador:focus { border-color: var(--primario); }
 select {
-  padding: 10px 14px;
-  border: 1.5px solid var(--claro);
-  border-radius: 10px;
-  font-size: 14px;
-  background: var(--blanco);
-  color: var(--texto);
-  outline: none;
-  cursor: pointer;
+  padding: 10px 14px; border: 1.5px solid var(--claro); border-radius: 10px;
+  font-size: 14px; background: var(--blanco); color: var(--texto); outline: none; cursor: pointer;
 }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 20px; }
 .chip {
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1.5px solid var(--claro);
-  background: var(--blanco);
-  font-size: 13px;
-  color: var(--texto);
-  cursor: pointer;
-  transition: all .15s;
+  padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--claro);
+  background: var(--blanco); font-size: 13px; color: var(--texto); cursor: pointer; transition: all .15s;
 }
-.chip:hover { border-color: var(--primario-suave); }
+.chip:hover { border-color: var(--primario); }
 .chip.activo { background: var(--primario); border-color: var(--primario); color: #fff; }
 #contador { font-size: 13px; color: var(--medio); margin-bottom: 14px; }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 18px;
 }
 .tarjeta {
-  background: var(--blanco);
-  border: 1.5px solid var(--claro);
-  border-radius: 14px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: box-shadow .15s, transform .15s, border-color .15s;
+  background: var(--blanco); border: 1.5px solid var(--claro); border-radius: 14px;
+  overflow: hidden; cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s;
 }
 .tarjeta:hover {
-  border-color: var(--primario-suave);
-  box-shadow: 0 8px 24px rgba(26,68,136,.12);
+  border-color: var(--primario);
+  box-shadow: 0 8px 24px rgba(26,68,136,.14);
   transform: translateY(-2px);
 }
-.tarjeta .thumb { display: block; width: 100%; }
-.tarjeta .thumb svg { display: block; width: 100%; height: auto; }
-.tarjeta .pie {
-  padding: 10px 14px;
-  border-top: 1px solid #EEF1F5;
-}
+.tarjeta .thumb { display: flex; align-items: center; justify-content: center; padding: 10px; }
+.tarjeta .thumb svg { width: 100%; height: auto; }
+.tarjeta .pie { padding: 10px 14px; border-top: 1px solid #EEF1F5; }
 .tarjeta .pie strong { display: block; font-size: 13.5px; font-weight: 600; }
 .tarjeta .pie span { font-size: 12px; color: var(--medio); }
 
-/* Modal editor */
 #modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(30,40,55,.55);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  display: none; position: fixed; inset: 0;
+  background: rgba(30,40,55,.55); z-index: 100;
+  align-items: center; justify-content: center; padding: 20px;
 }
 #modal.abierto { display: flex; }
 .editor {
-  background: var(--blanco);
-  border-radius: 18px;
-  width: min(1150px, 96vw);
-  max-height: 94vh;
-  overflow: auto;
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  background: var(--blanco); border-radius: 18px;
+  width: min(1000px, 96vw); max-height: 94vh; overflow: auto;
+  display: grid; grid-template-columns: 1.2fr 1fr;
 }
 @media (max-width: 860px) { .editor { grid-template-columns: 1fr; } }
 .editor .vista {
-  padding: 22px;
-  background: var(--fondo);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 26px; display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
 }
-.editor .vista svg {
-  max-width: 100%;
-  height: auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.08);
-}
+.editor .vista svg { max-width: 100%; height: auto; border-radius: 8px; }
 .editor .panel { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
 .editor h2 { font-size: 18px; color: var(--primario); }
 .editor .sub { font-size: 13px; color: var(--medio); }
-.editor label { font-size: 12.5px; font-weight: 600; color: var(--texto); display: block; margin-bottom: 4px; }
-.editor input[type="text"], .editor select {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1.5px solid var(--claro);
-  border-radius: 9px;
-  font-size: 14px;
-  outline: none;
+.editor label { font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 5px; }
+.editor select, .editor input[type="range"] { width: 100%; }
+.editor select { padding: 9px 12px; border: 1.5px solid var(--claro); border-radius: 9px; font-size: 14px; outline: none; }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.swatch {
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  border: 2.5px solid transparent; transition: transform .12s;
 }
-.editor input[type="text"]:focus { border-color: var(--primario-suave); }
+.swatch:hover { transform: scale(1.12); }
+.swatch.activo { border-color: var(--texto); }
 .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 .btn {
-  padding: 11px 18px;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: filter .15s;
+  padding: 11px 18px; border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: filter .15s;
 }
 .btn:hover { filter: brightness(1.08); }
 .btn-primario { background: var(--primario); color: #fff; }
 .btn-secundario { background: #E8EDF4; color: var(--primario); }
 .btn-cerrar {
-  background: none;
-  border: none;
-  font-size: 26px;
-  color: var(--medio);
-  cursor: pointer;
-  line-height: 1;
-  padding: 4px 8px;
-  align-self: flex-end;
+  background: none; border: none; font-size: 26px; color: var(--medio);
+  cursor: pointer; line-height: 1; padding: 4px 8px; align-self: flex-end;
 }
 .cabecera-panel { display: flex; justify-content: space-between; align-items: flex-start; }
-#listaTextos { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow: auto; }
-footer {
-  text-align: center;
-  padding: 26px;
-  font-size: 12.5px;
-  color: var(--medio);
-}
+footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medio); }
 .vacio { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--medio); }
 </style>
 </head>
@@ -193,21 +126,21 @@ footer {
 <header>
   <svg class="marca" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#1A4488"/><path d="M24 10c-7 4-10 10-8 17 3 1 7 1 10-1 4-2 6-7 5-11-1-3-4-5-7-5zm-1 6c2 3 3 7 2 11" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M15 34c6 2 12 2 18 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>
   <div>
-    <h1>Diagramas Ambientales</h1>
-    <p>300 plantillas listas para tus informes y presentaciones · edición directa · sin instalar nada</p>
+    <h1>Logos Ambientales</h1>
+    <p>300 logotipos vectoriales · 5 estilos · 10 paletas de color · descarga en PNG o SVG</p>
   </div>
 </header>
 <main>
   <div class="toolbar">
-    <input id="buscador" type="text" placeholder="Buscar plantilla… (proceso, ciclo, matriz…)">
+    <input id="buscador" type="text" placeholder="Buscar logo… (árbol, agua, energía…)">
+    <select id="filtroEstilo"><option value="">Todos los estilos</option></select>
     <select id="filtroEsquema"><option value="">Todos los colores</option></select>
-    <select id="filtroPasos"><option value="">Cualquier nº de elementos</option><option value="3">3 elementos</option><option value="4">4 elementos</option><option value="5">5 elementos</option><option value="6">6 elementos</option></select>
   </div>
   <div class="chips" id="chips"></div>
   <div id="contador"></div>
   <div class="grid" id="grid"></div>
 </main>
-<footer>Herramienta de diagramación para informes de medio ambiente · funciona sin conexión</footer>
+<footer>Catálogo de logotipos para proyectos de medio ambiente · funciona sin conexión · sin recoger ningún dato</footer>
 
 <div id="modal">
   <div class="editor">
@@ -221,23 +154,28 @@ footer {
         <button class="btn-cerrar" id="btnCerrar" title="Cerrar">✕</button>
       </div>
       <div>
-        <label for="selEsquema">Esquema de color</label>
-        <select id="selEsquema"></select>
+        <label>Color del logo</label>
+        <div class="swatches" id="swatches"></div>
       </div>
       <div>
-        <label for="selPasos">Número de elementos</label>
-        <select id="selPasos"></select>
+        <label for="selFondo">Fondo</label>
+        <select id="selFondo">
+          <option value="transparente">Transparente</option>
+          <option value="blanco">Blanco</option>
+          <option value="claro">Gris claro</option>
+          <option value="oscuro">Azul oscuro</option>
+        </select>
       </div>
       <div>
-        <label>Textos (clic en cada caja para cambiarlos)</label>
-        <div id="listaTextos"></div>
+        <label for="rangoTam">Tamaño de exportación: <span id="lblTam">1024</span> px</label>
+        <input type="range" id="rangoTam" min="256" max="2048" step="256" value="1024">
       </div>
       <div class="acciones">
         <button class="btn btn-primario" id="btnPNG">⬇ Descargar PNG</button>
         <button class="btn btn-secundario" id="btnSVG">Descargar SVG</button>
         <button class="btn btn-secundario" id="btnCopiar">Copiar imagen</button>
-        <button class="btn btn-secundario" id="btnReset">Restablecer textos</button>
       </div>
+      <p class="sub" id="notaExport"></p>
     </div>
   </div>
 </div>
@@ -245,8 +183,9 @@ footer {
 <script>
 
 // ============================================================
-// PALETA — Colores derivados del manual de identidad corporativa (azul, rojo, gris) + tintes tonales.
-// 10 esquemas × 4 roles: primario / secundario / acento / neutro.
+// PALETA — Esquemas de color derivados del manual de identidad
+// corporativa (azul, rojo, gris) + variantes ambientales.
+// Cada esquema aporta 4 roles: primario / secundario / acento / neutro.
 // ============================================================
 
 const ESQUEMAS = [
@@ -272,76 +211,7 @@ const ESQUEMAS = [
     primario: '#3D4A5C', secundario: '#7B8794', acento: '#1A4488', neutro: '#A6ADB5' },
 ];
 
-// Grises de apoyo (tonos derivados del neutro corporativo)
-const GRISES = {
-  oscuro: '#2B3440',
-  texto: '#33404F',
-  medio: '#8A94A0',
-  claro: '#C9D0D8',
-  fondo: '#F2F4F7',
-  blanco: '#FFFFFF',
-};
-
-// Categorías temáticas medioambientales (para filtros del catálogo)
-const CATEGORIAS = [
-  'Procesos',
-  'Ciclos',
-  'Comparativas',
-  'Jerarquías',
-  'Listas y matrices',
-  'Relaciones',
-  'Líneas de tiempo',
-  'Flujos',
-];
-
-// 30 tipos de diagrama: cada uno genera SVG con 4..8 elementos,
-// textos editables y esquema cromático aplicado.
-const TIPOS = [
-  { id: 'proceso-flechas', nombre: 'Proceso en flechas', cat: 'Procesos', pasos: 5 },
-  { id: 'proceso-chevrons', nombre: 'Chevrones apilados', cat: 'Procesos', pasos: 5 },
-  { id: 'proceso-escalera', nombre: 'Escalera ascendente', cat: 'Procesos', pasos: 4 },
-  { id: 'proceso-serpiente', nombre: 'Proceso serpiente', cat: 'Procesos', pasos: 6 },
-  { id: 'proceso-pilares', nombre: 'Pilares del proceso', cat: 'Procesos', pasos: 4 },
-  { id: 'ciclo-4', nombre: 'Ciclo de 4 fases', cat: 'Ciclos', pasos: 4 },
-  { id: 'ciclo-6', nombre: 'Ciclo de mejora continua', cat: 'Ciclos', pasos: 6 },
-  { id: 'ciclo-segmentos', nombre: 'Ciclo de segmentos', cat: 'Ciclos', pasos: 5 },
-  { id: 'ciclo-orbital', nombre: 'Órbita central', cat: 'Ciclos', pasos: 5 },
-  { id: 'ciclo-espiral', nombre: 'Espiral de evolución', cat: 'Ciclos', pasos: 5 },
-  { id: 'comparativa-2col', nombre: 'Comparativa dos columnas', cat: 'Comparativas', pasos: 4 },
-  { id: 'comparativa-vs', nombre: 'Enfrentamiento VS', cat: 'Comparativas', pasos: 4 },
-  { id: 'comparativa-bascula', nombre: 'Báscula de decisiones', cat: 'Comparativas', pasos: 4 },
-  { id: 'comparativa-solapes', nombre: 'Diagrama de solapes', cat: 'Comparativas', pasos: 3 },
-  { id: 'piramide-4', nombre: 'Pirámide de niveles', cat: 'Jerarquías', pasos: 4 },
-  { id: 'piramide-invertida', nombre: 'Pirámide invertida', cat: 'Jerarquías', pasos: 4 },
-  { id: 'jerarquia-organica', nombre: 'Organigrama ambiental', cat: 'Jerarquías', pasos: 5 },
-  { id: 'jerarquia-arbol', nombre: 'Árbol de decisiones', cat: 'Jerarquías', pasos: 6 },
-  { id: 'lista-vertical', nombre: 'Lista vertical numerada', cat: 'Listas y matrices', pasos: 6 },
-  { id: 'lista-tarjetas', nombre: 'Tarjetas en cuadrícula', cat: 'Listas y matrices', pasos: 6 },
-  { id: 'lista-checklist', nombre: 'Lista de verificación', cat: 'Listas y matrices', pasos: 5 },
-  { id: 'matriz-2x2', nombre: 'Matriz 2×2', cat: 'Listas y matrices', pasos: 4 },
-  { id: 'matriz-eisenhower', nombre: 'Matriz de prioridades', cat: 'Listas y matrices', pasos: 4 },
-  { id: 'relacion-radial', nombre: 'Radial central', cat: 'Relaciones', pasos: 6 },
-  { id: 'relacion-convergente', nombre: 'Convergencia a objetivo', cat: 'Relaciones', pasos: 5 },
-  { id: 'relacion-venn-3', nombre: 'Triple intersección', cat: 'Relaciones', pasos: 3 },
-  { id: 'tiempo-lineal', nombre: 'Línea de tiempo', cat: 'Líneas de tiempo', pasos: 6 },
-  { id: 'tiempo-hitos', nombre: 'Hitos alternados', cat: 'Líneas de tiempo', pasos: 6 },
-  { id: 'flujo-decision', nombre: 'Flujo con decisión', cat: 'Flujos', pasos: 5 },
-  { id: 'flujo-embudo', nombre: 'Embudo de fases', cat: 'Flujos', pasos: 5 },
-];
-
-// Nombres por defecto de los pasos (editables en la UI)
-const TEXTOS_DEFAULT = [
-  'Identificación', 'Análisis', 'Diagnóstico', 'Planificación',
-  'Implantación', 'Seguimiento', 'Evaluación', 'Mejora continua',
-];
-
-function textosDefault(n) {
-  const out = [];
-  for (let i = 0; i < n; i++) out.push(TEXTOS_DEFAULT[i % TEXTOS_DEFAULT.length]);
-  return out;
-}
-
-// Tinte del color base: mezcla hacia blanco (t>0) o hacia negro (t<0)
+// Mezcla el color hacia blanco (t>0) o negro (t<0)
 function tinte(hex, t) {
   const n = parseInt(hex.slice(1), 16);
   let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
@@ -353,607 +223,575 @@ function tinte(hex, t) {
   return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
 }
 
-function escapar(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function textoSVG(x, y, txt, opts = {}) {
-  const { size = 14, peso = 600, color = '#33404F', ancla = 'middle', maxAncho = 140, lineas = null } = opts;
-  const parts = [];
-  const contenido = lineas || partirTexto(txt, maxAncho, size);
-  const altoLinea = size * 1.25;
-  const y0 = y - ((contenido.length - 1) * altoLinea) / 2;
-  parts.push(`<text x="${x}" y="${y0}" text-anchor="${ancla}" font-family="'Segoe UI', Arial, sans-serif" font-size="${size}" font-weight="${peso}" fill="${color}">`);
-  contenido.forEach((l, i) => parts.push(`<tspan x="${x}" dy="${i === 0 ? 0 : altoLinea}">${escapar(l)}</tspan>`));
-  parts.push('</text>');
-  return parts.join('');
-}
-
-function partirTexto(txt, maxAncho, size) {
-  const caracteres = Math.max(6, Math.floor(maxAncho / (size * 0.56)));
-  const palabras = String(txt).split(/\s+/);
-  const lineas = [];
-  let actual = '';
-  for (const p of palabras) {
-    if ((actual + ' ' + p).trim().length <= caracteres) {
-      actual = (actual + ' ' + p).trim();
-    } else {
-      if (actual) lineas.push(actual);
-      actual = p;
-    }
-  }
-  if (actual) lineas.push(actual);
-  return lineas.slice(0, 3); // máximo 3 líneas por caja
-}
-
 
 
 // ============================================================
-// GENERADORES SVG — 30 tipos de diagrama.
-// Cada generador recibe { esquema, textos } y devuelve un SVG
-// string con viewBox 800x500, textos reales (editables) y
-// data-attrs para la edición en la UI.
+// GENERADORES DE LOGOS — 30 conceptos ambientales en SVG 512×512.
+// Cada generador: (esquema, variante, uid) → cuerpo SVG.
+// Colores por CLASES (.c1..c4 relleno, .st1..st4 trazo, .f blanco)
+// para que el estilo (plano/línea/duotono/degradado/insignia)
+// se aplique desde catálogo.js sin tocar el dibujo.
 // ============================================================
-
-
-
-function fondo() {
-  return `<rect width="800" height="500" fill="#FFFFFF"/>`;
-}
-
-function caja(x, y, w, h, fill, rx = 10, stroke = null) {
-  const s = stroke ? ` stroke="${stroke}" stroke-width="2"` : '';
-  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"${s}/>`;
-}
-
-function flecha(x1, y1, x2, y2, color, ancho = 3) {
-  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${ancho}" marker-end="url(#punta)"/>`;
-}
-
-function defs() {
-  return `<defs><marker id="punta" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8A94A0"/></marker></defs>`;
-}
 
 const G = {};
 
-// ---------- PROCESOS ----------
-
-G['proceso-flechas'] = (e, t) => {
-  const n = t.length, w = 128, h = 90, gap = (800 - n * w) / (n + 1);
-  let s = fondo() + defs();
-  t.forEach((txt, i) => {
-    const x = gap + i * (w + gap), y = 205;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 16 })}</g>`;
-    if (i < n - 1) s += flecha(x + w + 4, y + h / 2, x + w + gap - 4, y + h / 2, GRISES.medio);
-  });
-  return s + '</svg>';
+// 1. Árbol copudo
+G['arbol'] = (e, v, uid) => {
+  let s = '';
+  if (v === 1) s += `<circle cx="330" cy="180" r="60" class="c2"/>`;
+  s += `<rect x="242" y="270" width="28" height="110" rx="10" class="c4"/>`;
+  s += `<circle cx="256" cy="200" r="95" class="c1"/>`;
+  s += `<circle cx="200" cy="250" r="55" class="c2"/>`;
+  s += `<circle cx="315" cy="245" r="52" class="c2"/>`;
+  s += `<circle cx="310" cy="160" r="16" class="c3"/>`;
+  s += `<path d="M130 392 Q256 366 382 392" class="st4" stroke-width="12"/>`;
+  return s;
 };
 
-G['proceso-chevrons'] = (e, t) => {
-  const n = t.length, w = 150, h = 320, solape = 20;
-  const total = n * w - (n - 1) * solape, x0 = (800 - total) / 2;
-  let s = fondo();
-  t.forEach((txt, i) => {
-    const x = x0 + i * (w - solape);
-    const col = tinte(i % 2 === 0 ? e.primario : e.secundario, -i * 0.06);
-    const punta = i < n - 1 ? 24 : 0;
-    s += `<g data-i="${i}"><path d="M${x},90 L${x + w - punta},90 L${x + w},250 L${x + w - punta},410 L${x},410 L${x + (i > 0 ? 24 : 0)},250 Z" fill="${col}"/>`;
-    s += textoSVG(x + w / 2 + (i > 0 ? 12 : 0), 250, txt, { color: '#fff', size: 15, maxAncho: w - 50 }) + '</g>';
-  });
-  return s + '</svg>';
+// 2. Pino
+G['pino'] = (e, v, uid) => {
+  let s = `<polygon points="256,86 168,214 344,214" class="c1"/>
+  <polygon points="256,150 148,296 364,296" class="c1"/>
+  <polygon points="256,216 128,384 384,384" class="c2"/>
+  <rect x="240" y="378" width="32" height="56" rx="8" class="c4"/>`;
+  if (v === 1) s += `<circle cx="404" cy="120" r="26" class="c3"/>`;
+  return s;
 };
 
-G['proceso-escalera'] = (e, t) => {
-  const n = t.length, w = 150, h = 74, paso = Math.min(90, 330 / (n - 1));
-  let s = fondo() + defs();
-  t.forEach((txt, i) => {
-    const x = 60 + i * (w + 28), y = 380 - i * paso;
-    const col = tinte(e.primario, i * 0.1);
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 10)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 14 })}</g>`;
-    if (i < n - 1) s += flecha(x + w + 2, y - 6, x + w + 26, y - paso + h + 6, GRISES.medio);
-  });
-  return s + '</svg>';
+// 3. Hoja
+G['hoja'] = (e, v, uid) => {
+  let s = `<path d="M256 108 C168 152 152 288 256 404 C360 288 344 152 256 108 Z" class="c1"/>
+  <path d="M256 140 L256 380" class="fw" stroke-width="8"/>
+  <path d="M256 210 L320 176 M256 270 L318 238 M256 210 L192 176 M256 270 L194 238" class="fw" stroke-width="6"/>`;
+  if (v === 1) s += `<circle cx="392" cy="120" r="24" class="c3"/>`;
+  return s;
 };
 
-G['proceso-serpiente'] = (e, t) => {
-  const n = t.length, w = 170, h = 80;
-  const porFila = Math.ceil(n / 2);
-  const gap = Math.min(40, (800 - 80 - porFila * w) / Math.max(1, porFila - 1));
-  let s = fondo() + defs();
-  t.forEach((txt, i) => {
-    const fila = Math.floor(i / porFila), idx = i % porFila;
-    const izq = fila % 2 === 0;
-    const col = idxInFila => idxInFila % 2 === 0 ? e.primario : e.secundario;
-    const x = izq ? 40 + idx * (w + gap) : 40 + (porFila - 1 - idx) * (w + gap);
-    const y = fila === 0 ? 120 : 300;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col(idx), 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 16 })}</g>`;
-  });
-  // flechas serpiente
-  for (let i = 0; i < n - 1; i++) {
-    const fila = Math.floor(i / porFila), idx = i % porFila;
-    const izq = fila % 2 === 0;
-    const x = izq ? 40 + idx * (w + gap) : 40 + (porFila - 1 - idx) * (w + gap);
-    const y = fila === 0 ? 120 : 300;
-    if (idx < porFila - 1) {
-      const sigIzq = izq;
-      const xs = sigIzq ? x + w + 4 : x - 4;
-      const xe = sigIzq ? x + w + gap - 4 : x - gap + 4;
-      s += flecha(xs, y + h / 2, xe, y + h / 2, GRISES.medio);
-    } else {
-      s += flecha(x + w / 2, y + h + 4, x + w / 2, y + 160 - 4, GRISES.medio);
-    }
+// 4. Montaña
+G['montana'] = (e, v, uid) => {
+  let s = `<polygon points="84,368 206,182 328,368" class="c2"/>
+  <polygon points="204,368 328,150 452,368" class="c1"/>
+  <polygon points="304,182 328,150 352,182 336,196 316,182" class="f"/>
+  <circle cx="118" cy="132" r="34" class="c3"/>
+  <path d="M64 368 L448 368" class="st4" stroke-width="12"/>`;
+  if (v === 1) { s = s.replace('circle cx="118" cy="132" r="34" class="c3"', 'path d="M118 108 A30 30 0 1 0 148 146 A38 38 0 0 1 118 108 Z" class="c3"'); }
+  return s;
+};
+
+// 5. Carretera
+G['carretera'] = (e, v, uid) => {
+  let s = `<polygon points="196,84 316,84 448,428 64,428" class="c4"/>
+  <path d="M256 128 L256 412" class="fw" stroke-width="14" stroke-dasharray="34 30"/>
+  <polygon points="128,84 156,84 148,116 136,116" class="c3"/>
+  <polygon points="356,84 384,84 376,116 364,116" class="c3"/>
+  <circle cx="76" cy="60" r="24" class="c3" opacity="0.001"/>`;
+  if (v === 1) s = s.replace('opacity="0.001"', '') + `<path d="M64 428 L448 428" class="st2" stroke-width="10"/>`;
+  return s;
+};
+
+// 6. Camino serpenteante
+G['camino'] = (e, v, uid) => {
+  let s = `<path d="M120 436 C120 330 392 350 392 252 C392 158 130 180 150 76" class="st4" stroke-width="52"/>
+  <path d="M120 436 C120 330 392 350 392 252 C392 158 130 180 150 76" class="fw" stroke-width="9" stroke-dasharray="22 20"/>
+  <circle cx="418" cy="90" r="30" class="c3"/>`;
+  if (v === 1) s += `<circle cx="86" cy="120" r="22" class="c2"/>`;
+  return s;
+};
+
+// 7. Puente
+G['puente'] = (e, v, uid) => {
+  let s = `<path d="M112 262 Q256 116 400 262" class="st1" stroke-width="18"/>
+  <rect x="84" y="252" width="344" height="20" rx="10" class="c1"/>
+  <path d="M176 258 L176 216 M256 208 L256 216 M336 258 L336 216" class="st1" stroke-width="9"/>
+  <path d="M120 330 q22 -18 44 0 t44 0 t44 0 t44 0 t44 0" class="st2" stroke-width="10"/>
+  <path d="M150 372 q22 -18 44 0 t44 0 t44 0 t44 0" class="st2" stroke-width="10"/>`;
+  if (v === 1) s += `<circle cx="404" cy="120" r="24" class="c3"/>`;
+  return s;
+};
+
+// 8. Aerogenerador
+G['turbina'] = (e, v, uid) => {
+  let s = `<polygon points="248,248 264,248 274,428 238,428" class="c4"/>
+  <g class="c2"><path d="M256 234 L263 104 L249 104 Z"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(120 256 240)"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(240 256 240)"/></g>
+  <circle cx="256" cy="240" r="16" class="c1"/>
+  <path d="M128 428 L384 428" class="st4" stroke-width="12"/>`;
+  if (v === 1) s += `<g transform="translate(120 -40) scale(0.55)"><polygon points="248,248 264,248 274,428 238,428" class="c4"/><g class="c2"><path d="M256 234 L263 104 L249 104 Z"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(120 256 240)"/><path d="M256 234 L263 104 L249 104 Z" transform="rotate(240 256 240)"/></g><circle cx="256" cy="240" r="16" class="c1"/></g>`;
+  return s;
+};
+
+// 9. Panel solar
+G['panel-solar'] = (e, v, uid) => {
+  let s = `<polygon points="130,280 306,280 348,384 88,384" class="c1"/>
+  <path d="M187 280 L172 384 M249 280 L249 384 M293 280 L330 384 M109 332 L327 332" class="fw" stroke-width="6"/>
+  <path d="M218 384 L218 424" class="st4" stroke-width="12"/>
+  <circle cx="392" cy="140" r="38" class="c3"/>
+  <path d="M392 76 L392 58 M442 96 L456 82 M448 140 L468 140 M442 184 L456 198" class="st3" stroke-width="9"/>`;
+  if (v === 1) s = s.replace('392 76 L392 58 M442 96 L456 82 M448 140 L468 140 M442 184 L456 198', '');
+  return s;
+};
+
+// 10. Gota
+G['gota'] = (e, v, uid) => {
+  let s = `<path d="M256 88 C204 184 152 244 152 316 a104 104 0 0 0 208 0 C360 244 308 184 256 88 Z" class="c1"/>
+  <path d="M256 196 C226 248 208 274 208 310 a48 48 0 0 0 96 0 C304 274 286 248 256 196 Z" class="c2"/>`;
+  if (v === 1) s += `<path d="M392 140 C366 166 352 186 352 208 a40 40 0 0 0 80 0 C432 186 418 166 392 140 Z" class="c3"/>`;
+  return s;
+};
+
+// 11. Olas
+G['olas'] = (e, v, uid) => {
+  const sol = v === 1 ? '' : `<circle cx="400" cy="118" r="30" class="c3"/>\n  `;
+  return `${sol}<path d="M64 210 q32 -34 64 0 t64 0 t64 0 t64 0 t64 0" class="st2" stroke-width="18"/>
+  <path d="M64 290 q32 -34 64 0 t64 0 t64 0 t64 0 t64 0" class="st1" stroke-width="18"/>
+  <path d="M64 370 q32 -34 64 0 t64 0 t64 0 t64 0 t64 0" class="st2" stroke-width="18"/>`;
+};
+
+// 12. Reciclaje
+G['reciclaje'] = (e, v, uid) => {
+  // cada segmento: arco de 100° + punta triangular alineada con la tangente
+  const seg = (rot, cls, fillCls) => `<g transform="rotate(${rot} 256 256)">
+    <path d="M196 130 A116 116 0 0 1 334 178" class="${cls}" stroke-width="24"/>
+    <polygon points="302,132 372,164 306,222" class="${fillCls}"/>
+  </g>`;
+  const orden = v === 1 ? [['st1','c1'],['st2','c2'],['st3','c3']] : [['st2','c2'],['st3','c3'],['st1','c1']];
+  return orden.map((p, i) => seg(i * 120, p[0], p[1])).join('');
+};
+
+// 13. Planeta
+G['planeta'] = (e, v, uid) => {
+  const sol = v === 1 ? `<path d="M404 108 C382 130 370 148 370 166 a34 34 0 0 0 68 0 C438 148 426 130 404 108 Z" class="c3"/>` : '';
+  // anillo trasero (mitad superior, detrás del planeta)
+  const anilloDetras = `<path d="M96 244 A160 56 -18 0 1 416 214" class="st3" stroke-width="9"/>`;
+  const globo = `<circle cx="256" cy="256" r="118" class="c2"/>
+  <ellipse cx="216" cy="226" rx="54" ry="30" class="c1" transform="rotate(-18 216 226)"/>
+  <ellipse cx="298" cy="304" rx="44" ry="24" class="c1" transform="rotate(12 298 304)"/>`;
+  // anillo delantero (mitad inferior, delante)
+  const anilloDelante = `<path d="M416 214 A160 56 -18 0 1 96 244" class="st3" stroke-width="9"/>`;
+  return sol + anilloDetras + globo + anilloDelante;
+};
+
+// 14. Brote
+G['brote'] = (e, v, uid) => {
+  let s = `<path d="M256 392 C256 310 252 280 256 224" class="st1" stroke-width="14"/>
+  <path d="M256 268 C204 264 180 212 176 164 C230 170 252 214 256 268 Z" class="c2"/>
+  <path d="M256 268 C308 264 332 212 336 164 C282 170 260 214 256 268 Z" class="c1"/>
+  <path d="M136 396 Q256 356 376 396 L376 416 L136 416 Z" class="c4"/>`;
+  if (v === 1) s += `<circle cx="404" cy="112" r="26" class="c3"/>`;
+  return s;
+};
+
+// 15. Flor
+G['flor'] = (e, v, uid) => {
+  let s = '';
+  for (let i = 0; i < 5; i++) {
+    const cls = i % 2 === 0 ? 'c1' : 'c2';
+    s += `<ellipse cx="256" cy="160" rx="36" ry="72" class="${cls}" transform="rotate(${i * 72} 256 256)"/>`;
   }
-  return s + '</svg>';
+  s += `<circle cx="256" cy="256" r="42" class="c3"/>`;
+  if (v === 1) s += `<path d="M256 298 L256 428" class="st1" stroke-width="12"/><path d="M256 380 C220 376 204 344 200 314 C236 318 252 348 256 380 Z" class="c2"/>`;
+  return s;
 };
 
-G['proceso-pilares'] = (e, t) => {
-  const n = t.length, w = 140, gap = (800 - 60 - n * w) / (n + 1);
-  let s = fondo();
-  t.forEach((txt, i) => {
-    const x = 60 + gap + i * (w + gap);
-    const col = tinte(e.primario, i * 0.08);
-    const h = 200 + (i % 3) * 30, y = 400 - h;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 8)}${textoSVG(x + w / 2, y + 30, `${i + 1}. ${txt}`, { color: '#fff', size: 14, maxAncho: w - 14 })}</g>`;
-  });
-  return s + '</svg>';
+// 16. Ave
+G['ave'] = (e, v, uid) => {
+  let s = `<path d="M256 292 C210 216 140 210 84 250 C140 262 190 282 256 292 Z" class="c2"/>
+  <path d="M256 292 C302 216 372 210 428 250 C372 262 322 282 256 292 Z" class="c1"/>
+  <ellipse cx="256" cy="306" rx="56" ry="30" class="c1"/>
+  <polygon points="306,296 344,306 306,318" class="c3"/>
+  <circle cx="292" cy="296" r="7" class="f"/>`;
+  if (v === 1) s += `<path d="M96 168 q18 -14 36 0 M132 190 q18 -14 36 0" class="st2" stroke-width="8"/>`;
+  else s += `<circle cx="112" cy="132" r="30" class="c3"/>`;
+  return s;
 };
 
-// ---------- CICLOS ----------
-
-function cicloCircular(e, t, anguloIni = -90) {
-  const cx = 400, cy = 250, rCaja = 165, w = 150, h = 64;
-  let s = fondo() + defs();
-  s += `<circle cx="${cx}" cy="${cy}" r="58" fill="${e.acento}" opacity="0.92"/>`;
-  s += textoSVG(cx, cy + 5, 'Mejora continua', { color: '#fff', size: 13, maxAncho: 100 });
-  const n = t.length;
-  t.forEach((txt, i) => {
-    const ang = (anguloIni + (360 / n) * i) * Math.PI / 180;
-    const x = cx + rCaja * Math.cos(ang) - w / 2;
-    const y = cy + rCaja * Math.sin(ang) - h / 2;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(x, y, w, h, col, 32)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', size: 13, maxAncho: w - 20 })}</g>`;
-    const angMedio = (anguloIni + (360 / n) * (i + 0.5)) * Math.PI / 180;
-    s += flecha(cx + 80 * Math.cos(angMedio), cy + 80 * Math.sin(angMedio),
-                cx + (rCaja - 42) * Math.cos(angMedio), cy + (rCaja - 42) * Math.sin(angMedio), GRISES.medio);
-  });
-  return s + '</svg>';
-}
-
-G['ciclo-4'] = (e, t) => cicloCircular(e, t.slice(0, 4));
-G['ciclo-6'] = (e, t) => cicloCircular(e, t.slice(0, 6));
-G['ciclo-segmentos'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250, r = 150;
-  let s = fondo();
-  t.forEach((txt, i) => {
-    const a0 = (-90 + (360 / n) * i + 2) * Math.PI / 180, a1 = (-90 + (360 / n) * (i + 1) - 2) * Math.PI / 180;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
-    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-    s += `<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${col}" stroke="#fff" stroke-width="3"/>`;
-    const am = (-90 + (360 / n) * (i + 0.5)) * Math.PI / 180;
-    const amx = cx + r * 0.62 * Math.cos(am), amy = cy + r * 0.62 * Math.sin(am);
-    s += `<g data-i="${i}">` + textoSVG(amx, amy, txt, { color: '#fff', size: 12, maxAncho: 90 }) + '</g>';
-  });
-  return s + '</svg>';
+// 17. Pez
+G['pez'] = (e, v, uid) => {
+  let s = `<path d="M132 262 C176 192 316 192 376 262 C316 332 176 332 132 262 Z" class="c1"/>
+  <polygon points="376,262 442,214 442,310" class="c2"/>
+  <circle cx="188" cy="244" r="11" class="f"/>
+  <path d="M232 262 q24 -20 48 0 q-24 20 -48 0 Z" class="c2"/>`;
+  if (v === 1) s += `<circle cx="416" cy="130" r="10" class="c3"/><circle cx="440" cy="98" r="6" class="c3"/>`;
+  return s;
 };
 
-G['ciclo-orbital'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250, r = 140, w = 140, h = 52;
-  let s = fondo();
-  s += `<circle cx="${cx}" cy="${cy}" r="70" fill="none" stroke="${e.neutro}" stroke-width="2" stroke-dasharray="6 6"/>`;
-  s += `<circle cx="${cx}" cy="${cy}" r="52" fill="${e.acento}"/>`;
-  s += textoSVG(cx, cy + 5, 'Objetivo', { color: '#fff', size: 14 });
-  t.forEach((txt, i) => {
-    const ang = (-90 + (360 / n) * i) * Math.PI / 180;
-    const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}"><circle cx="${x}" cy="${y}" r="26" fill="${col}"/>${textoSVG(x, y - 40, `${i + 1}`, { color: GRISES.medio, size: 12 })}`;
-    const lx = cx + (r + 52) * Math.cos(ang), ly = cy + (r + 52) * Math.sin(ang);
-    s += `<rect x="${lx - 52}" y="${ly - 22}" width="104" height="44" rx="22" fill="${tinte(col, 0.85)}" stroke="${col}" stroke-width="1.5"/>`;
-    s += textoSVG(lx, ly + 5, txt, { color: GRISES.texto, size: 12, maxAncho: 94 }) + '</g>';
-  });
-  return s + '</svg>';
+// 18. Bosque
+G['bosque'] = (e, v, uid) => {
+  let s = `<polygon points="140,196 84,300 196,300" class="c2"/>
+  <rect x="130" y="296" width="20" height="44" rx="6" class="c4"/>
+  <polygon points="256,120 176,292 336,292" class="c1"/>
+  <rect x="242" y="288" width="28" height="52" rx="8" class="c4"/>
+  <circle cx="386" cy="248" r="56" class="c2"/>
+  <rect x="374" y="296" width="24" height="44" rx="6" class="c4"/>
+  <path d="M84 388 L428 388" class="st4" stroke-width="12"/>`;
+  if (v === 1) s += `<circle cx="66" cy="110" r="24" class="c3"/>`;
+  return s;
 };
 
-G['ciclo-espiral'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250;
-  let s = fondo() + defs();
-  s += `<path d="M ${cx} ${cy} ${Array.from({length: 60}, (_, k) => {
-    const ang = k * 0.16, r = 8 + k * 3.2;
-    return `L ${(cx + r * Math.cos(ang)).toFixed(1)} ${(cy + r * Math.sin(ang)).toFixed(1)}`;
-  }).join(' ')}" fill="none" stroke="${e.secundario}" stroke-width="3"/>`;
-  t.forEach((txt, i) => {
-    const ang = -0.6 + i * 1.15, r = 70 + i * 38;
-    const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
-    const col = i % 2 === 0 ? e.primario : e.acento;
-    s += `<g data-i="${i}"><circle cx="${x}" cy="${y}" r="30" fill="${col}"/>${textoSVG(x, y + 5, `${i + 1}`, { color: '#fff', size: 16 })}`;
-    s += textoSVG(x, y + 52, txt, { color: GRISES.texto, size: 13, maxAncho: 120 }) + '</g>';
-  });
-  return s + '</svg>';
+// 19. Sendero
+G['sendero'] = (e, v, uid) => {
+  let s = `<path d="M40 330 Q152 186 282 330 Z" class="c2"/>
+  <path d="M236 330 Q366 200 474 330 Z" class="c1"/>
+  <circle cx="416" cy="130" r="30" class="c3"/>
+  <polygon points="232,330 280,330 330,432 182,432" class="c4"/>`;
+  if (v === 1) s = s.replace('416 130', '150 130') + `<path d="M60 432 L452 432" class="st4" stroke-width="10"/>`;
+  return s;
 };
 
-// ---------- COMPARATIVAS ----------
-
-G['comparativa-2col'] = (e, t) => {
-  let s = fondo() + defs();
-  const filas = Math.ceil(t.length / 2), fh = 78, gapY = 18;
-  const y0 = 250 - (filas * fh + (filas - 1) * gapY) / 2;
-  const Izq = t.slice(0, Math.ceil(t.length / 2)), Der = t.slice(Math.ceil(t.length / 2));
-  Izq.forEach((txt, i) => {
-    const y = y0 + i * (fh + gapY);
-    s += `<g data-i="${i}">${caja(50, y, 320, fh, e.primario, 10)}${textoSVG(210, y + fh / 2 + 5, txt, { color: '#fff', maxAncho: 300 })}</g>`;
-  });
-  Der.forEach((txt, i) => {
-    const y = y0 + i * (fh + gapY);
-    s += `<g data-i="${i + Izq.length}">${caja(430, y, 320, fh, e.secundario, 10)}${textoSVG(590, y + fh / 2 + 5, txt, { color: '#fff', maxAncho: 300 })}</g>`;
-  });
-  s += textoSVG(210, 60, 'Opción A', { color: e.primario, size: 17, peso: 700 });
-  s += textoSVG(590, 60, 'Opción B', { color: e.secundario, size: 17, peso: 700 });
-  s += `<circle cx="400" cy="250" r="26" fill="${e.acento}"/>` + textoSVG(400, 255, 'VS', { color: '#fff', size: 15, peso: 700 });
-  return s + '</svg>';
+// 20. Ciudad verde
+G['ciudad-verde'] = (e, v, uid) => {
+  let s = `<rect x="122" y="228" width="72" height="180" rx="8" class="c1"/>
+  <rect x="216" y="168" width="84" height="240" rx="8" class="c2"/>
+  <rect x="322" y="258" width="64" height="150" rx="8" class="c1"/>
+  <rect x="140" y="252" width="16" height="16" rx="3" class="f"/><rect x="164" y="252" width="16" height="16" rx="3" class="f"/><rect x="140" y="286" width="16" height="16" rx="3" class="f"/><rect x="238" y="196" width="18" height="18" rx="3" class="f"/><rect x="266" y="196" width="18" height="18" rx="3" class="f"/><rect x="238" y="232" width="18" height="18" rx="3" class="f"/>
+  <circle cx="92" cy="382" r="28" class="c2"/><rect x="84" y="402" width="16" height="26" rx="5" class="c4"/>
+  <circle cx="424" cy="384" r="26" class="c2"/><rect x="416" y="402" width="16" height="24" rx="5" class="c4"/>`;
+  if (v === 1) s += `<path d="M258 120 C234 144 220 166 220 186 a38 38 0 0 0 76 0 C296 166 282 144 258 120 Z" class="c3"/>`;
+  return s;
 };
 
-G['comparativa-vs'] = (e, t) => {
-  let s = fondo();
-  s += `<rect x="40" y="80" width="340" height="360" rx="14" fill="${tinte(e.primario, 0.88)}" stroke="${e.primario}" stroke-width="2"/>`;
-  s += `<rect x="420" y="80" width="340" height="360" rx="14" fill="${tinte(e.secundario, 0.88)}" stroke="${e.secundario}" stroke-width="2"/>`;
-  s += textoSVG(210, 130, 'Escenario A', { color: e.primario, size: 18, peso: 700 });
-  s += textoSVG(590, 130, 'Escenario B', { color: e.secundario, size: 18, peso: 700 });
-  const half = Math.ceil(t.length / 2);
-  t.slice(0, half).forEach((txt, i) => {
-    s += `<g data-i="${i}">${caja(65, 165 + i * 62, 290, 50, '#fff', 8, e.primario)}${textoSVG(210, 190 + i * 62, txt, { color: GRISES.texto, size: 13, maxAncho: 270 })}</g>`;
-  });
-  t.slice(half).forEach((txt, i) => {
-    s += `<g data-i="${i + half}">${caja(445, 165 + i * 62, 290, 50, '#fff', 8, e.secundario)}${textoSVG(590, 190 + i * 62, txt, { color: GRISES.texto, size: 13, maxAncho: 270 })}</g>`;
-  });
-  return s + '</svg>';
+// 21. Calidad del aire
+G['aire'] = (e, v, uid) => {
+  let s = `<g class="c1"><circle cx="168" cy="258" r="46"/><circle cx="228" cy="222" r="58"/><circle cx="298" cy="252" r="50"/><rect x="146" y="252" width="204" height="56" rx="28"/></g>
+  <path d="M384 118 C362 140 350 160 350 180 a34 34 0 0 0 68 0 C418 160 406 140 384 118 Z" class="c2"/>
+  <path d="M96 340 q26 -20 52 0 M130 376 q26 -20 52 0" class="st2" stroke-width="10"/>`;
+  if (v === 1) s = s.replace('384 118 C362 140 350 160 350 180 a34 34 0 0 0 68 0 C418 160 406 140 384 118 Z', '384 128 C366 146 356 162 356 178 a28 28 0 0 0 56 0 C412 162 402 146 384 128 Z') + `<circle cx="300" cy="330" r="0" class="c3"/>`;
+  return s;
 };
 
-G['comparativa-bascula'] = (e, t) => {
-  let s = fondo() + defs();
-  const half = Math.ceil(t.length / 2);
-  s += `<polygon points="400,120 140,220 660,220" fill="${tinte(e.neutro, 0.7)}"/>`;
-  s += `<polygon points="400,440 140,340 660,340" fill="${tinte(e.neutro, 0.7)}"/>`;
-  s += textoSVG(400, 100, 'Decisión', { color: GRISES.texto, size: 16, peso: 700 });
-  t.slice(0, half).forEach((txt, i) => {
-    s += `<g data-i="${i}">${caja(70, 170 + i * 56, 240, 46, e.primario, 23)}${textoSVG(190, 193 + i * 56, txt, { color: '#fff', size: 13, maxAncho: 220 })}</g>`;
-  });
-  t.slice(half).forEach((txt, i) => {
-    s += `<g data-i="${i + half}">${caja(490, 310 + i * 56, 240, 46, e.secundario, 23)}${textoSVG(610, 333 + i * 56, txt, { color: '#fff', size: 13, maxAncho: 220 })}</g>`;
-  });
-  return s + '</svg>';
+// 22. Energía hidráulica
+G['hidro'] = (e, v, uid) => {
+  let s = `<path d="M176 96 Q240 230 196 356 L116 356 Q170 230 146 96 Z" class="c1"/>
+  <path d="M226 318 q22 -16 44 0 t44 0 t44 0" class="st2" stroke-width="11"/>
+  <path d="M246 364 q22 -16 44 0 t44 0" class="st2" stroke-width="11"/>
+  <path d="M368 128 C350 154 338 172 338 192 a30 30 0 0 0 60 0 C398 172 386 154 368 128 Z" class="c3"/>
+  <path d="M96 388 L416 388" class="st4" stroke-width="12"/>`;
+  if (v === 1) s = s.replace('368 128 C350 154 338 172 338 192 a30 30 0 0 0 60 0 C398 172 386 154 368 128 Z', '300 110 C276 146 262 168 262 192 a38 38 0 0 0 76 0 C338 168 324 146 300 110 Z');
+  return s;
 };
 
-G['comparativa-solapes'] = (e, t) => {
-  let s = fondo();
-  const t3 = t.slice(0, 3);
-  s += `<circle cx="320" cy="220" r="120" fill="${e.primario}" opacity="0.75"/>`;
-  s += `<circle cx="480" cy="220" r="120" fill="${e.secundario}" opacity="0.75"/>`;
-  if (t3[0]) s += `<g data-i="0">` + textoSVG(270, 220, t3[0], { color: '#fff', size: 14, maxAncho: 130 }) + '</g>';
-  if (t3[1]) s += `<g data-i="1">` + textoSVG(530, 220, t3[1], { color: '#fff', size: 14, maxAncho: 130 }) + '</g>';
-  if (t3[2]) s += `<g data-i="2">` + textoSVG(400, 100, t3[2], { color: GRISES.texto, size: 14, maxAncho: 160 }) + '</g>';
-  return s + '</svg>';
+// 23. Geotermia
+G['geotermia'] = (e, v, uid) => {
+  let s = `<rect x="104" y="340" width="304" height="16" rx="8" class="c4"/>
+  <path d="M186 326 C166 282 204 262 186 214 C172 178 196 152 190 118" class="st1" stroke-width="15"/>
+  <path d="M262 326 C242 282 280 262 262 214 C248 178 272 152 266 118" class="st2" stroke-width="15"/>
+  <path d="M338 326 C318 282 356 262 338 214 C324 178 348 152 342 118" class="st1" stroke-width="15"/>
+  <circle cx="112" cy="140" r="24" class="c3"/>`;
+  if (v === 1) s = s.replace('circle cx="112" cy="140" r="24" class="c3"', 'path d="M108 116 C92 142 82 158 82 174 a26 26 0 0 0 52 0 C134 158 124 142 108 116 Z" class="c3"');
+  return s;
 };
 
-// ---------- JERARQUÍAS ----------
-
-G['piramide-4'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 320, y0 = 70, W = 560;
-  t.forEach((txt, i) => {
-    const f1 = y0 + (h / n) * i, f2 = y0 + (h / n) * (i + 1);
-    const w1 = (W / n) * i * 0.9 + 90, w2 = (W / n) * (i + 1) * 0.9 + 90;
-    const col = tinte(e.primario, -(i * 0.07));
-    s += `<g data-i="${i}"><polygon points="${400 - w1 / 2},${f1} ${400 + w1 / 2},${f1} ${400 + w2 / 2},${f2} ${400 - w2 / 2},${f2}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-    s += textoSVG(400, (f1 + f2) / 2 + 5, txt, { color: '#fff', size: 14, maxAncho: Math.min(w2 - 30, 380) }) + '</g>';
-  });
-  return s + '</svg>';
+// 24. Bicicleta
+G['bici'] = (e, v, uid) => {
+  let s = `<circle cx="150" cy="322" r="60" class="st1" stroke-width="12"/>
+  <circle cx="366" cy="322" r="60" class="st1" stroke-width="12"/>
+  <path d="M150 322 L226 322 L266 232 L330 232 M226 322 L266 232 L366 322 M330 232 L346 190 M334 186 L362 184 M266 232 L254 196 L232 198" class="st2" stroke-width="11"/>
+  <circle cx="266" cy="232" r="13" class="c3"/>
+  <circle cx="226" cy="322" r="9" class="c3"/>`;
+  if (v === 1) s += `<path d="M430 118 C400 150 384 176 384 198 a46 46 0 0 0 92 0 C476 176 460 150 430 118 Z" class="c3"/>`;
+  return s;
 };
 
-G['piramide-invertida'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 320, y0 = 70, W = 560;
-  t.forEach((txt, i) => {
-    const f1 = y0 + (h / n) * i, f2 = y0 + (h / n) * (i + 1);
-    const w1 = (W / n) * (n - i) * 0.9 + 90, w2 = (W / n) * (n - i - 1) * 0.9 + 90;
-    const col = tinte(e.primario, i * 0.09);
-    s += `<g data-i="${i}"><polygon points="${400 - w1 / 2},${f1} ${400 + w1 / 2},${f1} ${400 + w2 / 2},${f2} ${400 - w2 / 2},${f2}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-    s += textoSVG(400, (f1 + f2) / 2 + 5, txt, { color: '#fff', size: 14, maxAncho: Math.min(w1 - 30, 380) }) + '</g>';
-  });
-  return s + '</svg>';
+// 25. Transporte público
+G['bus'] = (e, v, uid) => {
+  let s = `<rect x="104" y="168" width="304" height="164" rx="26" class="c1"/>
+  <rect x="128" y="196" width="256" height="58" rx="12" class="f"/>
+  <path d="M213 196 L213 254 M298 196 L298 254" class="st1" stroke-width="8"/>
+  <circle cx="164" cy="348" r="27" class="c4"/><circle cx="348" cy="348" r="27" class="c4"/>
+  <circle cx="382" cy="308" r="11" class="c3"/>
+  <path d="M96 396 L416 396" class="st4" stroke-width="11"/>`;
+  if (v === 1) s = s.replace('rx="26" class="c1"', 'rx="26" class="c2"') + `<path d="M256 120 L232 168 L276 168 L246 214" class="st3" stroke-width="12"/>`;
+  return s;
 };
 
-G['jerarquia-organica'] = (e, t) => {
-  let s = fondo() + defs();
-  s += `<g data-i="0">${caja(310, 50, 180, 62, e.acento, 10)}${textoSVG(400, 81, t[0], { color: '#fff', maxAncho: 160 })}</g>`;
-  const hijos = t.slice(1);
-  const w = 150, gap = Math.min(36, (720 - hijos.length * w) / Math.max(1, hijos.length - 1));
-  hijos.forEach((txt, i) => {
-    const x = 400 - ((hijos.length * w + (hijos.length - 1) * gap) / 2) + i * (w + gap);
-    const y = 230;
-    s += `<line x1="400" y1="112" x2="400" y2="170" stroke="${GRISES.claro}" stroke-width="2"/><line x1="400" y1="170" x2="${x + w / 2}" y2="170" stroke="${GRISES.claro}" stroke-width="2"/><line x1="${x + w / 2}" y1="170" x2="${x + w / 2}" y2="${y - 4}" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i + 1}">${caja(x, y, w, 130, col, 10)}${textoSVG(x + w / 2, y + 65, txt, { color: '#fff', maxAncho: w - 16 })}</g>`;
-    if (i === 0) s += '';
-  });
-  return s + '</svg>';
+// 26. Energía limpia
+G['rayo'] = (e, v, uid) => {
+  if (v === 2) {
+    // composición B: rayo dentro de círculo con hoja exterior
+    return `<circle cx="256" cy="256" r="140" class="c2"/>
+    <polygon points="286,140 176,292 244,292 226,404 340,252 272,252" class="c1"/>
+    <path d="M404 120 C362 162 340 196 340 226 a64 64 0 0 0 128 0 C468 196 446 162 404 120 Z" class="c3" transform="scale(0.42) translate(560 -80)"/>
+    <path d="M420 96 C392 126 376 150 376 170 a44 44 0 0 0 88 0 C464 150 448 126 420 96 Z" class="c3"/>`;
+  }
+  return `<polygon points="282,72 158,262 236,262 212,428 356,226 276,226" class="c1"/>
+  <path d="M380 300 C336 300 308 268 306 228 C354 230 378 262 380 300 Z" class="c2"/>
+  <path d="M306 228 C330 244 348 266 356 296" class="fw" stroke-width="7"/>`;
 };
 
-G['jerarquia-arbol'] = (e, t) => {
-  let s = fondo() + defs();
-  s += `<g data-i="0">${caja(320, 40, 160, 56, e.acento, 10)}${textoSVG(400, 68, t[0], { color: '#fff', size: 13, maxAncho: 140 })}</g>`;
-  const resto = t.slice(1);
-  const mitad = Math.ceil(resto.length / 2);
-  const ramas = [resto.slice(0, mitad), resto.slice(mitad)];
-  ramas.forEach((rama, r) => {
-    const cx = r === 0 ? 210 : 590;
-    const col = r === 0 ? e.primario : e.secundario;
-    s += `<line x1="400" y1="96" x2="${cx}" y2="150" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    rama.forEach((txt, i) => {
-      const y = 180 + i * 92;
-      s += `<g data-i="${1 + (r === 0 ? i : mitad + i)}">${caja(cx - 80, y, 160, 60, col, 10)}${textoSVG(cx, y + 30, txt, { color: '#fff', size: 12, maxAncho: 144 })}</g>`;
-      if (i < rama.length - 1) s += `<line x1="${cx}" y1="${y + 60}" x2="${cx}" y2="${y + 92}" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    });
-  });
-  return s + '</svg>';
+// 27. Huella
+G['huella'] = (e, v, uid) => {
+  let s = `<ellipse cx="186" cy="182" rx="25" ry="34" class="c2" transform="rotate(-14 186 182)"/>
+  <ellipse cx="240" cy="152" rx="25" ry="36" class="c2"/>
+  <ellipse cx="294" cy="158" rx="25" ry="34" class="c2" transform="rotate(10 294 158)"/>
+  <ellipse cx="338" cy="198" rx="22" ry="29" class="c2" transform="rotate(26 338 198)"/>
+  <path d="M256 236 C198 236 166 288 178 330 C188 368 228 380 256 372 C284 380 324 368 334 330 C346 288 314 236 256 236 Z" class="c1"/>
+  <ellipse cx="222" cy="304" rx="14" ry="18" class="f"/><ellipse cx="290" cy="304" rx="14" ry="18" class="f"/>`;
+  if (v === 1) { s = s.replace(/class="c2"/g, 'class="c1"').replace('class="c1"/>', 'class="c2"/>'); }
+  return s;
 };
 
-// ---------- LISTAS Y MATRICES ----------
-
-G['lista-vertical'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 56, gap = Math.min(18, (380 - n * h) / Math.max(1, n - 1));
-  const y0 = 250 - (n * h + (n - 1) * gap) / 2;
-  t.forEach((txt, i) => {
-    const y = y0 + i * (h + gap);
-    const col = tinte(e.primario, i * 0.07);
-    s += `<g data-i="${i}">${caja(80, y, 640, h, col, 28)}
-      <circle cx="118" cy="${y + h / 2}" r="19" fill="#fff"/>
-      ${textoSVG(118, y + h / 2 + 5, `${i + 1}`, { color: col, size: 15, peso: 700 })}
-      ${textoSVG(160, y + h / 2 + 5, txt, { color: '#fff', ancla: 'start', size: 15, maxAncho: 520 })}</g>`;
-  });
-  return s + '</svg>';
+// 28. Colmena
+G['colmena'] = (e, v, uid) => {
+  const panal = `<polygon points="256,120 348,174 348,286 256,340 164,286 164,174" class="c1"/>
+  <polygon points="256,160 314,194 314,264 256,298 198,264 198,194" class="st2" stroke-width="9"/>
+  <polygon points="256,196 288,215 288,251 256,270 224,251 224,215" class="c2"/>`;
+  const abeja = `<g transform="translate(388 122) rotate(${v === 1 ? -12 : 12})">
+    <ellipse cx="0" cy="0" rx="26" ry="17" class="c3"/>
+    <path d="M-8 -16 L-8 16 M8 -15 L8 15" class="f" stroke-width="5"/>
+    <circle cx="-26" cy="-2" r="11" class="c4"/>
+    <ellipse cx="-2" cy="-20" rx="14" ry="8" class="f" transform="rotate(-24 -2 -20)"/>
+    <ellipse cx="8" cy="-19" rx="12" ry="7" class="f" transform="rotate(10 8 -19)"/>
+  </g>`;
+  return panal + abeja;
 };
 
-G['lista-tarjetas'] = (e, t) => {
-  let s = fondo();
-  const cols = 3, w = 210, h = 150, gapX = 30, gapY = 30;
-  const x0 = (800 - cols * w - (cols - 1) * gapX) / 2;
-  t.forEach((txt, i) => {
-    const c = i % cols, f = Math.floor(i / cols);
-    const x = x0 + c * (w + gapX), y = 80 + f * (h + gapY);
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(x, y, w, h, '#fff', 12, GRISES.claro)}
-      <rect x="${x}" y="${y}" width="${w}" height="10" rx="5" fill="${col}"/>
-      <circle cx="${x + 34}" cy="${y + 48}" r="17" fill="${col}"/>
-      ${textoSVG(x + 34, y + 53, `${i + 1}`, { color: '#fff', size: 14, peso: 700 })}
-      ${textoSVG(x + w / 2, y + 100, txt, { color: GRISES.texto, size: 13, maxAncho: w - 24 })}</g>`;
-  });
-  return s + '</svg>';
+// 29. Paisaje en ventana
+G['paisaje'] = (e, v, uid) => {
+  const anillo = v === 1 ? 'stroke-dasharray="2 26" stroke-linecap="round"' : '';
+  return `<defs><clipPath id="cp${uid}"><circle cx="256" cy="256" r="140"/></clipPath></defs>
+  <g clip-path="url(#cp${uid})">
+    <rect x="106" y="106" width="300" height="300" class="c2"/>
+    <circle cx="150" cy="170" r="30" class="c3"/>
+    <path d="M106 356 L200 240 L272 356 Z" class="c1"/>
+    <path d="M228 356 L318 228 L420 356 L420 396 L228 396 Z" class="c4"/>
+    <rect x="106" y="352" width="300" height="60" class="c1"/>
+  </g>
+  <circle cx="256" cy="256" r="150" class="st1" stroke-width="16" ${anillo}/>`;
 };
 
-G['lista-checklist'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 54, gap = 20;
-  const y0 = 250 - (n * h + (n - 1) * gap) / 2;
-  s += `<rect x="110" y="${y0 - 26}" width="580" height="${n * h + (n - 1) * gap + 52}" rx="14" fill="${tinte(e.neutro, 0.9)}"/>`;
-  t.forEach((txt, i) => {
-    const y = y0 + i * (h + gap);
-    s += `<g data-i="${i}"><rect x="135" y="${y}" width="530" height="${h}" rx="10" fill="#fff"/>
-      <path d="M158 ${y + h / 2} l10 10 l20 -22" stroke="${e.acento}" stroke-width="4" fill="none" stroke-linecap="round"/>
-      ${textoSVG(210, y + h / 2 + 5, txt, { color: GRISES.texto, ancla: 'start', size: 14, maxAncho: 430 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-G['matriz-2x2'] = (e, t) => {
-  let s = fondo();
-  const w = 330, h = 180, x0 = 70, y0 = 60;
-  const cols = [e.primario, e.secundario, tinte(e.primario, 0.35), tinte(e.secundario, 0.35)];
-  t.slice(0, 4).forEach((txt, i) => {
-    const x = x0 + (i % 2) * (w + 30), y = y0 + Math.floor(i / 2) * (h + 20);
-    s += `<g data-i="${i}">${caja(x, y, w, h, cols[i], 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 30 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-G['matriz-eisenhower'] = (e, t) => {
-  let s = fondo();
-  const w = 330, h = 185, x0 = 70, y0 = 55;
-  const etiq = ['Urgente', 'No urgente'];
-  etiq.forEach((lab, i) => s += textoSVG(x0 + w / 2 + i * (w + 30), y0 - 22, lab, { color: GRISES.medio, size: 13, peso: 700 }));
-  s += textoSVG(38, y0 + h / 2, 'Imp', { color: GRISES.medio, size: 12, peso: 700 });
-  const cols = [e.primario, e.secundario, e.acento, tinte(e.neutro, 0.3)];
-  t.slice(0, 4).forEach((txt, i) => {
-    const x = x0 + (i % 2) * (w + 30), y = y0 + Math.floor(i / 2) * (h + 25);
-    s += `<g data-i="${i}">${caja(x, y, w, h, cols[i], 12)}${textoSVG(x + w / 2, y + h / 2 + 5, txt, { color: '#fff', maxAncho: w - 30 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-// ---------- RELACIONES ----------
-
-G['relacion-radial'] = (e, t) => {
-  const n = t.length, cx = 400, cy = 250;
-  let s = fondo() + defs();
-  s += `<circle cx="${cx}" cy="${cy}" r="62" fill="${e.acento}"/>`;
-  s += textoSVG(cx, cy + 5, 'Núcleo', { color: '#fff', size: 15, peso: 700 });
-  t.forEach((txt, i) => {
-    const ang = (-90 + (360 / n) * i) * Math.PI / 180;
-    const x1 = cx + 66 * Math.cos(ang), y1 = cy + 66 * Math.sin(ang);
-    const x2 = cx + 158 * Math.cos(ang), y2 = cy + 158 * Math.sin(ang);
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="3" marker-end="url(#punta)"/>`;
-    const bx = cx + 218 * Math.cos(ang), by = cy + 218 * Math.sin(ang);
-    s += `<g data-i="${i}"><rect x="${bx - 62}" y="${by - 30}" width="124" height="60" rx="12" fill="${tinte(col, 0.85)}" stroke="${col}" stroke-width="2"/>`;
-    s += textoSVG(bx, by + 5, txt, { color: GRISES.texto, size: 12, maxAncho: 112 }) + '</g>';
-  });
-  return s + '</svg>';
-};
-
-G['relacion-convergente'] = (e, t) => {
-  let s = fondo() + defs();
-  const filas = t.length - 1;
-  t.slice(0, filas).forEach((txt, i) => {
-    const y = 60 + i * (340 / Math.max(1, filas - 1)) - (filas > 1 ? 0 : 0);
-    const yy = 55 + i * (330 / Math.max(1, filas));
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<g data-i="${i}">${caja(50, yy, 260, 58, col, 29)}${textoSVG(180, yy + 29 + 5, txt, { color: '#fff', maxAncho: 240 })}</g>`;
-    s += `<path d="M310 ${yy + 29} C 420 ${yy + 29}, 480 250, 545 250" fill="none" stroke="${col}" stroke-width="2.5" marker-end="url(#punta)"/>`;
-  });
-  s += `<g data-i="${t.length - 1}">${caja(550, 190, 200, 120, e.acento, 14)}${textoSVG(650, 250, t[t.length - 1], { color: '#fff', maxAncho: 180 })}</g>`;
-  return s + '</svg>';
-};
-
-G['relacion-venn-3'] = (e, t) => {
-  let s = fondo();
-  const t3 = t.slice(0, 3);
-  const cols = [e.primario, e.secundario, e.acento];
-  const pos = [[330, 190], [470, 190], [400, 310]];
-  pos.forEach(([x, y], i) => s += `<circle cx="${x}" cy="${y}" r="105" fill="${cols[i]}" opacity="0.72"/>`);
-  pos.forEach(([x, y], i) => {
-    if (t3[i]) s += `<g data-i="${i}">` + textoSVG(x, y - 20, t3[i], { color: '#fff', size: 13, maxAncho: 120 }) + '</g>';
-  });
-  return s + '</svg>';
-};
-
-// ---------- LÍNEAS DE TIEMPO ----------
-
-G['tiempo-lineal'] = (e, t) => {
-  let s = fondo() + defs();
-  const n = t.length, paso = (720 - 40) / (n - 1);
-  s += `<line x1="40" y1="250" x2="760" y2="250" stroke="${GRISES.claro}" stroke-width="4"/>`;
-  t.forEach((txt, i) => {
-    const x = 60 + i * paso;
-    const col = i % 2 === 0 ? e.primario : e.secundario;
-    s += `<circle cx="${x}" cy="250" r="13" fill="${col}"/>`;
-    const arriba = i % 2 === 0;
-    const yCaja = arriba ? 130 : 285;
-    s += `<line x1="${x}" y1="${arriba ? 237 : 263}" x2="${x}" y2="${arriba ? yCaja + 84 : yCaja}" stroke="${GRISES.claro}" stroke-width="2"/>`;
-    s += `<g data-i="${i}">${caja(x - 62, yCaja, 124, 84, tinte(col, arriba ? 0 : 0), 10)}${textoSVG(x, yCaja + 42, txt, { color: '#fff', size: 13, maxAncho: 108 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-G['tiempo-hitos'] = (e, t) => {
-  let s = fondo() + defs();
-  const n = t.length, paso = (700 - 30) / (n - 1);
-  s += `<line x1="50" y1="250" x2="750" y2="250" stroke="${e.neutro}" stroke-width="3" marker-end="url(#punta)"/>`;
-  t.forEach((txt, i) => {
-    const x = 65 + i * paso;
-    const col = i % 2 === 0 ? e.primario : e.acento;
-    const arriba = i % 2 === 0;
-    s += `<polygon points="${x},${arriba ? 235 : 265} ${x - 9},${arriba ? 250 : 250} ${x + 9},${arriba ? 250 : 250}" fill="${col}"/>`;
-    s += `<circle cx="${x}" cy="250" r="7" fill="#fff" stroke="${col}" stroke-width="3"/>`;
-    const yCaja = arriba ? 120 : 300;
-    s += `<g data-i="${i}">${caja(x - 58, yCaja, 116, 70, '#fff', 10, col)}${textoSVG(x, yCaja + 35, txt, { color: GRISES.texto, size: 12, maxAncho: 100 })}</g>`;
-  });
-  return s + '</svg>';
-};
-
-// ---------- FLUJOS ----------
-
-G['flujo-decision'] = (e, t) => {
-  let s = fondo() + defs();
-  s += `<g data-i="0">${caja(310, 40, 180, 60, e.primario, 10)}${textoSVG(400, 70, t[0], { color: '#fff', maxAncho: 160 })}</g>`;
-  s += `<line x1="400" y1="100" x2="400" y2="140" stroke="${GRISES.medio}" stroke-width="2.5" marker-end="url(#punta)"/>`;
-  s += `<g data-i="1"><polygon points="400,145 520,210 400,275 280,210" fill="${e.acento}"/>${textoSVG(400, 210, t[1], { color: '#fff', size: 13, maxAncho: 180 })}</g>`;
-  const ramas = [['Sí', t.slice(2, Math.ceil((t.length - 2) / 2) + 2), 130], ['No', t.slice(Math.ceil((t.length - 2) / 2) + 2), 670]];
-  ramas.forEach(([lab, items, x], r) => {
-    if (!items.length) return;
-    const col = r === 0 ? e.secundario : e.neutro;
-    s += `<line x1="${r === 0 ? 280 : 520}" y1="210" x2="${x}" y2="210" stroke="${GRISES.medio}" stroke-width="2.5" marker-end="url(#punta)"/>`;
-    s += textoSVG((r === 0 ? 280 : 520) + (r === 0 ? 30 : -30), 195, lab, { color: GRISES.medio, size: 13, peso: 700 });
-    items.forEach((txt, i) => {
-      const y = 140 + i * 100;
-      s += `<g data-i="${2 + (r === 0 ? i : ramas[0][1].length + i)}">${caja(x - 75, y, 150, 70, col, 10)}${textoSVG(x, y + 35, txt, { color: '#fff', size: 12, maxAncho: 134 })}</g>`;
-      if (i < items.length - 1) s += `<line x1="${x}" y1="${y + 70}" x2="${x}" y2="${y + 100}" stroke="${GRISES.medio}" stroke-width="2" marker-end="url(#punta)"/>`;
-    });
-  });
-  return s + '</svg>';
-};
-
-G['flujo-embudo'] = (e, t) => {
-  let s = fondo();
-  const n = t.length, h = 62, gap = 14;
-  const y0 = 70, Wmax = 560, Wmin = 160;
-  t.forEach((txt, i) => {
-    const y = y0 + i * (h + gap);
-    const w1 = Wmax - ((Wmax - Wmin) / n) * i;
-    const w2 = Wmax - ((Wmax - Wmin) / n) * (i + 1);
-    const col = tinte(e.primario, i * 0.09);
-    s += `<g data-i="${i}"><polygon points="${400 - w1 / 2},${y} ${400 + w1 / 2},${y} ${400 + w2 / 2},${y + h} ${400 - w2 / 2},${y + h}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-    s += textoSVG(400, y + h / 2 + 5, `${i + 1}. ${txt}`, { color: '#fff', size: 14, maxAncho: w2 - 40 }) + '</g>';
-  });
-  return s + '</svg>';
+// 30. Brujula
+G['brujula'] = (e, v, uid) => {
+  let s = `<circle cx="256" cy="256" r="132" class="st1" stroke-width="15"/>
+  <path d="M256 100 L256 126 M256 386 L256 412 M100 256 L126 256 M386 256 L412 256" class="st4" stroke-width="10"/>
+  <polygon points="256,136 290,256 222,256" class="c3"/>
+  <polygon points="256,376 290,256 222,256" class="c1"/>
+  <circle cx="256" cy="256" r="17" class="f"/>
+  <circle cx="256" cy="256" r="17" class="st1" stroke-width="8"/>`;
+  if (v === 1) s = s.replace('<circle cx="256" cy="256" r="132" class="st1" stroke-width="15"/>', '<circle cx="256" cy="256" r="132" class="st1" stroke-width="15"/><circle cx="256" cy="256" r="96" class="st2" stroke-width="8" stroke-dasharray="4 18"/>');
+  return s;
 };
 
 
 
 // ============================================================
-// ÍNDICE DEL CATÁLOGO — 30 tipos × 10 esquemas = 300 plantillas
+// ESTILOS Y CATÁLOGO — 30 conceptos × 2 variantes × 5 estilos = 300 logos.
+// El estilo se aplica con CSS interno del SVG: mismo dibujo, piel distinta.
 // ============================================================
 
-const CATALOGO = [];
-for (const tipo of TIPOS) {
-  for (const esq of ESQUEMAS) {
-    CATALOGO.push({
-      id: `${tipo.id}__${esq.id}`,
-      tipo: tipo.id,
-      nombreTipo: tipo.nombre,
-      categoria: tipo.cat,
-      esquema: esq.id,
-      nombreEsquema: esq.nombre,
-      pasos: tipo.pasos,
-      textos: textosDefault(tipo.pasos),
-    });
+const CATEGORIAS = ['Naturaleza', 'Agua', 'Energía', 'Movilidad', 'Fauna', 'Territorio'];
+
+const CONCEPTOS = [
+  { id: 'arbol', nombre: 'Árbol frondoso', cat: 'Naturaleza' },
+  { id: 'pino', nombre: 'Pino', cat: 'Naturaleza' },
+  { id: 'hoja', nombre: 'Hoja', cat: 'Naturaleza' },
+  { id: 'montana', nombre: 'Montaña', cat: 'Territorio' },
+  { id: 'carretera', nombre: 'Carretera', cat: 'Movilidad' },
+  { id: 'camino', nombre: 'Camino sinuoso', cat: 'Movilidad' },
+  { id: 'puente', nombre: 'Puente', cat: 'Movilidad' },
+  { id: 'turbina', nombre: 'Aerogenerador', cat: 'Energía' },
+  { id: 'panel-solar', nombre: 'Panel solar', cat: 'Energía' },
+  { id: 'gota', nombre: 'Gota de agua', cat: 'Agua' },
+  { id: 'olas', nombre: 'Olas', cat: 'Agua' },
+  { id: 'reciclaje', nombre: 'Reciclaje', cat: 'Territorio' },
+  { id: 'planeta', nombre: 'Planeta', cat: 'Territorio' },
+  { id: 'brote', nombre: 'Brote', cat: 'Naturaleza' },
+  { id: 'flor', nombre: 'Flor', cat: 'Naturaleza' },
+  { id: 'ave', nombre: 'Ave', cat: 'Fauna' },
+  { id: 'pez', nombre: 'Pez', cat: 'Fauna' },
+  { id: 'bosque', nombre: 'Bosque', cat: 'Naturaleza' },
+  { id: 'sendero', nombre: 'Sendero', cat: 'Movilidad' },
+  { id: 'ciudad-verde', nombre: 'Ciudad verde', cat: 'Territorio' },
+  { id: 'aire', nombre: 'Calidad del aire', cat: 'Territorio' },
+  { id: 'hidro', nombre: 'Energía hidráulica', cat: 'Energía' },
+  { id: 'geotermia', nombre: 'Geotermia', cat: 'Energía' },
+  { id: 'bici', nombre: 'Bicicleta', cat: 'Movilidad' },
+  { id: 'bus', nombre: 'Transporte público', cat: 'Movilidad' },
+  { id: 'rayo', nombre: 'Energía limpia', cat: 'Energía' },
+  { id: 'huella', nombre: 'Huella ambiental', cat: 'Fauna' },
+  { id: 'colmena', nombre: 'Polinización', cat: 'Fauna' },
+  { id: 'paisaje', nombre: 'Paisaje', cat: 'Territorio' },
+  { id: 'brujula', nombre: 'Orientación', cat: 'Territorio' },
+];
+
+const ESTILOS = [
+  { id: 'plano', nombre: 'Plano' },
+  { id: 'linea', nombre: 'Línea' },
+  { id: 'duotono', nombre: 'Duotono' },
+  { id: 'degradado', nombre: 'Degradado' },
+  { id: 'insignia', nombre: 'Insignia' },
+];
+
+const VARIANTES = [
+  { id: 1, nombre: 'Composición A' },
+  { id: 2, nombre: 'Composición B' },
+];
+
+// CSS del estilo: mapea clases .cN (relleno), .stN (trazo), .f (blanco fijo), .fw (fondo blanco)
+function cssEstilo(estiloId, esq, uid) {
+  const { primario, secundario, acento, neutro } = esq;
+  if (estiloId === 'plano') {
+    return `.c1{fill:${primario}}.c2{fill:${secundario}}.c3{fill:${acento}}.c4{fill:${neutro}}
+      .st1{fill:none;stroke:${primario}}.st2{fill:none;stroke:${secundario}}.st3{fill:none;stroke:${acento}}.st4{fill:none;stroke:${neutro}}
+      .f{fill:#fff}.fw{fill:none;stroke:#fff}`;
   }
+  if (estiloId === 'linea') {
+    return `.c1{fill:${tinte(primario, 0.92)}}.c2{fill:${tinte(secundario, 0.92)}}.c3{fill:${tinte(acento, 0.85)}}.c4{fill:${tinte(neutro, 0.9)}}
+      .st1{fill:none;stroke:${primario};stroke-linecap:round;stroke-linejoin:round}.st2{fill:none;stroke:${secundario};stroke-linecap:round;stroke-linejoin:round}
+      .st3{fill:none;stroke:${acento};stroke-linecap:round}.st4{fill:none;stroke:${neutro};stroke-linecap:round}
+      .f{fill:#fff}.fw{fill:none;stroke:${primario}}`;
+  }
+  if (estiloId === 'duotono') {
+    return `.c1{fill:${primario}}.c2{fill:${tinte(primario, 0.55)}}.c3{fill:${secundario}}.c4{fill:${tinte(primario, 0.78)}}
+      .st1{fill:none;stroke:${primario}}.st2{fill:none;stroke:${tinte(primario, 0.4)}}.st3{fill:none;stroke:${secundario}}.st4{fill:none;stroke:${tinte(primario, 0.25)}}
+      .f{fill:#fff}.fw{fill:none;stroke:#fff}`;
+  }
+  if (estiloId === 'degradado') {
+    return `.c1{fill:url(#gr${uid})}.c2{fill:url(#gr${uid})}.c3{fill:${acento}}.c4{fill:${tinte(primario, 0.35)}}
+      .st1{fill:none;stroke:url(#gr${uid})}.st2{fill:none;stroke:url(#gr${uid})}.st3{fill:none;stroke:${acento}}.st4{fill:none;stroke:${tinte(primario, 0.35)}}
+      .f{fill:#fff}.fw{fill:none;stroke:#fff}`;
+  }
+  // insignia
+  return `.c1{fill:#fff}.c2{fill:${tinte(secundario, 0.78)}}.c3{fill:${acento}}.c4{fill:${tinte(primario, 0.3)}}
+    .st1{fill:none;stroke:${primario}}.st2{fill:none;stroke:${secundario};stroke-linecap:round}.st3{fill:none;stroke:${acento}}.st4{fill:none;stroke:${primario}}
+    .f{fill:${primario}}.fw{fill:none;stroke:${primario}}`;
 }
 
-
-
-
-const MINIMOS = { 'relacion-venn-3': 3, 'comparativa-solapes': 3, 'comparativa-2col': 4, 'matriz-2x2': 4, 'matriz-eisenhower': 4, 'ciclo-4': 4, 'piramide-4': 4, 'piramide-invertida': 4 };
-const MAXIMOS = { 'relacion-venn-3': 3, 'comparativa-solapes': 3, 'comparativa-2col': 8, 'matriz-2x2': 4, 'matriz-eisenhower': 4, 'ciclo-4': 6, 'ciclo-6': 8, 'piramide-4': 6, 'piramide-invertida': 6 };
-function render(p) {
-  const esq = ESQUEMAS.find(e => e.id === p.esquema);
-  const gen = G[p.tipo];
-  if (!esq) throw new Error('Esquema desconocido: ' + p.esquema);
-  if (!gen) throw new Error('Generador desconocido: ' + p.tipo);
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">' + gen(esq, p.textos);
+function defsEstilo(estiloId, esq, uid) {
+  if (estiloId !== 'degradado') return '';
+  return `<defs><linearGradient id="gr${uid}" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="${esq.primario}"/><stop offset="1" stop-color="${esq.secundario}"/>
+  </linearGradient></defs>`;
 }
+
+function fondoEstilo(estiloId, esq, uid) {
+  if (estiloId === 'insignia') {
+    return `<circle cx="256" cy="256" r="242" fill="${esq.primario}"/><circle cx="256" cy="256" r="212" fill="none" stroke="${esq.acento}" stroke-width="6"/>`;
+  }
+  return '';
+}
+
+function render(logo) {
+  const esq = ESQUEMAS.find(e => e.id === logo.esquema);
+  const gen = G[logo.concepto];
+  if (!esq) throw new Error('Esquema desconocido: ' + logo.esquema);
+  if (!gen) throw new Error('Concepto desconocido: ' + logo.concepto);
+  const uid = logo.id.replace(/[^a-z0-9]/gi, '');
+  const css = cssEstilo(logo.estilo, esq, uid);
+  const cuerpo = gen(esq, logo.variante, uid);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">`
+    + `<style>${css}</style>` + defsEstilo(logo.estilo, esq, uid) + fondoEstilo(logo.estilo, esq, uid) + cuerpo + `</svg>`;
+}
+
+// SELECCIÓN — 300 logos: 30 conceptos × (2 composiciones × 5 estilos),
+// cada uno con un esquema de color distinto. Verificar.js comprueba que
+// son exactamente 300 y todos con dibujo diferente.
+const SELECCION = [
+  ['arbol',1,'plano','corporativo'],['arbol',1,'linea','azul-pro'],['arbol',1,'duotono','verde-eco'],['arbol',1,'degradado','agua'],['arbol',1,'insignia','tierra'],
+  ['arbol',2,'plano','energia'],['arbol',2,'linea','atardecer'],['arbol',2,'duotono','biodiversidad'],['arbol',2,'degradado','oceanico'],['arbol',2,'insignia','monocromo'],
+  ['pino',1,'plano','corporativo'],['pino',1,'linea','azul-pro'],['pino',1,'duotono','verde-eco'],['pino',1,'degradado','agua'],['pino',1,'insignia','tierra'],
+  ['pino',2,'plano','energia'],['pino',2,'linea','atardecer'],['pino',2,'duotono','biodiversidad'],['pino',2,'degradado','oceanico'],['pino',2,'insignia','monocromo'],
+  ['hoja',1,'plano','corporativo'],['hoja',1,'linea','azul-pro'],['hoja',1,'duotono','verde-eco'],['hoja',1,'degradado','agua'],['hoja',1,'insignia','tierra'],
+  ['hoja',2,'plano','energia'],['hoja',2,'linea','atardecer'],['hoja',2,'duotono','biodiversidad'],['hoja',2,'degradado','oceanico'],['hoja',2,'insignia','monocromo'],
+  ['montana',1,'plano','corporativo'],['montana',1,'linea','azul-pro'],['montana',1,'duotono','verde-eco'],['montana',1,'degradado','agua'],['montana',1,'insignia','tierra'],
+  ['montana',2,'plano','energia'],['montana',2,'linea','atardecer'],['montana',2,'duotono','biodiversidad'],['montana',2,'degradado','oceanico'],['montana',2,'insignia','monocromo'],
+  ['carretera',1,'plano','corporativo'],['carretera',1,'linea','azul-pro'],['carretera',1,'duotono','verde-eco'],['carretera',1,'degradado','agua'],['carretera',1,'insignia','tierra'],
+  ['carretera',2,'plano','energia'],['carretera',2,'linea','atardecer'],['carretera',2,'duotono','biodiversidad'],['carretera',2,'degradado','oceanico'],['carretera',2,'insignia','monocromo'],
+  ['camino',1,'plano','corporativo'],['camino',1,'linea','azul-pro'],['camino',1,'duotono','verde-eco'],['camino',1,'degradado','agua'],['camino',1,'insignia','tierra'],
+  ['camino',2,'plano','energia'],['camino',2,'linea','atardecer'],['camino',2,'duotono','biodiversidad'],['camino',2,'degradado','oceanico'],['camino',2,'insignia','monocromo'],
+  ['puente',1,'plano','corporativo'],['puente',1,'linea','azul-pro'],['puente',1,'duotono','verde-eco'],['puente',1,'degradado','agua'],['puente',1,'insignia','tierra'],
+  ['puente',2,'plano','energia'],['puente',2,'linea','atardecer'],['puente',2,'duotono','biodiversidad'],['puente',2,'degradado','oceanico'],['puente',2,'insignia','monocromo'],
+  ['turbina',1,'plano','corporativo'],['turbina',1,'linea','azul-pro'],['turbina',1,'duotono','verde-eco'],['turbina',1,'degradado','agua'],['turbina',1,'insignia','tierra'],
+  ['turbina',2,'plano','energia'],['turbina',2,'linea','atardecer'],['turbina',2,'duotono','biodiversidad'],['turbina',2,'degradado','oceanico'],['turbina',2,'insignia','monocromo'],
+  ['panel-solar',1,'plano','corporativo'],['panel-solar',1,'linea','azul-pro'],['panel-solar',1,'duotono','verde-eco'],['panel-solar',1,'degradado','agua'],['panel-solar',1,'insignia','tierra'],
+  ['panel-solar',2,'plano','energia'],['panel-solar',2,'linea','atardecer'],['panel-solar',2,'duotono','biodiversidad'],['panel-solar',2,'degradado','oceanico'],['panel-solar',2,'insignia','monocromo'],
+  ['gota',1,'plano','corporativo'],['gota',1,'linea','azul-pro'],['gota',1,'duotono','verde-eco'],['gota',1,'degradado','agua'],['gota',1,'insignia','tierra'],
+  ['gota',2,'plano','energia'],['gota',2,'linea','atardecer'],['gota',2,'duotono','biodiversidad'],['gota',2,'degradado','oceanico'],['gota',2,'insignia','monocromo'],
+  ['olas',1,'plano','corporativo'],['olas',1,'linea','azul-pro'],['olas',1,'duotono','verde-eco'],['olas',1,'degradado','agua'],['olas',1,'insignia','tierra'],
+  ['olas',2,'plano','energia'],['olas',2,'linea','atardecer'],['olas',2,'duotono','biodiversidad'],['olas',2,'degradado','oceanico'],['olas',2,'insignia','monocromo'],
+  ['reciclaje',1,'plano','corporativo'],['reciclaje',1,'linea','azul-pro'],['reciclaje',1,'duotono','verde-eco'],['reciclaje',1,'degradado','agua'],['reciclaje',1,'insignia','tierra'],
+  ['reciclaje',2,'plano','energia'],['reciclaje',2,'linea','atardecer'],['reciclaje',2,'duotono','biodiversidad'],['reciclaje',2,'degradado','oceanico'],['reciclaje',2,'insignia','monocromo'],
+  ['planeta',1,'plano','corporativo'],['planeta',1,'linea','azul-pro'],['planeta',1,'duotono','verde-eco'],['planeta',1,'degradado','agua'],['planeta',1,'insignia','tierra'],
+  ['planeta',2,'plano','energia'],['planeta',2,'linea','atardecer'],['planeta',2,'duotono','biodiversidad'],['planeta',2,'degradado','oceanico'],['planeta',2,'insignia','monocromo'],
+  ['brote',1,'plano','corporativo'],['brote',1,'linea','azul-pro'],['brote',1,'duotono','verde-eco'],['brote',1,'degradado','agua'],['brote',1,'insignia','tierra'],
+  ['brote',2,'plano','energia'],['brote',2,'linea','atardecer'],['brote',2,'duotono','biodiversidad'],['brote',2,'degradado','oceanico'],['brote',2,'insignia','monocromo'],
+  ['flor',1,'plano','corporativo'],['flor',1,'linea','azul-pro'],['flor',1,'duotono','verde-eco'],['flor',1,'degradado','agua'],['flor',1,'insignia','tierra'],
+  ['flor',2,'plano','energia'],['flor',2,'linea','atardecer'],['flor',2,'duotono','biodiversidad'],['flor',2,'degradado','oceanico'],['flor',2,'insignia','monocromo'],
+  ['ave',1,'plano','corporativo'],['ave',1,'linea','azul-pro'],['ave',1,'duotono','verde-eco'],['ave',1,'degradado','agua'],['ave',1,'insignia','tierra'],
+  ['ave',2,'plano','energia'],['ave',2,'linea','atardecer'],['ave',2,'duotono','biodiversidad'],['ave',2,'degradado','oceanico'],['ave',2,'insignia','monocromo'],
+  ['pez',1,'plano','corporativo'],['pez',1,'linea','azul-pro'],['pez',1,'duotono','verde-eco'],['pez',1,'degradado','agua'],['pez',1,'insignia','tierra'],
+  ['pez',2,'plano','energia'],['pez',2,'linea','atardecer'],['pez',2,'duotono','biodiversidad'],['pez',2,'degradado','oceanico'],['pez',2,'insignia','monocromo'],
+  ['bosque',1,'plano','corporativo'],['bosque',1,'linea','azul-pro'],['bosque',1,'duotono','verde-eco'],['bosque',1,'degradado','agua'],['bosque',1,'insignia','tierra'],
+  ['bosque',2,'plano','energia'],['bosque',2,'linea','atardecer'],['bosque',2,'duotono','biodiversidad'],['bosque',2,'degradado','oceanico'],['bosque',2,'insignia','monocromo'],
+  ['sendero',1,'plano','corporativo'],['sendero',1,'linea','azul-pro'],['sendero',1,'duotono','verde-eco'],['sendero',1,'degradado','agua'],['sendero',1,'insignia','tierra'],
+  ['sendero',2,'plano','energia'],['sendero',2,'linea','atardecer'],['sendero',2,'duotono','biodiversidad'],['sendero',2,'degradado','oceanico'],['sendero',2,'insignia','monocromo'],
+  ['ciudad-verde',1,'plano','corporativo'],['ciudad-verde',1,'linea','azul-pro'],['ciudad-verde',1,'duotono','verde-eco'],['ciudad-verde',1,'degradado','agua'],['ciudad-verde',1,'insignia','tierra'],
+  ['ciudad-verde',2,'plano','energia'],['ciudad-verde',2,'linea','atardecer'],['ciudad-verde',2,'duotono','biodiversidad'],['ciudad-verde',2,'degradado','oceanico'],['ciudad-verde',2,'insignia','monocromo'],
+  ['aire',1,'plano','corporativo'],['aire',1,'linea','azul-pro'],['aire',1,'duotono','verde-eco'],['aire',1,'degradado','agua'],['aire',1,'insignia','tierra'],
+  ['aire',2,'plano','energia'],['aire',2,'linea','atardecer'],['aire',2,'duotono','biodiversidad'],['aire',2,'degradado','oceanico'],['aire',2,'insignia','monocromo'],
+  ['hidro',1,'plano','corporativo'],['hidro',1,'linea','azul-pro'],['hidro',1,'duotono','verde-eco'],['hidro',1,'degradado','agua'],['hidro',1,'insignia','tierra'],
+  ['hidro',2,'plano','energia'],['hidro',2,'linea','atardecer'],['hidro',2,'duotono','biodiversidad'],['hidro',2,'degradado','oceanico'],['hidro',2,'insignia','monocromo'],
+  ['geotermia',1,'plano','corporativo'],['geotermia',1,'linea','azul-pro'],['geotermia',1,'duotono','verde-eco'],['geotermia',1,'degradado','agua'],['geotermia',1,'insignia','tierra'],
+  ['geotermia',2,'plano','energia'],['geotermia',2,'linea','atardecer'],['geotermia',2,'duotono','biodiversidad'],['geotermia',2,'degradado','oceanico'],['geotermia',2,'insignia','monocromo'],
+  ['bici',1,'plano','corporativo'],['bici',1,'linea','azul-pro'],['bici',1,'duotono','verde-eco'],['bici',1,'degradado','agua'],['bici',1,'insignia','tierra'],
+  ['bici',2,'plano','energia'],['bici',2,'linea','atardecer'],['bici',2,'duotono','biodiversidad'],['bici',2,'degradado','oceanico'],['bici',2,'insignia','monocromo'],
+  ['bus',1,'plano','corporativo'],['bus',1,'linea','azul-pro'],['bus',1,'duotono','verde-eco'],['bus',1,'degradado','agua'],['bus',1,'insignia','tierra'],
+  ['bus',2,'plano','energia'],['bus',2,'linea','atardecer'],['bus',2,'duotono','biodiversidad'],['bus',2,'degradado','oceanico'],['bus',2,'insignia','monocromo'],
+  ['rayo',1,'plano','corporativo'],['rayo',1,'linea','azul-pro'],['rayo',1,'duotono','verde-eco'],['rayo',1,'degradado','agua'],['rayo',1,'insignia','tierra'],
+  ['rayo',2,'plano','energia'],['rayo',2,'linea','atardecer'],['rayo',2,'duotono','biodiversidad'],['rayo',2,'degradado','oceanico'],['rayo',2,'insignia','monocromo'],
+  ['huella',1,'plano','corporativo'],['huella',1,'linea','azul-pro'],['huella',1,'duotono','verde-eco'],['huella',1,'degradado','agua'],['huella',1,'insignia','tierra'],
+  ['huella',2,'plano','energia'],['huella',2,'linea','atardecer'],['huella',2,'duotono','biodiversidad'],['huella',2,'degradado','oceanico'],['huella',2,'insignia','monocromo'],
+  ['colmena',1,'plano','corporativo'],['colmena',1,'linea','azul-pro'],['colmena',1,'duotono','verde-eco'],['colmena',1,'degradado','agua'],['colmena',1,'insignia','tierra'],
+  ['colmena',2,'plano','energia'],['colmena',2,'linea','atardecer'],['colmena',2,'duotono','biodiversidad'],['colmena',2,'degradado','oceanico'],['colmena',2,'insignia','monocromo'],
+  ['paisaje',1,'plano','corporativo'],['paisaje',1,'linea','azul-pro'],['paisaje',1,'duotono','verde-eco'],['paisaje',1,'degradado','agua'],['paisaje',1,'insignia','tierra'],
+  ['paisaje',2,'plano','energia'],['paisaje',2,'linea','atardecer'],['paisaje',2,'duotono','biodiversidad'],['paisaje',2,'degradado','oceanico'],['paisaje',2,'insignia','monocromo'],
+  ['brujula',1,'plano','corporativo'],['brujula',1,'linea','azul-pro'],['brujula',1,'duotono','verde-eco'],['brujula',1,'degradado','agua'],['brujula',1,'insignia','tierra'],
+  ['brujula',2,'plano','energia'],['brujula',2,'linea','atardecer'],['brujula',2,'duotono','biodiversidad'],['brujula',2,'degradado','oceanico'],['brujula',2,'insignia','monocromo'],
+];
+const CATALOGO = SELECCION.map(([concepto, variante, estilo, esquema]) => {
+  const c = CONCEPTOS.find(x => x.id === concepto);
+  return {
+    id: `${concepto}-v${variante}-${estilo}-${esquema}`,
+    concepto, nombre: c.nombre, categoria: c.cat,
+    variante, estilo, esquema,
+  };
+});
+
+
+
 
 </script>
 <script>
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
-  let estado = {
-    filtroCat: '',
-    filtroEsq: '',
-    filtroPasos: '',
-    q: '',
-    actual: null, // plantilla abierta
+  const estado = { cat: '', estilo: '', esq: '', q: '', actual: null };
+  const FONDOS = {
+    transparente: 'transparent',
+    blanco: '#FFFFFF',
+    claro: '#F0F3F7',
+    oscuro: '#122A4D',
   };
-  const textosEditados = {}; // idPlantilla -> [textos]
 
-  // ---- Población de filtros ----
-  const selEsqFiltro = $('filtroEsquema');
+  // filtros
+  const selE = $('filtroEstilo');
+  ESTILOS.forEach(e => {
+    const o = document.createElement('option');
+    o.value = e.id; o.textContent = e.nombre;
+    selE.appendChild(o);
+  });
+  const selC = $('filtroEsquema');
   ESQUEMAS.forEach(e => {
     const o = document.createElement('option');
     o.value = e.id; o.textContent = e.nombre;
-    selEsqFiltro.appendChild(o);
+    selC.appendChild(o);
   });
 
   const chips = $('chips');
-  const cats = [''].concat(CATEGORIAS);
-  cats.forEach((c, i) => {
+  [''].concat(CATEGORIAS).forEach((c, i) => {
     const b = document.createElement('button');
     b.className = 'chip' + (i === 0 ? ' activo' : '');
     b.textContent = c === '' ? 'Todas' : c;
     b.onclick = () => {
-      estado.filtroCat = c;
+      estado.cat = c;
       chips.querySelectorAll('.chip').forEach(x => x.classList.remove('activo'));
       b.classList.add('activo');
       pintar();
@@ -962,30 +800,25 @@ function render(p) {
   });
 
   $('buscador').addEventListener('input', e => { estado.q = e.target.value.toLowerCase().trim(); pintar(); });
-  $('filtroEsquema').addEventListener('change', e => { estado.filtroEsq = e.target.value; pintar(); });
-  $('filtroPasos').addEventListener('change', e => { estado.filtroPasos = e.target.value; pintar(); });
+  $('filtroEstilo').addEventListener('change', e => { estado.estilo = e.target.value; pintar(); });
+  $('filtroEsquema').addEventListener('change', e => { estado.esq = e.target.value; pintar(); });
 
-  function plantillaFiltrada() {
+  function filtrados() {
     return CATALOGO.filter(p => {
-      if (estado.filtroCat && p.categoria !== estado.filtroCat) return false;
-      if (estado.filtroEsq && p.esquema !== estado.filtroEsq) return false;
-      if (estado.filtroPasos && p.pasos !== +estado.filtroPasos) return false;
-      if (estado.q && !(p.nombreTipo + ' ' + p.nombreEsquema + ' ' + p.categoria).toLowerCase().includes(estado.q)) return false;
+      if (estado.cat && p.categoria !== estado.cat) return false;
+      if (estado.estilo && p.estilo !== estado.estilo) return false;
+      if (estado.esq && p.esquema !== estado.esq) return false;
+      if (estado.q) {
+        const busq = p.nombre + ' ' + p.nombreEstilo + ' ' + p.nombreEsquema + ' ' + p.categoria;
+        if (!busq.toLowerCase().includes(estado.q)) return false;
+      }
       return true;
     });
   }
 
-  function textosDe(p) {
-    return textosEditados[p.id] || p.textos;
-  }
-
-  function svgDe(p, textos) {
-    return render({ ...p, textos });
-  }
-
   function pintar() {
-    const lista = plantillaFiltrada();
-    $('contador').textContent = lista.length + ' plantilla' + (lista.length === 1 ? '' : 's');
+    const lista = filtrados();
+    $('contador').textContent = lista.length + ' logo' + (lista.length === 1 ? '' : 's');
     const grid = $('grid');
     grid.innerHTML = '';
     if (!lista.length) {
@@ -993,107 +826,91 @@ function render(p) {
       return;
     }
     const frag = document.createDocumentFragment();
-    lista.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'tarjeta';
-      card.innerHTML = `<div class="thumb">${svgDe(p, textosDe(p))}</div>
-        <div class="pie"><strong>${p.nombreTipo}</strong><span>${p.nombreEsquema} · ${p.categoria}</span></div>`;
-      card.onclick = () => abrir(p);
-      frag.appendChild(card);
-    });
+    // limitar el render inicial a 60 y cargar el resto al hacer scroll
+    lista.slice(0, 60).forEach(p => frag.appendChild(tarjeta(p)));
     grid.appendChild(frag);
+    if (lista.length > 60) {
+      const resto = lista.slice(60);
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          const f2 = document.createDocumentFragment();
+          resto.splice(0, 40).forEach(p => f2.appendChild(tarjeta(p)));
+          grid.appendChild(f2);
+          if (!resto.length) io.disconnect();
+          else {
+            // re-observar el último
+            io.observe(grid.lastElementChild);
+          }
+        }
+      });
+      io.observe(grid.lastElementChild);
+    }
+  }
+
+  function tarjeta(p) {
+    const card = document.createElement('div');
+    card.className = 'tarjeta';
+    card.innerHTML = `<div class="thumb">${render(p)}</div>
+      <div class="pie"><strong>${p.nombre}</strong><span>${p.nombreEstilo} · ${p.nombreEsquema}</span></div>`;
+    card.onclick = () => abrir(p);
+    return card;
   }
 
   // ---- Editor ----
   const modal = $('modal');
+  let fondoActual = 'blanco';
 
   function abrir(p) {
-    estado.actual = { ...p, textos: textosDe(p).slice() };
-    $('titEditor').textContent = p.nombreTipo;
-    $('subEditor').textContent = p.nombreEsquema + ' · ' + p.categoria;
-    const selE = $('selEsquema');
-    selE.innerHTML = '';
+    estado.actual = p;
+    $('titEditor').textContent = p.nombre;
+    $('subEditor').textContent = 'Estilo: ' + p.nombreEstilo + ' · Color: ' + p.nombreEsquema;
+    const sw = $('swatches');
+    sw.innerHTML = '';
     ESQUEMAS.forEach(e => {
-      const o = document.createElement('option');
-      o.value = e.id; o.textContent = e.nombre;
-      if (e.id === p.esquema) o.selected = true;
-      selE.appendChild(o);
+      const d = document.createElement('div');
+      d.className = 'swatch' + (e.id === p.esquema ? ' activo' : '');
+      d.style.background = `linear-gradient(135deg, ${e.primario} 50%, ${e.secundario} 50%)`;
+      d.title = e.nombre;
+      d.onclick = () => {
+        estado.actual = CATALOGO.find(x => x.concepto === p.concepto && x.variante === p.variante && x.estilo === p.estilo && x.esquema === e.id) || estado.actual;
+        $('subEditor').textContent = 'Estilo: ' + estado.actual.nombreEstilo + ' · Color: ' + estado.actual.nombreEsquema;
+        sw.querySelectorAll('.swatch').forEach(x => x.classList.remove('activo'));
+        d.classList.add('activo');
+        refrescar();
+      };
+      sw.appendChild(d);
     });
-    const selP = $('selPasos');
-    selP.innerHTML = '';
-    const min = MINIMOS[p.tipo] || 3, max = MAXIMOS[p.tipo] || 8;
-    for (let n = min; n <= max; n++) {
-      const o = document.createElement('option');
-      o.value = n; o.textContent = n + ' elementos';
-      if (n === p.pasos) o.selected = true;
-      selP.appendChild(o);
-    }
-    pintarTextos();
     refrescar();
     modal.classList.add('abierto');
   }
 
-  function pintarTextos() {
-    const cont = $('listaTextos');
-    cont.innerHTML = '';
-    estado.actual.textos.forEach((t, i) => {
-      const inp = document.createElement('input');
-      inp.type = 'text';
-      inp.value = t;
-      inp.placeholder = 'Elemento ' + (i + 1);
-      inp.addEventListener('input', () => {
-        estado.actual.textos[i] = inp.value;
-        textosEditados[clave()] = estado.actual.textos.slice();
-        refrescar();
-      });
-      cont.appendChild(inp);
-    });
-  }
-
-  function clave() {
-    const a = estado.actual;
-    return a.tipo + '__' + a.esquema;
-  }
-
   function refrescar() {
-    const a = estado.actual;
-    $('vista').innerHTML = render(a);
+    const v = $('vista');
+    v.style.background = FONDOS[fondoActual];
+    v.innerHTML = render(estado.actual);
+    $('notaExport').textContent = fondoActual === 'transparente'
+      ? 'El PNG se exportará con fondo transparente.'
+      : 'El fondo elegido se incluye en la exportación.';
   }
 
-  $('selEsquema').addEventListener('change', e => {
-    estado.actual.esquema = e.target.value;
-    textosEditados[clave()] = textosEditados[clave()] || estado.actual.textos.slice();
-    refrescar();
-  });
-  $('selPasos').addEventListener('change', e => {
-    const n = +e.target.value;
-    const base = textosEditados[clave()] || estado.actual.textos;
-    const def = textosDefault(n);
-    const nuevos = [];
-    for (let i = 0; i < n; i++) nuevos.push(base[i] !== undefined ? base[i] : def[i]);
-    estado.actual.textos = nuevos;
-    estado.actual.pasos = n;
-    textosEditados[clave()] = nuevos.slice();
-    pintarTextos();
-    refrescar();
-  });
-  $('btnReset').addEventListener('click', () => {
-    estado.actual.textos = textosDefault(estado.actual.pasos);
-    delete textosEditados[clave()];
-    pintarTextos();
-    refrescar();
-  });
-  $('btnCerrar').addEventListener('click', () => { modal.classList.remove('abierto'); pintar(); });
-  modal.addEventListener('click', e => { if (e.target === modal) { modal.classList.remove('abierto'); pintar(); } });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('abierto')) { modal.classList.remove('abierto'); pintar(); } });
+  $('selFondo').addEventListener('change', e => { fondoActual = e.target.value; refrescar(); });
+  $('rangoTam').addEventListener('input', e => { $('lblTam').textContent = e.target.value; });
+  $('btnCerrar').addEventListener('click', () => modal.classList.remove('abierto'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('abierto'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('abierto')) modal.classList.remove('abierto'); });
 
   // ---- Exportación ----
-  function svgSerializado() {
-    return render(estado.actual);
+  function svgActual(fondoParaExport) {
+    const svg = render(estado.actual);
+    if (fondoParaExport && fondoParaExport !== 'transparent') {
+      // insertar rect de fondo tras el <style>
+      return svg.replace(/(<\/style>)/, `$1<rect width="512" height="512" fill="${fondoParaExport}"/>`);
+    }
+    return svg;
   }
 
   function nombreArchivo(ext) {
-    return estado.actual.tipo + '-' + estado.actual.esquema + '.' + ext;
+    return estado.actual.id + '.' + ext;
   }
 
   function descargar(blob, nombre) {
@@ -1106,19 +923,21 @@ function render(p) {
   }
 
   $('btnSVG').addEventListener('click', () => {
-    descargar(new Blob([svgSerializado()], { type: 'image/svg+xml' }), nombreArchivo('svg'));
+    descargar(new Blob([svgActual(FONDOS[fondoActual])], { type: 'image/svg+xml' }), nombreArchivo('svg'));
   });
 
-  function svgABitmap(escala) {
+  function svgABitmap(px) {
     return new Promise((res, rej) => {
-      const url = URL.createObjectURL(new Blob([svgSerializado()], { type: 'image/svg+xml' }));
+      const url = URL.createObjectURL(new Blob([svgActual(FONDOS[fondoActual])], { type: 'image/svg+xml' }));
       const img = new Image();
       img.onload = () => {
         const c = document.createElement('canvas');
-        c.width = 800 * escala; c.height = 500 * escala;
+        c.width = px; c.height = px;
         const ctx = c.getContext('2d');
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, c.width, c.height);
+        if (FONDOS[fondoActual] !== 'transparent') {
+          ctx.fillStyle = FONDOS[fondoActual];
+          ctx.fillRect(0, 0, c.width, c.height);
+        }
         ctx.drawImage(img, 0, 0, c.width, c.height);
         URL.revokeObjectURL(url);
         res(c);
@@ -1130,14 +949,14 @@ function render(p) {
 
   $('btnPNG').addEventListener('click', async () => {
     try {
-      const c = await svgABitmap(3);
+      const c = await svgABitmap(+$('rangoTam').value);
       c.toBlob(b => descargar(b, nombreArchivo('png')), 'image/png');
     } catch (e) { alert('No se pudo generar el PNG: ' + e.message); }
   });
 
   $('btnCopiar').addEventListener('click', async () => {
     try {
-      const c = await svgABitmap(3);
+      const c = await svgABitmap(1024);
       const blob = await new Promise(r => c.toBlob(r, 'image/png'));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       const b = $('btnCopiar');
@@ -1145,7 +964,7 @@ function render(p) {
       b.textContent = '✓ Copiada';
       setTimeout(() => b.textContent = t, 1600);
     } catch (e) {
-      alert('Tu navegador no permite copiar imágenes. Usa «Descargar PNG» e insértala en Word con Insertar → Imagen.');
+      alert('Tu navegador no permite copiar imágenes. Usa «Descargar PNG» e insértala donde la necesites.');
     }
   });
 
