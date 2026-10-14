@@ -1,38 +1,27 @@
-# Logos Ambientales
+# Diagramas y Logos Ambientales
 
-Catálogo de **300 logotipos vectoriales** con temática de medio ambiente: naturaleza, agua, energía, movilidad, fauna y territorio. Funciona 100 % en el navegador, sin instalar nada, sin conexión.
+Herramienta para crear **cuadros y esquemas a tu medida** para documentación de medio ambiente: 50 diagramas editables (tipo SmartArt) + 50 logotipos, con posibilidad de **incrustar el logo dentro del diagrama**. Todo en el navegador, sin instalar nada, sin conexión.
 
-## Qué es
+## Qué hay
 
-30 conceptos (árbol, carretera, montaña, aerogenerador, gota, ave, bicicleta…) × 2 composiciones × 5 estilos de diseño (Plano, Línea, Duotono, Degradado, Insignia), cada uno con un esquema de color distinto. Todos los dibujos son únicos: el catálogo se verifica automáticamente para que no haya repeticiones.
+- **50 diagramas**: procesos, ciclos, comparativas, jerarquías, listas y matrices, relaciones, líneas de tiempo y flujos. Textos y número de elementos editables.
+- **50 logos**: 30 conceptos ambientales (árbol, carretera, montaña, aerogenerador, gota, ave, bicicleta…) en 5 estilos de diseño (Plano, Línea, Duotono, Degradado, Insignia) y 2 composiciones.
+- **Incrustación**: en los diagramas de ciclo, orbital, radial y Venn puedes colocar un logo en el centro (sobre disco blanco, con buen contraste).
+- **10 paletas de color** derivadas de una identidad corporativa sobria (azul, rojo, gris) con variantes ambientales. Cambiables en vivo desde el editor.
 
 ## Cómo se usa
 
 1. Abre index.html (doble clic) o la web publicada.
-2. Busca o filtra por categoría, estilo o paleta de color.
-3. Haz clic en un logo → se abre el editor.
-4. Elige color, fondo (transparente, blanco, gris, azul oscuro) y tamaño de exportación.
-5. Descarga PNG (hasta 2048 px), SVG vectorial o copia la imagen al portapapeles.
-
-## Paletas de color
-
-10 esquemas: Corporativo, Azul profesional, Verde sostenible, Azul agua, Tierra y bosque, Energía limpia, Atardecer ambiental, Biodiversidad, Oceánico profundo y Monocromo sobrio.
-
-## Categorías
-
-| Categoría | Conceptos |
-|---|---|
-| Naturaleza | Árbol, pino, hoja, brote, flor, bosque |
-| Agua | Gota, olas |
-| Energía | Aerogenerador, panel solar, hidráulica, geotermia, energía limpia |
-| Movilidad | Carretera, camino, puente, sendero, bicicleta, transporte público |
-| Fauna | Ave, pez, huella, polinización |
-| Territorio | Montaña, reciclaje, planeta, ciudad verde, calidad del aire, paisaje, orientación |
+2. Elige pestaña: Diagramas o Logos. Busca o filtra por categoría y color.
+3. Haz clic en una plantilla → se abre el editor.
+4. Diagramas: cambia los textos, el número de elementos, el color y (si quieres) el logo del centro.
+5. Logos: cambia el color y el fondo.
+6. Descarga PNG (hasta 3200 px), SVG vectorial o copia la imagen al portapapeles.
 
 ## Desarrollo
 
 ```bash
-node scripts/verificar.js         # 300 logos únicos, render sin fallos, cuotas equilibradas
+node scripts/verificar.js         # 50+50 items, render sin fallos, incrustación OK
 node scripts/verificar-bundle.js  # el bundle embebido ejecuta y renderiza
 node scripts/verificar-higiene.js # sin CDN ni nombres de terceros
 node scripts/compilar.js          # regenerar index.html tras editar src/
@@ -41,9 +30,10 @@ node scripts/compilar.js          # regenerar index.html tras editar src/
 Estructura:
 
 ```
-src/paleta.js        10 esquemas de color y helpers
-src/generadores.js   Los 30 dibujos geométricos
-src/catalogo.js      Estilos, selección de 300 y render
+src/paleta.js        10 esquemas de color, helpers de texto SVG
+src/smartart.js      30 generadores de diagramas
+src/generadores.js   30 dibujos geométricos de logos
+src/catalogo.js      Estilos, catálogo unificado (50+50) y render
 src/app-ui.html      Interfaz (plantilla del HTML final)
 scripts/compilar.js  Genera index.html autocontenido
 ```
@@ -54,4 +44,4 @@ GitHub Pages desde main. GitHub Actions verifica el catálogo en cada push.
 
 ---
 
-Herramienta de logotipos para proyectos de medio ambiente. Sin conexión, sin datos.
+Herramienta de diagramación para documentación ambiental. Sin conexión, sin datos.

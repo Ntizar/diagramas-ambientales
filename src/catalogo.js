@@ -2,8 +2,10 @@
 // ESTILOS Y CATÁLOGO — 30 conceptos × 2 variantes × 5 estilos = 300 logos.
 // El estilo se aplica con CSS interno del SVG: mismo dibujo, piel distinta.
 // ============================================================
-const { ESQUEMAS, tinte } = require('./paleta');
+const { ESQUEMAS, TIPOS_DIAGRAMA, textosDefault, tinte } = require('./paleta');
 const { G } = require('./generadores');
+const { G: GD } = require('./smartart');
+
 
 const CATEGORIAS = ['Naturaleza', 'Agua', 'Energía', 'Movilidad', 'Fauna', 'Territorio'];
 
@@ -174,13 +176,126 @@ const SELECCION = [
   ['brujula',1,'plano','corporativo'],['brujula',1,'linea','azul-pro'],['brujula',1,'duotono','verde-eco'],['brujula',1,'degradado','agua'],['brujula',1,'insignia','tierra'],
   ['brujula',2,'plano','energia'],['brujula',2,'linea','atardecer'],['brujula',2,'duotono','biodiversidad'],['brujula',2,'degradado','oceanico'],['brujula',2,'insignia','monocromo'],
 ];
-const CATALOGO = SELECCION.map(([concepto, variante, estilo, esquema]) => {
-  const c = CONCEPTOS.find(x => x.id === concepto);
-  return {
-    id: `${concepto}-v${variante}-${estilo}-${esquema}`,
-    concepto, nombre: c.nombre, categoria: c.cat,
-    variante, estilo, esquema,
-  };
-});
 
-module.exports = { CATALOGO, CONCEPTOS, ESTILOS, VARIANTES, render, cssEstilo, defsEstilo, fondoEstilo };
+// ============================================================
+// CATÁLOGO UNIFICADO — 50 diagramas + 50 logos.
+// Los esquemas son editables en vivo desde el editor, así que
+// el catálogo reparte esquemas para que la galería luzca variada.
+// ============================================================
+
+Object.assign(G, GD);
+
+function construirCatalogo() {
+  const items = [];
+
+  // ---- 50 DIAGRAMAS ----
+  const ordenEsqD = ['corporativo','verde-eco','azul-pro','agua','energia','tierra','biodiversidad','atardecer','oceanico','monocromo'];
+  TIPOS_DIAGRAMA.forEach((t, i) => {
+    items.push({
+      id: 'd-' + t.id,
+      clase: 'diagrama',
+      tipo: t.id,
+      nombre: t.nombre,
+      categoria: t.cat,
+      esquema: ordenEsqD[i % 10],
+      pasos: t.pasos,
+    });
+  });
+  // 20 diagramas adicionales: los 20 primeros tipos con otro esquema
+  TIPOS_DIAGRAMA.slice(0, 20).forEach((t, i) => {
+    items.push({
+      id: 'd2-' + t.id,
+      clase: 'diagrama',
+      tipo: t.id,
+      nombre: t.nombre + ' · ' + ESQUEMAS[(i + 1) % 10].nombre,
+      categoria: t.cat,
+      esquema: ordenEsqD[(i + 1) % 10],
+      pasos: t.pasos,
+    });
+  });
+
+  // ---- 50 LOGOS ----
+  const ordenEsqL = ['corporativo','verde-eco','azul-pro','agua','energia','tierra','biodiversidad','atardecer','oceanico','monocromo'];
+  const estilos = ['plano','linea','duotono','degradado','insignia'];
+  CONCEPTOS.forEach((c, i) => {
+    items.push({
+      id: 'l-' + c.id + '-v1-' + estilos[i % 5],
+      clase: 'logo',
+      concepto: c.id,
+      nombre: c.nombre,
+      categoria: c.cat,
+      variante: 1,
+      estilo: estilos[i % 5],
+      esquema: ordenEsqL[i % 10],
+    });
+  });
+  // 20 logos adicionales: composición 2 con otro estilo/esquema
+  CONCEPTOS.slice(0, 20).forEach((c, i) => {
+    items.push({
+      id: 'l2-' + c.id + '-v2-' + estilos[(i + 2) % 5],
+      clase: 'logo',
+      concepto: c.id,
+      nombre: c.nombre + ' · B',
+      categoria: c.cat,
+      variante: 2,
+      estilo: estilos[(i + 2) % 5],
+      esquema: ordenEsqL[(i + 3) % 10],
+    });
+  });
+
+  return items;
+}
+
+const CATALOGO = construirCatalogo();
+
+function render(item) {
+  const esq = ESQUEMAS.find(e => e.id === item.esquema);
+  if (!esq) throw new Error('Esquema desconocido: ' + item.esquema);
+  if (item.clase === 'diagrama') {
+    const gen = G[item.tipo];
+    if (!gen) throw new Error('Diagrama desconocido: ' + item.tipo);
+    const textos = item.textos || textosDefault(item.pasos);
+    const cuerpo = gen(esq, textos);
+    let extra = '';
+    if (item.logoConcepto) {
+      const genLogo = G[item.logoConcepto];
+      if (genLogo) {
+        const uid = 'ins' + item.id.replace(/[^a-z0-9]/gi, '');
+        const css = cssEstilo(item.logoEstilo || 'plano', esq, uid);
+        const logoCuerpo = genLogo(esq, item.logoVariante || 1, uid);
+        const zona = ZONAS_CENTRALES[item.tipo] || { cx: 400, cy: 250, r: 52 };
+        // el logo 512x512 se escala al diámetro de la zona central
+        const d = zona.r * 2;
+        const escala = d / 512;
+        extra = '<circle cx="' + zona.cx + '" cy="' + zona.cy + '" r="' + (zona.r + 6) + '" fill="#FFFFFF"/>'
+          + '<style>' + css + '</style>'
+          + '<g transform="translate(' + (zona.cx - zona.r) + ' ' + (zona.cy - zona.r) + ') scale(' + escala + ')">'
+          + defsEstilo(item.logoEstilo || 'plano', esq, uid) + logoCuerpo + '</g>';
+      }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">'
+      + cuerpo + extra + '</svg>';
+  }
+  const gen = G[item.concepto];
+  if (!gen) throw new Error('Logo desconocido: ' + item.concepto);
+  const uid = item.id.replace(/[^a-z0-9]/gi, '');
+  const css = cssEstilo(item.estilo, esq, uid);
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">'
+    + '<style>' + css + '</style>' + defsEstilo(item.estilo, esq, uid) + fondoEstilo(item.estilo, esq, uid)
+    + gen(esq, item.variante, uid) + '</svg>';
+}
+
+// Zona central de los diagramas que admiten logo incrustado (círculo central o hueco)
+const ZONAS_CENTRALES = {
+  'ciclo-4': { cx: 400, cy: 250, r: 54 },
+  'ciclo-6': { cx: 400, cy: 250, r: 54 },
+  'ciclo-orbital': { cx: 400, cy: 250, r: 46 },
+  'ciclo-segmentos': { cx: 400, cy: 250, r: 44 },
+  'relacion-radial': { cx: 400, cy: 250, r: 56 },
+  'relacion-venn-3': { cx: 400, cy: 245, r: 34 },
+  'proceso-pilares': { cx: 400, cy: 330, r: 40 },
+};
+
+const CATEGORIAS_UNIFICADAS = [...new Set(CATALOGO.map(p => p.categoria))];
+
+module.exports = { CATALOGO, render, CONCEPTOS, ESTILOS, CATEGORIAS_UNIFICADAS, cssEstilo, defsEstilo, fondoEstilo };
