@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagramas Ambientales — Catálogo de plantillas</title>
+<style>
+:root {
+  --primario: #1A4488;
+  --primario-suave: #3D6AB5;
+  --acento: #CB1823;
+  --texto: #33404F;
+  --medio: #8A94A0;
+  --claro: #C9D0D8;
+  --fondo: #F4F6F9;
+  --blanco: #FFFFFF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  min-height: 100vh;
+}
+header {
+  background: var(--blanco);
+  border-bottom: 1px solid var(--claro);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+header .marca { width: 42px; height: 42px; flex: none; }
+header h1 { font-size: 20px; font-weight: 700; color: var(--primario); }
+header p { font-size: 13px; color: var(--medio); }
+main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 60px; }
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+#buscador {
+  flex: 1 1 260px;
+  min-width: 220px;
+  padding: 11px 16px;
+  border: 1.5px solid var(--claro);
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  background: var(--blanco);
+}
+#buscador:focus { border-color: var(--primario-suave); }
+select {
+  padding: 10px 14px;
+  border: 1.5px solid var(--claro);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--blanco);
+  color: var(--texto);
+  outline: none;
+  cursor: pointer;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 20px; }
+.chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--claro);
+  background: var(--blanco);
+  font-size: 13px;
+  color: var(--texto);
+  cursor: pointer;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--primario-suave); }
+.chip.activo { background: var(--primario); border-color: var(--primario); color: #fff; }
+#contador { font-size: 13px; color: var(--medio); margin-bottom: 14px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 18px;
+}
+.tarjeta {
+  background: var(--blanco);
+  border: 1.5px solid var(--claro);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .15s, transform .15s, border-color .15s;
+}
+.tarjeta:hover {
+  border-color: var(--primario-suave);
+  box-shadow: 0 8px 24px rgba(26,68,136,.12);
+  transform: translateY(-2px);
+}
+.tarjeta .thumb { display: block; width: 100%; }
+.tarjeta .thumb svg { display: block; width: 100%; height: auto; }
+.tarjeta .pie {
+  padding: 10px 14px;
+  border-top: 1px solid #EEF1F5;
+}
+.tarjeta .pie strong { display: block; font-size: 13.5px; font-weight: 600; }
+.tarjeta .pie span { font-size: 12px; color: var(--medio); }
+
+/* Modal editor */
+#modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(30,40,55,.55);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#modal.abierto { display: flex; }
+.editor {
+  background: var(--blanco);
+  border-radius: 18px;
+  width: min(1150px, 96vw);
+  max-height: 94vh;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+}
+@media (max-width: 860px) { .editor { grid-template-columns: 1fr; } }
+.editor .vista {
+  padding: 22px;
+  background: var(--fondo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.editor .vista svg {
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+.editor .panel { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.editor h2 { font-size: 18px; color: var(--primario); }
+.editor .sub { font-size: 13px; color: var(--medio); }
+.editor label { font-size: 12.5px; font-weight: 600; color: var(--texto); display: block; margin-bottom: 4px; }
+.editor input[type="text"], .editor select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--claro);
+  border-radius: 9px;
+  font-size: 14px;
+  outline: none;
+}
+.editor input[type="text"]:focus { border-color: var(--primario-suave); }
+.acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.btn {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn-primario { background: var(--primario); color: #fff; }
+.btn-secundario { background: #E8EDF4; color: var(--primario); }
+.btn-cerrar {
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: var(--medio);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  align-self: flex-end;
+}
+.cabecera-panel { display: flex; justify-content: space-between; align-items: flex-start; }
+#listaTextos { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow: auto; }
+footer {
+  text-align: center;
+  padding: 26px;
+  font-size: 12.5px;
+  color: var(--medio);
+}
+.vacio { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--medio); }
+</style>
+</head>
+<body>
+<header>
+  <svg class="marca" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#1A4488"/><path d="M24 10c-7 4-10 10-8 17 3 1 7 1 10-1 4-2 6-7 5-11-1-3-4-5-7-5zm-1 6c2 3 3 7 2 11" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M15 34c6 2 12 2 18 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>
+  <div>
+    <h1>Diagramas Ambientales</h1>
+    <p>300 plantillas listas para tus informes y presentaciones · edición directa · sin instalar nada</p>
+  </div>
+</header>
+<main>
+  <div class="toolbar">
+    <input id="buscador" type="text" placeholder="Buscar plantilla… (proceso, ciclo, matriz…)">
+    <select id="filtroEsquema"><option value="">Todos los colores</option></select>
+    <select id="filtroPasos"><option value="">Cualquier nº de elementos</option><option value="3">3 elementos</option><option value="4">4 elementos</option><option value="5">5 elementos</option><option value="6">6 elementos</option></select>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="contador"></div>
+  <div class="grid" id="grid"></div>
+</main>
+<footer>Herramienta de diagramación para informes de medio ambiente · funciona sin conexión</footer>
+
+<div id="modal">
+  <div class="editor">
+    <div class="vista" id="vista"></div>
+    <div class="panel">
+      <div class="cabecera-panel">
+        <div>
+          <h2 id="titEditor"></h2>
+          <p class="sub" id="subEditor"></p>
+        </div>
+        <button class="btn-cerrar" id="btnCerrar" title="Cerrar">✕</button>
+      </div>
+      <div>
+        <label for="selEsquema">Esquema de color</label>
+        <select id="selEsquema"></select>
+      </div>
+      <div>
+        <label for="selPasos">Número de elementos</label>
+        <select id="selPasos"></select>
+      </div>
+      <div>
+        <label>Textos (clic en cada caja para cambiarlos)</label>
+        <div id="listaTextos"></div>
+      </div>
+      <div class="acciones">
+        <button class="btn btn-primario" id="btnPNG">⬇ Descargar PNG</button>
+        <button class="btn btn-secundario" id="btnSVG">Descargar SVG</button>
+        <button class="btn btn-secundario" id="btnCopiar">Copiar imagen</button>
+        <button class="btn btn-secundario" id="btnReset">Restablecer textos</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/*BUNDLE*/
+</script>
+<script>
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  let estado = {
+    filtroCat: '',
+    filtroEsq: '',
+    filtroPasos: '',
+    q: '',
+    actual: null, // plantilla abierta
+  };
+  const textosEditados = {}; // idPlantilla -> [textos]
+
+  // ---- Población de filtros ----
+  const selEsqFiltro = $('filtroEsquema');
+  ESQUEMAS.forEach(e => {
+    const o = document.createElement('option');
+    o.value = e.id; o.textContent = e.nombre;
+    selEsqFiltro.appendChild(o);
+  });
+
+  const chips = $('chips');
+  const cats = [''].concat(CATEGORIAS);
+  cats.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === 0 ? ' activo' : '');
+    b.textContent = c === '' ? 'Todas' : c;
+    b.onclick = () => {
+      estado.filtroCat = c;
+      chips.querySelectorAll('.chip').forEach(x => x.classList.remove('activo'));
+      b.classList.add('activo');
+      pintar();
+    };
+    chips.appendChild(b);
+  });
+
+  $('buscador').addEventListener('input', e => { estado.q = e.target.value.toLowerCase().trim(); pintar(); });
+  $('filtroEsquema').addEventListener('change', e => { estado.filtroEsq = e.target.value; pintar(); });
+  $('filtroPasos').addEventListener('change', e => { estado.filtroPasos = e.target.value; pintar(); });
+
+  function plantillaFiltrada() {
+    return CATALOGO.filter(p => {
+      if (estado.filtroCat && p.categoria !== estado.filtroCat) return false;
+      if (estado.filtroEsq && p.esquema !== estado.filtroEsq) return false;
+      if (estado.filtroPasos && p.pasos !== +estado.filtroPasos) return false;
+      if (estado.q && !(p.nombreTipo + ' ' + p.nombreEsquema + ' ' + p.categoria).toLowerCase().includes(estado.q)) return false;
+      return true;
+    });
+  }
+
+  function textosDe(p) {
+    return textosEditados[p.id] || p.textos;
+  }
+
+  function svgDe(p, textos) {
+    return render({ ...p, textos });
+  }
+
+  function pintar() {
+    const lista = plantillaFiltrada();
+    $('contador').textContent = lista.length + ' plantilla' + (lista.length === 1 ? '' : 's');
+    const grid = $('grid');
+    grid.innerHTML = '';
+    if (!lista.length) {
+      grid.innerHTML = '<div class="vacio">Sin resultados. Prueba con otra búsqueda.</div>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    lista.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'tarjeta';
+      card.innerHTML = `<div class="thumb">${svgDe(p, textosDe(p))}</div>
+        <div class="pie"><strong>${p.nombreTipo}</strong><span>${p.nombreEsquema} · ${p.categoria}</span></div>`;
+      card.onclick = () => abrir(p);
+      frag.appendChild(card);
+    });
+    grid.appendChild(frag);
+  }
+
+  // ---- Editor ----
+  const modal = $('modal');
+
+  function abrir(p) {
+    estado.actual = { ...p, textos: textosDe(p).slice() };
+    $('titEditor').textContent = p.nombreTipo;
+    $('subEditor').textContent = p.nombreEsquema + ' · ' + p.categoria;
+    const selE = $('selEsquema');
+    selE.innerHTML = '';
+    ESQUEMAS.forEach(e => {
+      const o = document.createElement('option');
+      o.value = e.id; o.textContent = e.nombre;
+      if (e.id === p.esquema) o.selected = true;
+      selE.appendChild(o);
+    });
+    const selP = $('selPasos');
+    selP.innerHTML = '';
+    const min = MINIMOS[p.tipo] || 3, max = MAXIMOS[p.tipo] || 8;
+    for (let n = min; n <= max; n++) {
+      const o = document.createElement('option');
+      o.value = n; o.textContent = n + ' elementos';
+      if (n === p.pasos) o.selected = true;
+      selP.appendChild(o);
+    }
+    pintarTextos();
+    refrescar();
+    modal.classList.add('abierto');
+  }
+
+  function pintarTextos() {
+    const cont = $('listaTextos');
+    cont.innerHTML = '';
+    estado.actual.textos.forEach((t, i) => {
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.value = t;
+      inp.placeholder = 'Elemento ' + (i + 1);
+      inp.addEventListener('input', () => {
+        estado.actual.textos[i] = inp.value;
+        textosEditados[clave()] = estado.actual.textos.slice();
+        refrescar();
+      });
+      cont.appendChild(inp);
+    });
+  }
+
+  function clave() {
+    const a = estado.actual;
+    return a.tipo + '__' + a.esquema;
+  }
+
+  function refrescar() {
+    const a = estado.actual;
+    $('vista').innerHTML = render(a);
+  }
+
+  $('selEsquema').addEventListener('change', e => {
+    estado.actual.esquema = e.target.value;
+    textosEditados[clave()] = textosEditados[clave()] || estado.actual.textos.slice();
+    refrescar();
+  });
+  $('selPasos').addEventListener('change', e => {
+    const n = +e.target.value;
+    const base = textosEditados[clave()] || estado.actual.textos;
+    const def = textosDefault(n);
+    const nuevos = [];
+    for (let i = 0; i < n; i++) nuevos.push(base[i] !== undefined ? base[i] : def[i]);
+    estado.actual.textos = nuevos;
+    estado.actual.pasos = n;
+    textosEditados[clave()] = nuevos.slice();
+    pintarTextos();
+    refrescar();
+  });
+  $('btnReset').addEventListener('click', () => {
+    estado.actual.textos = textosDefault(estado.actual.pasos);
+    delete textosEditados[clave()];
+    pintarTextos();
+    refrescar();
+  });
+  $('btnCerrar').addEventListener('click', () => { modal.classList.remove('abierto'); pintar(); });
+  modal.addEventListener('click', e => { if (e.target === modal) { modal.classList.remove('abierto'); pintar(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('abierto')) { modal.classList.remove('abierto'); pintar(); } });
+
+  // ---- Exportación ----
+  function svgSerializado() {
+    return render(estado.actual);
+  }
+
+  function nombreArchivo(ext) {
+    return estado.actual.tipo + '-' + estado.actual.esquema + '.' + ext;
+  }
+
+  function descargar(blob, nombre) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+
+  $('btnSVG').addEventListener('click', () => {
+    descargar(new Blob([svgSerializado()], { type: 'image/svg+xml' }), nombreArchivo('svg'));
+  });
+
+  function svgABitmap(escala) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(new Blob([svgSerializado()], { type: 'image/svg+xml' }));
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = 800 * escala; c.height = 500 * escala;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        res(c);
+      };
+      img.onerror = rej;
+      img.src = url;
+    });
+  }
+
+  $('btnPNG').addEventListener('click', async () => {
+    try {
+      const c = await svgABitmap(3);
+      c.toBlob(b => descargar(b, nombreArchivo('png')), 'image/png');
+    } catch (e) { alert('No se pudo generar el PNG: ' + e.message); }
+  });
+
+  $('btnCopiar').addEventListener('click', async () => {
+    try {
+      const c = await svgABitmap(3);
+      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      const b = $('btnCopiar');
+      const t = b.textContent;
+      b.textContent = '✓ Copiada';
+      setTimeout(() => b.textContent = t, 1600);
+    } catch (e) {
+      alert('Tu navegador no permite copiar imágenes. Usa «Descargar PNG» e insértala en Word con Insertar → Imagen.');
+    }
+  });
+
+  pintar();
+})();
+</script>
+</body>
+</html>
