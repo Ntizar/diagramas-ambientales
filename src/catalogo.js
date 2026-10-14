@@ -4,7 +4,9 @@
 // ============================================================
 const { ESQUEMAS, TIPOS_DIAGRAMA, textosDefault, tinte } = require('./paleta');
 const { G } = require('./generadores');
-const { G: GD } = require('./smartart');
+const { S, TIPOS_SMARTART } = require('./smartart');
+const { cssEstilo, defsEstilo, fondoEstilo } = require('./catalogo-estilos');
+const { GRISES } = require('./paleta');
 
 
 const CATEGORIAS = ['Naturaleza', 'Agua', 'Energía', 'Movilidad', 'Fauna', 'Territorio'];
@@ -56,48 +58,7 @@ const VARIANTES = [
 ];
 
 // CSS del estilo: mapea clases .cN (relleno), .stN (trazo), .f (blanco fijo), .fw (fondo blanco)
-function cssEstilo(estiloId, esq, uid) {
-  const { primario, secundario, acento, neutro } = esq;
-  if (estiloId === 'plano') {
-    return `.c1{fill:${primario}}.c2{fill:${secundario}}.c3{fill:${acento}}.c4{fill:${neutro}}
-      .st1{fill:none;stroke:${primario}}.st2{fill:none;stroke:${secundario}}.st3{fill:none;stroke:${acento}}.st4{fill:none;stroke:${neutro}}
-      .f{fill:#fff}.fw{fill:none;stroke:#fff}`;
-  }
-  if (estiloId === 'linea') {
-    return `.c1{fill:${tinte(primario, 0.92)}}.c2{fill:${tinte(secundario, 0.92)}}.c3{fill:${tinte(acento, 0.85)}}.c4{fill:${tinte(neutro, 0.9)}}
-      .st1{fill:none;stroke:${primario};stroke-linecap:round;stroke-linejoin:round}.st2{fill:none;stroke:${secundario};stroke-linecap:round;stroke-linejoin:round}
-      .st3{fill:none;stroke:${acento};stroke-linecap:round}.st4{fill:none;stroke:${neutro};stroke-linecap:round}
-      .f{fill:#fff}.fw{fill:none;stroke:${primario}}`;
-  }
-  if (estiloId === 'duotono') {
-    return `.c1{fill:${primario}}.c2{fill:${tinte(primario, 0.55)}}.c3{fill:${secundario}}.c4{fill:${tinte(primario, 0.78)}}
-      .st1{fill:none;stroke:${primario}}.st2{fill:none;stroke:${tinte(primario, 0.4)}}.st3{fill:none;stroke:${secundario}}.st4{fill:none;stroke:${tinte(primario, 0.25)}}
-      .f{fill:#fff}.fw{fill:none;stroke:#fff}`;
-  }
-  if (estiloId === 'degradado') {
-    return `.c1{fill:url(#gr${uid})}.c2{fill:url(#gr${uid})}.c3{fill:${acento}}.c4{fill:${tinte(primario, 0.35)}}
-      .st1{fill:none;stroke:url(#gr${uid})}.st2{fill:none;stroke:url(#gr${uid})}.st3{fill:none;stroke:${acento}}.st4{fill:none;stroke:${tinte(primario, 0.35)}}
-      .f{fill:#fff}.fw{fill:none;stroke:#fff}`;
-  }
-  // insignia
-  return `.c1{fill:#fff}.c2{fill:${tinte(secundario, 0.78)}}.c3{fill:${acento}}.c4{fill:${tinte(primario, 0.3)}}
-    .st1{fill:none;stroke:${primario}}.st2{fill:none;stroke:${secundario};stroke-linecap:round}.st3{fill:none;stroke:${acento}}.st4{fill:none;stroke:${primario}}
-    .f{fill:${primario}}.fw{fill:none;stroke:${primario}}`;
-}
 
-function defsEstilo(estiloId, esq, uid) {
-  if (estiloId !== 'degradado') return '';
-  return `<defs><linearGradient id="gr${uid}" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="${esq.primario}"/><stop offset="1" stop-color="${esq.secundario}"/>
-  </linearGradient></defs>`;
-}
-
-function fondoEstilo(estiloId, esq, uid) {
-  if (estiloId === 'insignia') {
-    return `<circle cx="256" cy="256" r="242" fill="${esq.primario}"/><circle cx="256" cy="256" r="212" fill="none" stroke="${esq.acento}" stroke-width="6"/>`;
-  }
-  return '';
-}
 
 function render(logo) {
   const esq = ESQUEMAS.find(e => e.id === logo.esquema);
@@ -183,35 +144,24 @@ const SELECCION = [
 // el catálogo reparte esquemas para que la galería luzca variada.
 // ============================================================
 
-Object.assign(G, GD);
+
 
 function construirCatalogo() {
   const items = [];
 
-  // ---- 50 DIAGRAMAS ----
   const ordenEsqD = ['corporativo','verde-eco','azul-pro','agua','energia','tierra','biodiversidad','atardecer','oceanico','monocromo'];
-  TIPOS_DIAGRAMA.forEach((t, i) => {
-    items.push({
-      id: 'd-' + t.id,
-      clase: 'diagrama',
-      tipo: t.id,
-      nombre: t.nombre,
-      categoria: t.cat,
-      esquema: ordenEsqD[i % 10],
-      pasos: t.pasos,
-    });
+  // ---- 50 DIAGRAMAS (10 tipos × 5 esquemas asignados en rotación) ----
+  TIPOS_SMARTART.forEach((t, i) => {
+    items.push({ id: 'd-' + t.id, clase: 'diagrama', tipo: t.id, nombre: t.nombre,
+      categoria: t.cat, esquema: ordenEsqD[i % 10], pasos: t.pasos });
   });
-  // 20 diagramas adicionales: los 20 primeros tipos con otro esquema
-  TIPOS_DIAGRAMA.slice(0, 20).forEach((t, i) => {
-    items.push({
-      id: 'd2-' + t.id,
-      clase: 'diagrama',
-      tipo: t.id,
-      nombre: t.nombre + ' · ' + ESQUEMAS[(i + 1) % 10].nombre,
-      categoria: t.cat,
-      esquema: ordenEsqD[(i + 1) % 10],
-      pasos: t.pasos,
-    });
+  // 40 más: cada tipo con otros 4 esquemas (10 tipos × 5 = 50)
+  TIPOS_SMARTART.forEach((t, ti) => {
+    for (let k = 1; k < 5; k++) {
+      items.push({ id: 'd' + k + '-' + t.id, clase: 'diagrama', tipo: t.id,
+        nombre: t.nombre + ' · ' + ESQUEMAS[(ti + k * 2) % 10].nombre,
+        categoria: t.cat, esquema: ordenEsqD[(ti + k * 2) % 10], pasos: t.pasos });
+    }
   });
 
   // ---- 50 LOGOS ----
@@ -252,29 +202,28 @@ function render(item) {
   const esq = ESQUEMAS.find(e => e.id === item.esquema);
   if (!esq) throw new Error('Esquema desconocido: ' + item.esquema);
   if (item.clase === 'diagrama') {
-    const gen = G[item.tipo];
+    const gen = S[item.tipo];
     if (!gen) throw new Error('Diagrama desconocido: ' + item.tipo);
     const textos = item.textos || textosDefault(item.pasos);
-    const cuerpo = gen(esq, textos);
-    let extra = '';
-    if (item.logoConcepto) {
-      const genLogo = G[item.logoConcepto];
-      if (genLogo) {
-        const uid = 'ins' + item.id.replace(/[^a-z0-9]/gi, '');
-        const css = cssEstilo(item.logoEstilo || 'plano', esq, uid);
-        const logoCuerpo = genLogo(esq, item.logoVariante || 1, uid);
-        const zona = ZONAS_CENTRALES[item.tipo] || { cx: 400, cy: 250, r: 52 };
-        // el logo 512x512 se escala al diámetro de la zona central
-        const d = zona.r * 2;
-        const escala = d / 512;
-        extra = '<circle cx="' + zona.cx + '" cy="' + zona.cy + '" r="' + (zona.r + 6) + '" fill="#FFFFFF"/>'
-          + '<style>' + css + '</style>'
-          + '<g transform="translate(' + (zona.cx - zona.r) + ' ' + (zona.cy - zona.r) + ') scale(' + escala + ')">'
-          + defsEstilo(item.logoEstilo || 'plano', esq, uid) + logoCuerpo + '</g>';
-      }
-    }
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">'
-      + cuerpo + extra + '</svg>';
+    const uid = item.id.replace(/[^a-z0-9]/gi, '').slice(-6);
+    const logo = item.logoConcepto && G[item.logoConcepto]
+      ? { concepto: item.logoConcepto, variante: item.logoVariante || 1, estilo: item.logoEstilo || 'plano' }
+      : null;
+    const defs = '<defs>'
+      + '<linearGradient id="gp' + uid + 'a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + esq.primario + '"/><stop offset="1" stop-color="' + esq.secundario + '"/></linearGradient>'
+      + '<linearGradient id="gp' + uid + 'b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + tinte(esq.primario, 0.25) + '"/><stop offset="1" stop-color="' + esq.secundario + '"/></linearGradient>'
+      + '<linearGradient id="gchip' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + esq.primario + '"/><stop offset="1" stop-color="' + tinte(esq.secundario, 0.4) + '"/></linearGradient>'
+      + '<filter id="som" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1A3355" flood-opacity="0.18"/></filter>'
+      + '<marker id="punta" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="' + GRISES.medio + '"/></marker>'
+      + '</defs>';
+    const esInfo = item.tipo === 'infografia';
+    const [vw, vh] = esInfo ? [1400, 860] : [900, 560];
+    const cuerpo = esInfo
+      ? gen(esq, textos, logo, uid, item.textosPar, item.textosHerr)
+      : gen(esq, textos, logo, uid);
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + vw + ' ' + vh + '" width="' + vw + '" height="' + vh + '">'
+      + '<rect width="' + vw + '" height="' + vh + '" rx="18" fill="#FFFFFF"/>'
+      + defs + cuerpo + '</svg>';
   }
   const gen = G[item.concepto];
   if (!gen) throw new Error('Logo desconocido: ' + item.concepto);
@@ -285,17 +234,6 @@ function render(item) {
     + gen(esq, item.variante, uid) + '</svg>';
 }
 
-// Zona central de los diagramas que admiten logo incrustado (círculo central o hueco)
-const ZONAS_CENTRALES = {
-  'ciclo-4': { cx: 400, cy: 250, r: 54 },
-  'ciclo-6': { cx: 400, cy: 250, r: 54 },
-  'ciclo-orbital': { cx: 400, cy: 250, r: 46 },
-  'ciclo-segmentos': { cx: 400, cy: 250, r: 44 },
-  'relacion-radial': { cx: 400, cy: 250, r: 56 },
-  'relacion-venn-3': { cx: 400, cy: 245, r: 34 },
-  'proceso-pilares': { cx: 400, cy: 330, r: 40 },
-};
-
 const CATEGORIAS_UNIFICADAS = [...new Set(CATALOGO.map(p => p.categoria))];
 
-module.exports = { CATALOGO, render, CONCEPTOS, ESTILOS, CATEGORIAS_UNIFICADAS, cssEstilo, defsEstilo, fondoEstilo };
+module.exports = { CATALOGO, render, CONCEPTOS, ESTILOS, CATEGORIAS_UNIFICADAS, TIPOS_SMARTART };

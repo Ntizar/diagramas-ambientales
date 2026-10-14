@@ -6,115 +6,128 @@
 <title>Diagramas y Logos Ambientales</title>
 <style>
 :root {
-  --primario: #1A4488; --acento: #CB1823; --texto: #33404F;
-  --medio: #8A94A0; --claro: #C9D0D8; --fondo: #F4F6F9; --blanco: #FFFFFF;
+  --primario: #1A4488; --primario2: #3D6AB5; --acento: #CB1823;
+  --texto: #2B3440; --medio: #8A94A0; --claro: #DDE3EA; --fondo: #EEF2F7; --blanco: #FFFFFF;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--fondo); color: var(--texto); min-height: 100vh; }
-header { background: var(--blanco); border-bottom: 1px solid var(--claro); padding: 18px 28px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 50; }
-header .marca { width: 42px; height: 42px; flex: none; }
-header h1 { font-size: 20px; font-weight: 700; color: var(--primario); }
-header p { font-size: 13px; color: var(--medio); }
-.tabs { display: flex; gap: 8px; margin-left: auto; }
-.tab { padding: 9px 20px; border-radius: 999px; border: 1.5px solid var(--claro); background: var(--blanco); font-size: 14px; font-weight: 600; cursor: pointer; }
-.tab.activo { background: var(--primario); border-color: var(--primario); color: #fff; }
-main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 60px; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; }
-#buscador { flex: 1 1 260px; min-width: 220px; padding: 11px 16px; border: 1.5px solid var(--claro); border-radius: 10px; font-size: 15px; outline: none; background: var(--blanco); }
-#buscador:focus { border-color: var(--primario); }
-select { padding: 10px 14px; border: 1.5px solid var(--claro); border-radius: 10px; font-size: 14px; background: var(--blanco); color: var(--texto); outline: none; cursor: pointer; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 20px; }
-.chip { padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--claro); background: var(--blanco); font-size: 13px; cursor: pointer; }
-.chip:hover { border-color: var(--primario); }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fondo); color: var(--texto); height: 100vh; overflow: hidden; }
+
+/* --- cabecera compacta --- */
+header {
+  height: 58px; background: var(--blanco); border-bottom: 1px solid var(--claro);
+  display: flex; align-items: center; gap: 16px; padding: 0 24px;
+}
+header .marca { width: 34px; height: 34px; }
+header h1 { font-size: 16.5px; font-weight: 700; color: var(--primario); white-space: nowrap; }
+.tabs { display: flex; gap: 6px; background: var(--fondo); padding: 4px; border-radius: 999px; }
+.tab { padding: 7px 22px; border-radius: 999px; border: none; background: transparent; font-size: 13.5px; font-weight: 600; cursor: pointer; color: var(--medio); }
+.tab.activo { background: var(--primario); color: #fff; box-shadow: 0 2px 8px rgba(26,68,136,.25); }
+.header-bus { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+#buscador { width: 260px; padding: 9px 16px; border: 1.5px solid var(--claro); border-radius: 999px; font-size: 14px; outline: none; }
+#buscador:focus { border-color: var(--primario2); }
+
+/* --- layout PC: sidebar + editor --- */
+.app { display: flex; height: calc(100vh - 58px); }
+.sidebar {
+  width: 340px; flex: none; background: var(--blanco); border-right: 1px solid var(--claro);
+  display: flex; flex-direction: column;
+}
+.filtros { padding: 14px 18px 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 6px 13px; border-radius: 999px; border: 1.5px solid var(--claro); background: var(--blanco); font-size: 12px; cursor: pointer; color: var(--texto); }
+.chip:hover { border-color: var(--primario2); }
 .chip.activo { background: var(--primario); border-color: var(--primario); color: #fff; }
-#contador { font-size: 13px; color: var(--medio); margin-bottom: 14px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
-.tarjeta { background: var(--blanco); border: 1.5px solid var(--claro); border-radius: 14px; overflow: hidden; cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s; }
-.tarjeta:hover { border-color: var(--primario); box-shadow: 0 8px 24px rgba(26,68,136,.14); transform: translateY(-2px); }
-.tarjeta .thumb { display: flex; align-items: center; justify-content: center; padding: 10px; min-height: 120px; }
-.tarjeta .thumb svg { width: 100%; height: auto; }
-.tarjeta .pie { padding: 10px 14px; border-top: 1px solid #EEF1F5; }
-.tarjeta .pie strong { display: block; font-size: 13.5px; font-weight: 600; }
-.tarjeta .pie span { font-size: 12px; color: var(--medio); }
-#modal { display: none; position: fixed; inset: 0; background: rgba(30,40,55,.55); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-#modal.abierto { display: flex; }
-.editor { background: var(--blanco); border-radius: 18px; width: min(1150px, 96vw); max-height: 94vh; overflow: auto; display: grid; grid-template-columns: 1.35fr 1fr; }
-@media (max-width: 900px) { .editor { grid-template-columns: 1fr; } }
-.editor .vista { padding: 24px; display: flex; align-items: center; justify-content: center; background: var(--fondo); }
-.editor .vista svg { max-width: 100%; height: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
-.editor .panel { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
-.editor h2 { font-size: 18px; color: var(--primario); }
-.editor .sub { font-size: 13px; color: var(--medio); }
-.editor label { font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 5px; }
-.editor select, .editor input[type="text"], .editor input[type="range"] { width: 100%; }
-.editor select, .editor input[type="text"] { padding: 9px 12px; border: 1.5px solid var(--claro); border-radius: 9px; font-size: 14px; outline: none; }
-.editor input[type="text"]:focus { border-color: var(--primario); }
-.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
-.swatch { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent; transition: transform .12s; }
+#contador { padding: 4px 18px 10px; font-size: 12px; color: var(--medio); }
+.lista { flex: 1; overflow-y: auto; padding: 6px 14px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
+.item {
+  background: var(--blanco); border: 1.5px solid var(--claro); border-radius: 14px;
+  overflow: hidden; cursor: pointer; transition: all .12s; position: relative;
+}
+.item:hover { border-color: var(--primario2); box-shadow: 0 6px 16px rgba(26,68,136,.12); transform: translateY(-1px); }
+.item.activo { border-color: var(--primario); box-shadow: 0 0 0 2.5px rgba(26,68,136,.25); }
+.item .th { display: flex; align-items: center; justify-content: center; padding: 8px; }
+.item .th svg { width: 100%; height: auto; border-radius: 8px; }
+.item .nom { padding: 7px 10px; font-size: 11.5px; font-weight: 600; border-top: 1px solid #F0F3F7; color: var(--texto);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vacio { grid-column: 1/-1; text-align: center; padding: 40px 10px; color: var(--medio); font-size: 13px; }
+
+/* --- editor grande --- */
+.editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.lienzo-wrap { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 26px; }
+#lienzo svg { max-width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 40px rgba(20,40,80,.14); background: #fff; }
+.barra {
+  background: var(--blanco); border-top: 1px solid var(--claro);
+  padding: 12px 24px; display: flex; gap: 22px; align-items: center; flex-wrap: wrap;
+}
+.grupo { display: flex; align-items: center; gap: 10px; }
+.grupo label { font-size: 12px; font-weight: 600; color: var(--medio); white-space: nowrap; }
+.swatches { display: flex; gap: 7px; }
+.swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
 .swatch:hover { transform: scale(1.12); }
-.swatch.activo { border-color: var(--texto); }
-#listaTextos { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow: auto; }
-.acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-.btn { padding: 11px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.btn:hover { filter: brightness(1.08); }
-.btn-primario { background: var(--primario); color: #fff; }
+.swatch.activo { border-color: var(--texto); box-shadow: 0 0 0 2px #fff inset; }
+.btn {
+  padding: 10px 20px; border: none; border-radius: 11px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-primario { background: var(--primario); color: #fff; box-shadow: 0 3px 10px rgba(26,68,136,.3); }
 .btn-secundario { background: #E8EDF4; color: var(--primario); }
-.btn-cerrar { background: none; border: none; font-size: 26px; color: var(--medio); cursor: pointer; line-height: 1; padding: 4px 8px; align-self: flex-end; }
-.cabecera-panel { display: flex; justify-content: space-between; align-items: flex-start; }
-footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medio); }
-.vacio { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--medio); }
+.btn:hover { filter: brightness(1.07); }
+select { padding: 8px 12px; border: 1.5px solid var(--claro); border-radius: 9px; font-size: 13px; outline: none; background: var(--blanco); }
+#selLogo { max-width: 170px; }
+input[type="range"] { width: 110px; }
+.sep { width: 1px; height: 34px; background: var(--claro); }
+
+/* panel de textos flotante */
+#panelTextos {
+  position: absolute; right: 24px; top: 82px; width: 280px; max-height: calc(100vh - 220px);
+  overflow-y: auto; background: var(--blanco); border: 1px solid var(--claro); border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(20,40,80,.18); padding: 16px; z-index: 40;
+}
+#panelTextos h3 { font-size: 13px; color: var(--primario); margin-bottom: 10px; }
+#panelTextos input { width: 100%; padding: 8px 11px; border: 1.5px solid var(--claro); border-radius: 9px; font-size: 13px; margin-bottom: 7px; outline: none; }
+#panelTextos input:focus { border-color: var(--primario2); }
+#btnTextos { position: absolute; right: 24px; top: 82px; z-index: 39; }
 .oculto { display: none !important; }
 </style>
 </head>
 <body>
 <header>
   <svg class="marca" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#1A4488"/><path d="M24 10c-7 4-10 10-8 17 3 1 7 1 10-1 4-2 6-7 5-11-1-3-4-5-7-5zm-1 6c2 3 3 7 2 11" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M15 34c6 2 12 2 18 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>
-  <div>
-    <h1>Diagramas y Logos Ambientales</h1>
-    <p>Crea cuadros y esquemas a tu medida: 50 diagramas + 50 logos · colores corporativos · sin instalar nada</p>
-  </div>
+  <h1>Diagramas y Logos Ambientales</h1>
   <div class="tabs">
     <button class="tab activo" id="tabDiagramas">Diagramas</button>
     <button class="tab" id="tabLogos">Logos</button>
   </div>
-</header>
-<main>
-  <div class="toolbar">
-    <input id="buscador" type="text" placeholder="Buscar… (proceso, ciclo, árbol…)">
-    <select id="filtroEsquema"><option value="">Todos los colores</option></select>
+  <div class="header-bus">
+    <input id="buscador" type="text" placeholder="Buscar…">
   </div>
-  <div class="chips" id="chips"></div>
-  <div id="contador"></div>
-  <div class="grid" id="grid"></div>
-</main>
-<footer>Editor de cuadros y logotipos para documentación ambiental · funciona sin conexión · sin recoger datos</footer>
+</header>
 
-<div id="modal">
-  <div class="editor">
-    <div class="vista" id="vista"></div>
-    <div class="panel">
-      <div class="cabecera-panel">
-        <div><h2 id="titEditor"></h2><p class="sub" id="subEditor"></p></div>
-        <button class="btn-cerrar" id="btnCerrar">✕</button>
-      </div>
-      <div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="filtros" id="chips"></div>
+    <div id="contador"></div>
+    <div class="lista" id="lista"></div>
+  </aside>
+  <section class="editor">
+    <button class="btn btn-secundario oculto" id="btnTextos">✏️ Textos</button>
+    <div id="panelTextos" class="oculto"><h3>Textos del diagrama</h3><div id="listaTextos"></div></div>
+    <div class="lienzo-wrap" id="lienzoWrap"><div id="lienzo"></div></div>
+    <div class="barra">
+      <div class="grupo">
         <label>Color</label>
         <div class="swatches" id="swatches"></div>
       </div>
-      <div id="bloqueTextos">
-        <label>Textos de los elementos</label>
-        <div id="listaTextos"></div>
-      </div>
-      <div id="bloquePasos">
-        <label for="selPasos">Número de elementos</label>
+      <div class="sep oculto" id="sep1"></div>
+      <div class="grupo oculto" id="grpPasos">
+        <label>Elementos</label>
         <select id="selPasos"></select>
       </div>
-      <div id="bloqueLogo">
-        <label for="selLogo">Logo incrustado en el centro (opcional)</label>
+      <div class="grupo oculto" id="grpLogo">
+        <label>Logo en las filas</label>
         <select id="selLogo"></select>
       </div>
-      <div id="bloqueFondo">
-        <label for="selFondo">Fondo</label>
+      <div class="grupo oculto" id="grpFondo">
+        <label>Fondo</label>
         <select id="selFondo">
           <option value="transparente">Transparente</option>
           <option value="blanco">Blanco</option>
@@ -122,18 +135,18 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
           <option value="oscuro">Azul oscuro</option>
         </select>
       </div>
-      <div>
-        <label for="rangoTam">Tamaño de exportación: <span id="lblTam">1600</span> px</label>
-        <input type="range" id="rangoTam" min="800" max="3200" step="200" value="1600">
+      <div class="grupo">
+        <label>Calidad</label>
+        <input type="range" id="rangoTam" min="800" max="3200" step="200" value="1800">
+        <span style="font-size:12px;color:var(--medio)" id="lblTam">1800px</span>
       </div>
-      <div class="acciones">
-        <button class="btn btn-primario" id="btnPNG">⬇ Descargar PNG</button>
-        <button class="btn btn-secundario" id="btnSVG">Descargar SVG</button>
-        <button class="btn btn-secundario" id="btnCopiar">Copiar imagen</button>
-        <button class="btn btn-secundario" id="btnReset">Restablecer</button>
+      <div style="margin-left:auto; display:flex; gap:9px;">
+        <button class="btn btn-secundario" id="btnSVG">SVG</button>
+        <button class="btn btn-secundario" id="btnCopiar">Copiar</button>
+        <button class="btn btn-primario" id="btnPNG">⬇ PNG</button>
       </div>
     </div>
-  </div>
+  </section>
 </div>
 
 <script>
@@ -147,14 +160,6 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
   const FONDOS = { transparente: 'transparent', blanco: '#FFFFFF', claro: '#F0F3F7', oscuro: '#122A4D' };
   const textosGuardados = {};
 
-  // filtros
-  const selC = $('filtroEsquema');
-  ESQUEMAS.forEach(e => {
-    const o = document.createElement('option');
-    o.value = e.id; o.textContent = e.nombre;
-    selC.appendChild(o);
-  });
-
   // pestañas
   $('tabDiagramas').onclick = () => cambiarPestana('diagrama');
   $('tabLogos').onclick = () => cambiarPestana('logo');
@@ -162,12 +167,13 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
     estado.pestana = clase; estado.cat = '';
     $('tabDiagramas').classList.toggle('activo', clase === 'diagrama');
     $('tabLogos').classList.toggle('activo', clase === 'logo');
-    pintarChips(); pintar();
+    pintarChips(); pintarLista();
   }
 
-  const chips = $('chips');
+  // chips de categoría
   function pintarChips() {
     const cats = [''].concat(CATEGORIAS_UNIFICADAS.filter(c => CATALOGO.some(p => p.clase === estado.pestana && p.categoria === c)));
+    const chips = $('chips');
     chips.innerHTML = '';
     cats.forEach((c, i) => {
       const b = document.createElement('button');
@@ -177,81 +183,80 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
         estado.cat = c;
         chips.querySelectorAll('.chip').forEach(x => x.classList.remove('activo'));
         b.classList.add('activo');
-        pintar();
+        pintarLista();
       };
       chips.appendChild(b);
     });
   }
 
-  $('buscador').addEventListener('input', e => { estado.q = e.target.value.toLowerCase().trim(); pintar(); });
-  $('filtroEsquema').addEventListener('change', e => { estado.esq = e.target.value; pintar(); });
+  $('buscador').addEventListener('input', e => { estado.q = e.target.value.toLowerCase().trim(); pintarLista(); });
 
   function filtrados() {
     return CATALOGO.filter(p => {
       if (p.clase !== estado.pestana) return false;
       if (estado.cat && p.categoria !== estado.cat) return false;
-      if (estado.esq && p.esquema !== estado.esq) return false;
       if (estado.q && !(p.nombre + ' ' + p.categoria).toLowerCase().includes(estado.q)) return false;
       return true;
     });
   }
 
-  function pintar() {
+  function pintarLista() {
     const lista = filtrados();
-    $('contador').textContent = lista.length + ' plantilla' + (lista.length === 1 ? '' : 's');
-    const grid = $('grid');
-    grid.innerHTML = '';
-    if (!lista.length) { grid.innerHTML = '<div class="vacio">Sin resultados.</div>'; return; }
-    const frag = document.createDocumentFragment();
-    lista.slice(0, 60).forEach(p => frag.appendChild(tarjeta(p)));
-    grid.appendChild(frag);
+    $('contador').textContent = lista.length + ' plantillas';
+    const cont = $('lista');
+    const scroll = cont.scrollTop;
+    cont.innerHTML = '';
+    if (!lista.length) { cont.innerHTML = '<div class="vacio">Sin resultados</div>'; return; }
+    lista.forEach(p => {
+      const d = document.createElement('div');
+      d.className = 'item' + (estado.actual && estado.actual.id === p.id ? ' activo' : '');
+      d.innerHTML = '<div class="th">' + render(p) + '</div><div class="nom">' + p.nombre + '</div>';
+      d.onclick = function () { abrir(p, this); };
+      cont.appendChild(d);
+    });
+    cont.scrollTop = scroll;
   }
 
-  function tarjeta(p) {
-    const card = document.createElement('div');
-    card.className = 'tarjeta';
-    card.innerHTML = '<div class="thumb">' + render(p) + '</div>' +
-      '<div class="pie"><strong>' + p.nombre + '</strong><span>' + p.categoria + '</span></div>';
-    card.onclick = () => abrir(p);
-    return card;
-  }
-
-  // ---- Editor ----
-  const modal = $('modal');
-
-  function abrir(p) {
+  function abrir(p, el) {
     estado.actual = JSON.parse(JSON.stringify(p));
     estado.actual.textos = (textosGuardados[p.id] || []).slice() || undefined;
     if (!estado.actual.textos || !estado.actual.textos.length) estado.actual.textos = undefined;
-    $('titEditor').textContent = p.nombre;
-    $('subEditor').textContent = p.categoria;
-    const esDiagrama = p.clase === 'diagrama';
-    $('bloqueTextos').classList.toggle('oculto', !esDiagrama);
-    $('bloquePasos').classList.toggle('oculto', !esDiagrama);
-    $('bloqueLogo').classList.toggle('oculto', !esDiagrama);
-    $('bloqueFondo').classList.toggle('oculto', esDiagrama);
-    if (esDiagrama) {
+    if (textosGuardados[p.id + ':par']) estado.actual.textosPar = textosGuardados[p.id + ':par'].slice();
+    if (textosGuardados[p.id + ':herr']) estado.actual.textosHerr = textosGuardados[p.id + ':herr'].slice();
+    document.querySelectorAll('.item').forEach(x => x.classList.remove('activo'));
+    if (el) el.classList.add('activo');
+    configurarBarra();
+    $('lienzo').innerHTML = render(estado.actual);
+  }
+
+  function configurarBarra() {
+    const p = estado.actual;
+    const esD = p.clase === 'diagrama';
+    $('grpPasos').classList.toggle('oculto', !esD);
+    $('grpLogo').classList.toggle('oculto', !esD);
+    $('grpFondo').classList.toggle('oculto', esD);
+    $('btnTextos').classList.toggle('oculto', !esD);
+    $('panelTextos').classList.add('oculto');
+    if (esD) {
       const selP = $('selPasos');
       selP.innerHTML = '';
       for (let n = 3; n <= 8; n++) {
         const o = document.createElement('option');
-        o.value = n; o.textContent = n + ' elementos';
+        o.value = n; o.textContent = n;
         if (n === p.pasos) o.selected = true;
         selP.appendChild(o);
       }
       const selL = $('selLogo');
-      selL.innerHTML = '<option value="">Sin logo</option>';
+      selL.innerHTML = '<option value="">— Sin logo —</option>';
       CONCEPTOS.forEach(c => {
         const o = document.createElement('option');
         o.value = c.id; o.textContent = c.nombre;
-        if (estado.actual.logoConcepto === c.id) o.selected = true;
+        if (p.logoConcepto === c.id) o.selected = true;
         selL.appendChild(o);
       });
       pintarTextos();
     }
     pintarSwatches();
-    refrescar();
-    modal.classList.add('abierto');
   }
 
   function pintarSwatches() {
@@ -262,10 +267,7 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
       d.className = 'swatch' + (e.id === estado.actual.esquema ? ' activo' : '');
       d.style.background = 'linear-gradient(135deg,' + e.primario + ' 50%,' + e.secundario + ' 50%)';
       d.title = e.nombre;
-      d.onclick = () => {
-        estado.actual.esquema = e.id;
-        pintarSwatches(); refrescar();
-      };
+      d.onclick = () => { estado.actual.esquema = e.id; pintarSwatches(); refrescar(); };
       sw.appendChild(d);
     });
   }
@@ -273,11 +275,12 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
   function pintarTextos() {
     const cont = $('listaTextos');
     cont.innerHTML = '';
+    const esInfo = estado.actual.tipo === 'infografia';
     const textos = estado.actual.textos || textosDefault(estado.actual.pasos);
     textos.forEach((t, i) => {
       const inp = document.createElement('input');
       inp.type = 'text'; inp.value = t;
-      inp.placeholder = 'Elemento ' + (i + 1);
+      inp.placeholder = esInfo ? 'Paso ' + (i + 1) + ' · título' : 'Elemento ' + (i + 1);
       inp.addEventListener('input', () => {
         if (!estado.actual.textos) estado.actual.textos = textosDefault(estado.actual.pasos);
         estado.actual.textos[i] = inp.value;
@@ -285,11 +288,35 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
         refrescar();
       });
       cont.appendChild(inp);
+      if (esInfo) {
+        const par = document.createElement('input');
+        par.type = 'text';
+        par.value = (estado.actual.textosPar || [])[i] || '';
+        par.placeholder = 'Párrafo del paso ' + (i + 1);
+        par.addEventListener('input', () => {
+          if (!estado.actual.textosPar) estado.actual.textosPar = [];
+          estado.actual.textosPar[i] = par.value;
+          textosGuardados[estado.actual.id + ':par'] = estado.actual.textosPar.slice();
+          refrescar();
+        });
+        cont.appendChild(par);
+        const herr = document.createElement('input');
+        herr.type = 'text';
+        herr.value = (estado.actual.textosHerr || [])[i] || '';
+        herr.placeholder = 'Herramientas (separa con ;)';
+        herr.addEventListener('input', () => {
+          if (!estado.actual.textosHerr) estado.actual.textosHerr = [];
+          estado.actual.textosHerr[i] = herr.value;
+          textosGuardados[estado.actual.id + ':herr'] = estado.actual.textosHerr.slice();
+          refrescar();
+        });
+        cont.appendChild(herr);
+      }
     });
   }
 
   function refrescar() {
-    $('vista').innerHTML = render(estado.actual);
+    $('lienzo').innerHTML = render(estado.actual);
   }
 
   $('selPasos').addEventListener('change', e => {
@@ -307,49 +334,32 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
     refrescar();
   });
   $('selFondo').addEventListener('change', e => {
-    const v = $('vista');
-    v.style.background = FONDOS[e.target.value];
+    $('lienzo').style.background = FONDOS[e.target.value];
   });
-  $('rangoTam').addEventListener('input', e => { $('lblTam').textContent = e.target.value; });
-  $('btnReset').addEventListener('click', () => {
-    delete textosGuardados[estado.actual.id];
-    abrir({ ...estado.actual, textos: undefined });
-  });
-  $('btnCerrar').addEventListener('click', () => modal.classList.remove('abierto'));
-  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('abierto'); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('abierto')) modal.classList.remove('abierto'); });
+  $('btnTextos').addEventListener('click', () => $('panelTextos').classList.toggle('oculto'));
+  $('rangoTam').addEventListener('input', e => { $('lblTam').textContent = e.target.value + 'px'; });
 
-  // ---- Exportación ----
+  // exportación
   function svgExport() {
     const p = estado.actual;
-    const esDiagrama = p.clase === 'diagrama';
-    const fondo = FONDOS[$('selFondo').value];
     let svg = render(p);
-    if (!esDiagrama && fondo !== 'transparent') {
-      svg = svg.replace(/(<\/style>)/, '$1<rect width="512" height="512" fill="' + fondo + '"/>');
+    if (p.clase === 'logo') {
+      const fondo = FONDOS[$('selFondo').value];
+      if (fondo !== 'transparent') svg = svg.replace(/(<\/style>)/, '$1<rect width="512" height="512" fill="' + fondo + '"/>');
     }
     return svg;
   }
-
-  function dims() {
-    return estado.actual.clase === 'diagrama' ? [800, 500] : [512, 512];
-  }
-
-  function nombreArchivo(ext) { return estado.actual.id + '.' + ext; }
-
+  function dims() { if (estado.actual.clase === 'logo') return [512, 512]; return estado.actual.tipo === 'infografia' ? [1400, 860] : [900, 560]; }
   function descargar(blob, nombre) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = nombre;
-    document.body.appendChild(a);
-    a.click();
+    document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
   }
-
   $('btnSVG').addEventListener('click', () => {
-    descargar(new Blob([svgExport()], { type: 'image/svg+xml' }), nombreArchivo('svg'));
+    descargar(new Blob([svgExport()], { type: 'image/svg+xml' }), estado.actual.id + '.svg');
   });
-
   function svgABitmap(px) {
     return new Promise((res, rej) => {
       const [w, h] = dims();
@@ -360,12 +370,7 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
         const c = document.createElement('canvas');
         c.width = Math.round(w * escala); c.height = Math.round(h * escala);
         const ctx = c.getContext('2d');
-        const fondo = FONDOS[$('selFondo').value];
-        if (estado.actual.clase === 'logo' && fondo !== 'transparent') {
-          ctx.fillStyle = fondo; ctx.fillRect(0, 0, c.width, c.height);
-        } else if (estado.actual.clase === 'diagrama') {
-          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
-        }
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
         ctx.drawImage(img, 0, 0, c.width, c.height);
         URL.revokeObjectURL(url);
         res(c);
@@ -374,28 +379,27 @@ footer { text-align: center; padding: 26px; font-size: 12.5px; color: var(--medi
       img.src = url;
     });
   }
-
   $('btnPNG').addEventListener('click', async () => {
     try {
       const c = await svgABitmap(+$('rangoTam').value);
-      c.toBlob(b => descargar(b, nombreArchivo('png')), 'image/png');
+      c.toBlob(b => descargar(b, estado.actual.id + '.png'), 'image/png');
     } catch (e) { alert('No se pudo generar el PNG: ' + e.message); }
   });
-
   $('btnCopiar').addEventListener('click', async () => {
     try {
-      const c = await svgABitmap(1600);
+      const c = await svgABitmap(1800);
       const blob = await new Promise(r => c.toBlob(r, 'image/png'));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       const b = $('btnCopiar'); const t = b.textContent;
-      b.textContent = '✓ Copiada';
-      setTimeout(() => b.textContent = t, 1600);
-    } catch (e) {
-      alert('Tu navegador no permite copiar imágenes. Usa «Descargar PNG».');
-    }
+      b.textContent = '✓ Copiado';
+      setTimeout(() => b.textContent = t, 1500);
+    } catch (e) { alert('Tu navegador no permite copiar imágenes. Usa «PNG».'); }
   });
 
-  pintarChips(); pintar();
+  // abrir el primero al cargar
+  pintarChips(); pintarLista();
+  const primero = CATALOGO.find(p => p.clase === 'diagrama');
+  if (primero) { estado.actual = JSON.parse(JSON.stringify(primero)); configurarBarra(); $('lienzo').innerHTML = render(estado.actual); }
 })();
 </script>
 </body>

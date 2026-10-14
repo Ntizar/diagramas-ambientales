@@ -81,7 +81,7 @@ function partirTexto(txt, maxAncho, size) {
     }
   }
   if (actual) lineas.push(actual);
-  return lineas.slice(0, 3);
+  return lineas.slice(0, 4);
 }
 
 // Categorías y tipos de diagrama
