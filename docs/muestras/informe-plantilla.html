@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Diagramas ambientales — informe</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#fff}
+  .pagina{position:relative;width:210mm;height:297mm;page-break-after:always;overflow:hidden;background:#fff}
+  .pagina:last-child{page-break-after:auto}
+  .medidor{position:absolute;left:-9999px;top:0;width:210mm}
+</style></head><body>
+<svg class="medidor" viewBox="0 0 210 297" id="medidor"><text id="tMed"></text></svg>
+<div id="salida"></div>
+<script>
+/* ============================================================================
+   Estilo institucional compartido + 7 tipos en formato Página A4 (210x297 mm).
+   Todo se mide con getComputedTextLength: ni una estimación.
+   ============================================================================ */
+const EJEMPLOS = /*DATOS*/;
+const LOGOS = /*LOGOS*/;
+const NS='http://www.w3.org/2000/svg';
+const FONT="'Helvetica Neue',Helvetica,Arial,sans-serif";
+const M=14, W=210, H=297, UTIL=W-2*M;
+const T = {
+  verde:'#1FA971', verdeOsc:'#0E7A50', verdeClaro:'#EBF5EF', verdeSuave:'#F5FAF7',
+  tinta:'#132A3E', tinta2:'#4E657A', borde:'#DFE6E0', blanco:'#FFFFFF'
+};
+const esc = s => String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+
+/* ---------- medidor real ---------- */
+const tMed=document.getElementById('tMed');
+function anchoReal(t,fs,peso,tr){ tMed.setAttribute('font-family',FONT); tMed.setAttribute('font-size',fs);
+  tMed.setAttribute('font-weight',peso||400); tMed.setAttribute('letter-spacing',tr||'0'); tMed.textContent=t;
+  return tMed.getComputedTextLength(); }
+const AVISOS=[];
+function wrapReal(texto, anchoMax, fs, peso, maxLin, etq){
+  const palabras=String(texto).split(/\s+/); const lineas=[]; let l='';
+  for(const p of palabras){ const c=l?l+' '+p:p;
+    if(anchoReal(c,fs,peso)>anchoMax && l){ lineas.push(l); l=p; } else l=c; }
+  if(l) lineas.push(l);
+  const cortado = !!(maxLin && lineas.length>maxLin);
+  if(cortado && etq) AVISOS.push(etq);
+  return { lineas: maxLin?lineas.slice(0,maxLin):lineas, cortado };
+}
+/* ---------- primitivas de dibujo ---------- */
+const txt=(x,y,fs,s,c,w,a,tr)=>`<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" font-family="${FONT}" font-size="${fs}" font-weight="${w||400}" fill="${c}" text-anchor="${a||'start'}"${tr?` letter-spacing="${tr}"`:''}>${esc(s)}</text>`;
+const IC=(n,x,y,s,c)=>`<g transform="translate(${x.toFixed(2)},${y.toFixed(2)}) scale(${s/24})"><path d="${LOGOS[n]||LOGOS.chispa}" fill="${c}"/></g>`;
+const blk=(x,y,fs,lh,ls,c,w,a)=>ls.map((l,i)=>txt(x,y+i*lh,fs,l,c,w,a)).join('');
+const caja=(x,y,w,h,o={})=>`<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${o.rx!=null?o.rx:2.6}" fill="${o.fill||T.blanco}" stroke="${o.borde||T.borde}" stroke-width="${o.grosor!=null?o.grosor:0.35}"${o.sombra?' filter="url(#sh)"':''}/>`;
+const acento=(x,y,h)=>`<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="1.9" height="${h.toFixed(2)}" rx="0.95" fill="url(#gNum)"/>`;
+const num=(cx,cy,r,n)=>`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${r}" fill="url(#gNum)"/>`+
+  txt(cx,cy+r*0.32,r*0.92,String(n),'#FFF',700,'middle');
+const conectorV=(x,y1,y2)=>`<line x1="${x.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x.toFixed(2)}" y2="${(y2-3.4).toFixed(2)}" stroke="${T.verdeOsc}" stroke-width="0.7" stroke-dasharray="2 1.6" opacity="0.55"/>`+
+  `<polygon points="${x.toFixed(2)},${y2.toFixed(2)} ${(x-1.5).toFixed(2)},${(y2-3.2).toFixed(2)} ${(x+1.5).toFixed(2)},${(y2-3.2).toFixed(2)}" fill="${T.verdeOsc}"/>`;
+const conectorH=(x1,x2,y)=>`<line x1="${x1.toFixed(2)}" y1="${y.toFixed(2)}" x2="${(x2-3.4).toFixed(2)}" y2="${y.toFixed(2)}" stroke="${T.verdeOsc}" stroke-width="0.7" stroke-dasharray="2 1.6" opacity="0.55"/>`+
+  `<polygon points="${x2.toFixed(2)},${y.toFixed(2)} ${(x2-3.2).toFixed(2)},${(y+1.5).toFixed(2)} ${(x2-3.2).toFixed(2)},${(y-1.5).toFixed(2)}" fill="${T.verdeOsc}"/>`;
+
+/* ---------- cabecera y pie ---------- */
+function cabecera(tipo, titulo, sub){
+  const tl=wrapReal(titulo, UTIL-12, 6.2, 700, 2, 'título '+tipo);
+  const sl=sub?wrapReal(sub, UTIL-12, 3.3, 500, 2, 'subtítulo '+tipo):{lineas:[]};
+  const alto=3.6+5.6+tl.lineas.length*7.2+ (sl.lineas.length? (3.0+sl.lineas.length*4.5) : 0);
+  let o=acento(M,0,alto);
+  let cy=3.6;
+  o+=txt(M+8,cy,2.55,tipo.toUpperCase()+' · DIAGRAMAS AMBIENTALES',T.verdeOsc,700,'start',0.6); cy+=5.6;
+  o+=blk(M+8,cy,6.2,7.2,tl.lineas,T.tinta,700); cy+=(tl.lineas.length-1)*7.2+3.0+4.0;
+  if(sl.lineas.length) o+=blk(M+8,cy,3.3,4.5,sl.lineas,T.verdeOsc,500);
+  return {svg:o, alto};
+}
+function pie(n, titulo){
+  const alto=5.2;
+  let o=`<rect x="${M}" y="0" width="${UTIL}" height="0.3" fill="${T.borde}"/>`;
+  const t = 'Figura '+n+' · '+titulo;
+  const corte = wrapReal(t, UTIL-34, 2.85, 600, 1);
+  o+=txt(M,4.4,2.85,corte.lineas[0],T.tinta2,600);
+  o+=txt(W-M,4.4,2.85,'Elaboración propia',T.tinta2,400,'end');
+  return {svg:o, alto};
+}
+/* ---------- composición de la página ---------- */
+function componer(partes){
+  const GAP=6.0, SUMA=partes.bloques.reduce((a,b)=>a+b.alto,0), n=partes.bloques.length-1;
+  let gap=GAP, libre=H-2*M-SUMA-parteAlto(partes);
+  const full=H-2*M-SUMA;
+  gap = n>0 ? Math.min(9, Math.max(3.0, (full - (partes.separaciones||[]).reduce((a,b)=>a+b,0))/n)) : 0;
+  if(partes.gaps) gap=partes.gaps;
+  let cy=M, cuerpo='';
+  partes.bloques.forEach((b,i)=>{ cuerpo+=reubicar(b.svg,0,cy); cy+=b.alto+(i<partes.bloques.length-1?gap:0); });
+  return cuerpo;
+}
+function parteAlto(){ return 0; }
+function reubicar(s,dx,dy){
+  return s.replace(/translate\((-?[\d.]+),\s*(-?[\d.]+)\)/g,(m,a,b)=>`translate(${(+a+dx).toFixed(2)},${(+b+dy).toFixed(2)})`)
+          .replace(/\b(x|y|cx|cy)="(-?[\d.]+)"/g,(m,k,v)=>((k==='x'||k==='cx')?k+'="'+(+v+dx).toFixed(2)+'"':k+'="'+(+v+dy).toFixed(2)+'"'));
+}
+function pagina(partes){
+  return `<section class="pagina">${componer(partes)}</section>`;
+}
+function svgDefs(){ return `<defs><linearGradient id="gNum" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${T.verde}"/><stop offset="1" stop-color="${T.verdeOsc}"/></linearGradient>`
+  +`<filter id="sh" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="0.45" stdDeviation="0.55" flood-color="#0d1f17" flood-opacity="0.10"/></filter></defs>`; }
+
+/* ===================== 1. VERTICAL — pasos apilados ===================== */
+function layVertical(){
+  const e=EJEMPLOS.vertical;
+  const cab=cabecera('Vertical', e.titulo, e.kicker);
+  const tarjetas=e.nodos.map((nd,i)=>{
+    const t=wrapReal(nd.label, UTIL-40, 4.6, 700, 2, 'vertical: '+nd.label);
+    const alto=Math.max(19, 8.4+t.lineas.length*5.4);
+    let o=caja(0,0,UTIL,alto,{sombra:true})+acento(0,0,alto);
+    o+=num(9.6,alto/2,4.9,i+1);
+    o+=blk(18.5,alto/2-(t.lineas.length-1)*5.4/2+1.9,4.6,5.4,t.lineas,T.tinta,700);
+    return o;
+  });
+  const bloques=[];
+  tarjetas.forEach((svg,i)=>{ bloques.push({svg:svg, alto:0}); });
+  // la altura real la lleva cada tarjeta: se recalcula con el mismo criterio
+  const reales=e.nodos.map((nd,i)=>{ const t=wrapReal(nd.label, UTIL-40, 4.6, 700, 2, ''); return Math.max(19, 8.4+t.lineas.length*5.4); });
+  const total=reales.reduce((a,b)=>a+b,0);
+  const hueco=(H-2*M-cab.alto-5.2-total)/e.nodos.length;
+  let cuerpo=reubicar(cab.svg,0,M); let cy=M+cab.alto+hueco;
+  e.nodos.forEach((nd,i)=>{
+    cuerpo+=reubicar(tarjetas[i],0,cy);
+    if(i<e.nodos.length-1) cuerpo+=conectorV(W/2, cy+reales[i], cy+reales[i]+hueco);
+    cy+=reales[i]+hueco;
+  });
+  cuerpo+=reubicar(pie(1,e.titulo).svg,0,H-M+1);
+  return cuerpo;
+}
+/* ===================== 2. HORIZONTAL — secuencia en serpentina ===================== */
+function layHorizontal(){
+  const e=EJEMPLOS.horizontal;
+  const cab=cabecera('Horizontal', e.titulo, e.kicker);
+  const n=e.nodos.length, fila1=Math.ceil(n/2), fila2=n-fila1;
+  const gap=4, CW=(UTIL-(fila1-1)*gap)/fila1, CH=46;
+  const datos=e.nodos.map((nd,i)=>{ const t=wrapReal(nd.label, CW-9, 3.9, 700, 3, 'horizontal: '+nd.label); return {t:t, i:i}; });
+  const yTop=M+cab.alto+8, yBot=yTop+CH+26;
+  let o='';
+  e.nodos.forEach((nd,i)=>{
+    const enFila1=i<fila1;
+    const col=enFila1?i:(fila2-1-(i-fila1));            // la segunda fila vuelve (serpentina)
+    const x=M+col*(CW+gap), y=enFila1?yTop:yBot;
+    o+=caja(x,y,CW,CH,{sombra:true});
+    o+=num(x+9,y+9,4.4,i+1);
+    const ls=datos[i].t.lineas;
+    o+=blk(x+4.5,y+22,3.9,4.6,ls,T.tinta,700);
+    if(!enFila1) o+=`<rect x="${x}" y="${y+CH}" width="${CW}" height="0" />`;
+  });
+  // conexiones: 1→2→3, 3↘4 (codo), 4→5 (retorno)
+  for(let i=0;i<fila1-1;i++) o+=conectorH(M+(i+1)*(CW+gap)-gap, M+(i+1)*(CW+gap), yTop+CH/2);
+  const xFin=M+fila1*(CW+gap)-gap, xIni2=M+(fila2-1)*(CW+gap);
+  o+=`<path d="M${(xFin-CW/2).toFixed(2)},${(yTop+CH).toFixed(2)} V${(yTop+CH+13).toFixed(2)} H${(xIni2+CW/2).toFixed(2)} V${(yBot-3.4).toFixed(2)}" fill="none" stroke="${T.verdeOsc}" stroke-width="0.7" stroke-dasharray="2 1.6" opacity="0.55"/>`;
+  o+=`<polygon points="${(xIni2+CW/2).toFixed(2)},${yBot.toFixed(2)} ${(xIni2+CW/2-1.5).toFixed(2)},${(yBot-3.2).toFixed(2)} ${(xIni2+CW/2+1.5).toFixed(2)},${(yBot-3.2).toFixed(2)}" fill="${T.verdeOsc}"/>`;
+  for(let i=0;i<fila2-1;i++) o+=conectorH(M+(fila2-i)*(CW+gap)-gap, M+(fila2-i)*(CW+gap), yBot+CH/2);
+  o+=reubicar(cab.svg,0,M);
+  o+=reubicar(pie(2,e.titulo).svg,0,H-M+1);
+  return o;
+}
+/* ===================== 3. RADIAL — hub con satélites ===================== */
+function layRadial(){
+  const e=EJEMPLOS.radial;
+  const cab=cabecera('Radial', e.titulo, e.kicker);
+  const hub=e.nodos[0], sats=e.nodos.slice(1), n=sats.length;
+  const yTop=M+cab.alto+6, area=H-2*M-cab.alto-5.2-8;
+  const cx=W/2, cy=yTop+area/2, R=Math.min(area/2-14, 66), SW=54, SH=17, HR=27;
+  let o=`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${(R-2).toFixed(2)}" fill="none" stroke="${T.borde}" stroke-width="0.5" stroke-dasharray="1.6 2.4"/>`;
+  sats.forEach((nd,i)=>{
+    const ang=-Math.PI/2+i*2*Math.PI/n, px=cx+R*Math.cos(ang), py=cy+R*Math.sin(ang);
+    const ux=Math.cos(ang), uy=Math.sin(ang);
+    o+=`<line x1="${(cx+ux*HR).toFixed(2)}" y1="${(cy+uy*HR).toFixed(2)}" x2="${(px-ux*SW/2).toFixed(2)}" y2="${(py-uy*SH/2).toFixed(2)}" stroke="${T.verdeOsc}" stroke-width="0.6" opacity="0.4"/>`;
+    o+=`<circle cx="${(cx+ux*HR).toFixed(2)}" cy="${(cy+uy*HR).toFixed(2)}" r="1.1" fill="${T.verde}"/>`;
+    const x=px-SW/2, y=py-SH/2;
+    o+=caja(x,y,SW,SH,{sombra:true});
+    const w=wrapReal(nd.label, SW-9, 3.05, 600, 3, 'radial: '+nd.label);
+    o+=blk(px,y+SH/2-(w.lineas.length-1)*3.7/2+1.2,3.05,3.7,w.lineas,T.tinta,600,'middle');
+  });
+  o+=`<circle cx="${(cx+1).toFixed(2)}" cy="${(cy+1.4).toFixed(2)}" r="${HR}" fill="#0d1f17" opacity="0.10"/>`;
+  o+=`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${HR}" fill="url(#gNum)"/>`;
+  const hw=wrapReal(hub.label, HR*1.5, 4.4, 700, 3, 'radial hub');
+  o+=blk(cx,cy-(hw.lineas.length-1)*5.2/2+1.6,4.4,5.2,hw.lineas,'#FFF',700,'middle');
+  o+=reubicar(cab.svg,0,M);
+  o+=reubicar(pie(3,e.titulo).svg,0,H-M+1);
+  return o;
+}
+/* ===================== 4. CARDS — rejilla de tarjetas ===================== */
+function layCards(){
+  const e=EJEMPLOS.cards;
+  const cab=cabecera('Cards', e.titulo, e.kicker);
+  const COLS=2, FILAS=Math.ceil(e.nodos.length/COLS), gx=5, gy=5;
+  const CW=(UTIL-(COLS-1)*gx)/COLS;
+  const yTop=M+cab.alto+7, altoDisp=H-2*M-cab.alto-5.2-7;
+  const CH=(altoDisp-(FILAS-1)*gy)/FILAS;
+  let o='';
+  e.nodos.forEach((nd,i)=>{
+    const x=M+(i%COLS)*(CW+gx), y=yTop+Math.floor(i/COLS)*(CH+gy);
+    o+=caja(x,y,CW,CH,{sombra:true})+acento(x,y,CH);
+    o+=txt(x+CW-6,y+CH-6,9,600,String(i+1).padStart(2,'0'),T.verdeClaro,800,'end');
+    o+=num(x+9,y+9,4.4,i+1);
+    const w=wrapReal(nd.label, CW-11, 4.3, 700, 4, 'cards: '+nd.label);
+    const lh=5.2, alto=w.lineas.length*lh;
+    o+=blk(x+5, y+CH/2-alto/2+2.6+(w.lineas.length-1)*lh/2-((w.lineas.length-1)*lh/2), 4.3, lh, w.lineas, T.tinta, 700);
+  });
+  o+=reubicar(cab.svg,0,M);
+  o+=reubicar(pie(4,e.titulo).svg,0,H-M+1);
+  return o;
+}
+/* ===================== 5. CICLO — mejora continua ===================== */
+function layCiclo(){
+  const e=EJEMPLOS.ciclo;
+  const cab=cabecera('Ciclo', e.titulo, e.subtitulo);
+  const pasos=e.nodos, n=pasos.length;
+  const yTop=M+cab.alto+8, area=H-2*M-cab.alto-5.2-10;
+  const cx=W/2, cy=yTop+area/2, R=Math.min(area/2-22, 62), CR=20, HR=26;
+  let o='';
+  pasos.forEach((p,i)=>{
+    const ang=-Math.PI/2+i*2*Math.PI/n, x=cx+R*Math.cos(ang), y=cy+R*Math.sin(ang);
+    // arco con flecha al siguiente
+    const a1=ang+0.44, a2=(i===n-1?(-Math.PI/2+2*Math.PI):(-Math.PI/2+(i+1)*2*Math.PI/n))-0.44;
+    const p1={x:cx+R*Math.cos(a1),y:cy+R*Math.sin(a1)}, p2={x:cx+R*Math.cos(a2),y:cy+R*Math.sin(a2)};
+    o+=`<path d="M${p1.x.toFixed(2)},${p1.y.toFixed(2)} A${R},${R} 0 0 1 ${p2.x.toFixed(2)},${p2.y.toFixed(2)}" fill="none" stroke="${T.verde}" stroke-width="1.1" opacity="0.55"/>`;
+    const tx=-Math.sin(a2)*3.6, ty=Math.cos(a2)*3.6;
+    o+=`<polygon points="${(p2.x+tx*0.9).toFixed(2)},${(p2.y+ty*0.9).toFixed(2)} ${(p2.x+tx*0.1+Math.cos(a2)*1.5).toFixed(2)},${(p2.y+ty*0.1+Math.sin(a2)*1.5).toFixed(2)} ${(p2.x+tx*0.1-Math.cos(a2)*1.5).toFixed(2)},${(p2.y+ty*0.1-Math.sin(a2)*1.5).toFixed(2)}" fill="${T.verde}"/>`;
+  });
+  pasos.forEach((p,i)=>{
+    const ang=-Math.PI/2+i*2*Math.PI/n, x=cx+R*Math.cos(ang), y=cy+R*Math.sin(ang);
+    o+=`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${CR}" fill="${T.blanco}" stroke="${T.borde}" stroke-width="0.4" filter="url(#sh)"/>`;
+    o+=num(x,y-CR+2.6,4.0,i+1);
+    if(p.icono) o+=IC(p.icono,x-3.2,y-11.5,6.4,T.verdeOsc);
+    const w=wrapReal(p.label, CR*1.75, 2.95, 600, 3, 'ciclo: '+p.label);
+    o+=blk(x,y+5.5,2.95,3.6,w.lineas,T.tinta,600,'middle');
+  });
+  o+=`<circle cx="${(cx+1).toFixed(2)}" cy="${(cy+1.4).toFixed(2)}" r="${HR}" fill="#0d1f17" opacity="0.10"/>`;
+  o+=`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${HR}" fill="url(#gNum)"/>`;
+  if(e.logoIcono) o+=IC(e.logoIcono,cx-6,cy-HR+5,12,'rgba(255,255,255,0.92)');
+  const hw=wrapReal(e.titulo, HR*1.6, 4.2, 700, 3, 'ciclo hub');
+  o+=blk(cx,cy+2+(hw.lineas.length-1)*5/2-((hw.lineas.length-1)*5/2),4.2,5.0,hw.lineas,'#FFF',700,'middle');
+  o+=reubicar(cab.svg,0,M);
+  o+=reubicar(pie(5,e.titulo).svg,0,H-M+1);
+  return o;
+}
+/* ===================== 6. CONCEPTO — mapa con subelementos ===================== */
+function layConcepto(){
+  const e=EJEMPLOS.concepto;
+  const cab=cabecera('Concepto', e.titulo, e.kicker);
+  const cats=e.nodos, yTop=M+cab.alto+8;
+  const CWc=52, HUBW=64, HUBH=22;
+  const rowY=yTop+4, boxH=13, chipH=4.6, chipGap=1.4;
+  const ancho=(w)=>wrapReal(w, CWc-8, 2.7, 500, 2, 'concepto sub: '+w);
+  const altoCat=c=>{ const lw=wrapReal(c.label, CWc-15, 2.85, 700, 3, ''); const subs=Math.min((c.subs||[]).length,3);
+    return Math.max(boxH, lw.lineas.length*3.4+6) + 3 + subs*(chipH+chipGap); };
+  const centroX=W/2, hubY=yTop+12;
+  let o='';
+  const izq=cats.slice(0,2), der=cats.slice(2,4), abajo=cats.slice(4);
+  function pintaCat(c,x,y){
+    let s=caja(x,y,CWc,boxH,{rx:2.2,fill:'url(#gNum)',borde:T.verde});
+    if(c.icono) s+=IC(c.icono,x+3.1,y+boxH/2-2.4,4.8,'rgba(255,255,255,0.95)');
+    const w=wrapReal(c.label, CWc-15, 2.85, 700, 3, 'concepto: '+c.label);
+    s+=blk(x+11.6,y+boxH/2-(w.lineas.length-1)*3.4/2+1.1,2.85,3.4,w.lineas,'#FFF',700);
+    (c.subs||[]).slice(0,3).forEach((sub,j)=>{
+      const sy=y+boxH+3+j*(chipH+chipGap);
+      const sw=ancho(sub);
+      s+=`<rect x="${x}" y="${sy.toFixed(2)}" width="${CWc}" height="${chipH}" rx="${chipH/2}" fill="${T.verdeSuave}" stroke="${T.borde}" stroke-width="0.3"/>`;
+      s+=blk(x+3.2,sy+chipH/2-(sw.lineas.length-1)*3.2/2+1.0,2.7,3.2,sw.lineas,T.tinta2,500);
+    });
+    return s;
+  }
+  const yIzq=rowY, yDer=rowY;
+  const catsIZ=[]; const catsDE=[];
+  const xIzq=M, xDer=W-M-CWc;
+  let yi=yIzq; izq.forEach(c=>{ catsIZ.push(yi); o+=pintaCat(c,xIzq,yi); yi+=altoCat(c)+6; });
+  let yd=yDer; der.forEach(c=>{ catsDE.push(yd); o+=pintaCat(c,xDer,yd); yd+=altoCat(c)+6; });
+  o+=caja(centroX-HUBW/2,hubY,HUBW,HUBH,{rx:3,fill:'url(#gNum)',borde:T.verde,grosor:0.5,sombra:true});
+  const hw=wrapReal(e.tituloCentral||e.titulo, HUBW-8, 3.5, 700, 3, 'concepto hub');
+  o+=blk(centroX,hubY+HUBH/2-(hw.lineas.length-1)*4.2/2+1.4,3.5,4.2,hw.lineas,'#FFF',700,'middle');
+  // conectores hub → categorías
+  const union=(x1,y1,x2,y2)=>`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${T.verdeOsc}" stroke-width="0.6" opacity="0.4"/>`;
+  izq.forEach((c,i)=>{ o+=union(centroX-HUBW/2,hubY+HUBH/2,xIzq+CWc,catsIZ[i]+boxH/2); });
+  der.forEach((c,i)=>{ o+=union(centroX+HUBW/2,hubY+HUBH/2,xDer,catsDE[i]+boxH/2); });
+  const yAbajo=Math.max(yi, yd, hubY+HUBH+10);
+  abajo.forEach((c,i)=>{
+    const x=M+ (UTIL/abajo.length-CWc)/2 + i*(UTIL/abajo.length);
+    o+=pintaCat(c,x,yAbajo);
+    o+=union(centroX,hubY+HUBH,x+CWc/2,yAbajo);
+  });
+  o+=reubicar(cab.svg,0,M);
+  o+=reubicar(pie(6,e.titulo).svg,0,H-M+1);
+  return o;
+}
+/* ===================== 7. INFOGRAFÍA — página con bandas ===================== */
+function layInfografia(){
+  const e=EJEMPLOS.infografia;
+  const cab=cabecera('Infografía', e.titulo, e.subtitulo);
+  let o=reubicar(cab.svg,0,M); let cy=M+cab.alto+5;
+  // intro
+  const il=wrapReal(e.intro, UTIL-13, 3.3, 400, 3, 'intro');
+  const iH=4.4+il.lineas.length*4.7+4.4;
+  o+=reubicar(`<rect x="${M}" y="0" width="${UTIL}" height="${iH.toFixed(2)}" rx="2.2" fill="${T.verdeClaro}"/><rect x="${M}" y="0" width="1.8" height="${iH.toFixed(2)}" rx="0.9" fill="${T.verde}"/>`+blk(M+6.5,4.4+3.4,3.3,4.7,il.lineas,T.tinta2,400),0,cy);
+  cy+=iH+5;
+  // pasos en 2 columnas + el último a ancho completo
+  const COL_ICONO=29.4, PADX=5, PADY=4.4, GP=5, CWp=(UTIL-GP)/2;
+  function tarjeta(p,idx,w,full){
+    const anchoTxt= full ? (w-COL_ICONO-PADX-6) : w-COL_ICONO-PADX;
+    const TL=wrapReal(p.titulo,anchoTxt,4.15,700,2,'paso '+p.titulo);
+    const DL=wrapReal(p.desc, full?(w-COL_ICONO-PADX-6)/2:anchoTxt,3.2,400,3,'desc '+p.titulo);
+    const DLB=wrapReal((p.bullets||[]).join(' · '), full?(w-COL_ICONO-PADX-9)/2:w-PADX-3.9-PADX-1,3.0,600,2,'bullets '+p.titulo);
+    const ICONO_TOP=PADY+0.2, IZ=6.4;
+    const tBase=PADY+3.5, dBase=Math.max(tBase+TL.lineas.length*4.75+2.0, ICONO_TOP+IZ+3.0+2.9);
+    const bBase=dBase+(DL.lineas.length-1)*4.2+5.0;
+    const alto=bBase+(DLB.lineas.length-1)*3.9+PADY+0.9;
+    let s=caja(0,0,w,alto,{sombra:true})+acento(0,0,alto);
+    s+=num(9.4,PADY+3.4,4.7,idx+1);
+    s+=IC(p.icono||'lupa',COL_ICONO-11.4,ICONO_TOP,IZ,T.verdeOsc);
+    s+=blk(COL_ICONO,tBase,4.15,4.75,TL.lineas,T.tinta,700);
+    s+=blk(PADX,dBase,3.2,4.2,DL.lineas,T.tinta2,400);
+    const bx= full ? w/2+6 : PADX;
+    s+=`<circle cx="${(bx+1.15).toFixed(2)}" cy="${(bBase-1.05).toFixed(2)}" r="0.9" fill="${T.verde}"/>`;
+    s+=blk(bx+3.9,bBase,3.0,3.9,DLB.lineas,T.verdeOsc,600);
+    return {svg:s,alto};
+  }
+  const pasosInf=e.nodos.map(n=>({titulo:n.label, icono:n.icono, desc:n.desc, bullets:n.subs}));
+  const pares=pasosInf.slice(0,pasosInf.length-1), full=pasosInf[pasosInf.length-1];
+  for(let f=0;f<Math.ceil(pares.length/2);f++){
+    const a=pares[f*2]?tarjeta(pares[f*2],f*2,CWp,false):null;
+    const b=pares[f*2+1]?tarjeta(pares[f*2+1],f*2+1,CWp,false):null;
+    const alto=Math.max(a?a.alto:0,b?b.alto:0);
+    if(a) o+=reubicar(a.svg,M,cy);
+    if(b) o+=reubicar(b.svg,M+CWp+GP,cy);
+    cy+=alto+4;
+  }
+  const tfull=tarjeta(full,pasosInf.length-1,UTIL,true);
+  o+=reubicar(tfull.svg,M,cy); cy+=tfull.alto+6;
+  // fuentes
+  const FU=[[...['mapa','Cartografía oficial (MER)']],['micro','Mediciones in situ'],['bd','SIG'],['arbol','Información ambiental'],['pajaro','Participación ciudadana']];
+  const fGap=3, fW=(UTIL-4*fGap)/5;
+  const meds=FU.map(f=>wrapReal(f[1],fW-13,2.85,600,2,'fuente '+f[1]));
+  const maxL=Math.max.apply(null,meds.map(m=>m.lineas.length)); const altoCh=Math.max(11,maxL*3.7+8);
+  o+=reubicar(txt(M,3.2,2.65,'FUENTES Y HERRAMIENTAS',T.verdeOsc,700,'start',0.55)+txt(M+62,3.2,2.85,'Se combinan en todas las etapas',T.tinta2,400),0,cy);
+  FU.forEach((f,j)=>{ const fx=M+j*(fW+fGap), ac=altoCh-0;
+    let s=`<rect x="${fx.toFixed(2)}" y="7" width="${fW.toFixed(2)}" height="${(ac-4.5).toFixed(2)}" rx="2.2" fill="${T.verdeSuave}" stroke="${T.borde}" stroke-width="0.3"/>`;
+    s+=IC(f[0],fx+3.0,7+(ac-4.5)/2-2.7,5.4,T.verdeOsc);
+    const h=meds[j].lineas.length*3.7;
+    s+=blk(fx+11.2,7+(ac-4.5)/2-h/2+2.7,2.85,3.7,meds[j].lineas,T.tinta,600);
+    o+=reubicar(s,0,cy);
+  });
+  cy+=altoCh+2;
+  // notas
+  const NOT=[[['chispa','El enfoque es flexible y se adapta al tipo de territorio.']],[['bd','Los SIG y los Mapas Estratégicos de Ruido son el apoyo técnico principal.']],[['pajaro','La percepción social matiza la evaluación final.']]].map(x=>x[0]);
+  const nGap=5, nW=(UTIL-2*nGap)/3, ANCHO=nW-13.5;
+  const nm=NOT.map(n=>wrapReal(n[1],ANCHO,3.0,500,4,'nota'));
+  const nmaxL=Math.max.apply(null,nm.map(m=>m.lineas.length)); const nAlto=5.0+nmaxL*3.9+5.0;
+  NOT.forEach((n,j)=>{ const nx=M+j*(nW+nGap);
+    let s=`<rect x="${nx.toFixed(2)}" y="0" width="${nW.toFixed(2)}" height="${nAlto.toFixed(2)}" rx="2.4" fill="${T.verdeClaro}"/>`;
+    s+=IC(n[0],nx+3.6,(nAlto-5.2)/2,5.2,T.verdeOsc);
+    const h=nm[j].lineas.length*3.9;
+    s+=blk(nx+11.4,(nAlto-5.0-h)/2+3.0,3.0,3.9,nm[j].lineas,T.tinta2,500);
+    o+=reubicar(s,0,cy);
+  });
+  cy+=nAlto+6;
+  o+=reubicar(pie(7,e.titulo).svg,0,H-M+1);
+  return o;
+}
+/* ===================== render ===================== */
+const paginas=[layVertical(),layHorizontal(),layRadial(),layCards(),layCiclo(),layConcepto(),layInfografia()];
+document.getElementById('salida').innerHTML = paginas.map(function(c,i){
+  return '<section class="pagina"><svg xmlns="http://www.w3.org/2000/svg" width="793.7" height="1122.5" viewBox="0 0 210 297">'+svgDefs()+'<rect width="210" height="297" fill="#fff"/>'+c+'</svg></section>';
+}).join('');
+window.__AVISOS = AVISOS;
+document.title = 'páginas='+paginas.length+' · avisos='+(AVISOS.length? AVISOS.join('; ') : 'ninguno');
+</script>
+</body></html>
