@@ -7,7 +7,7 @@ const path = require('path');
 
 const raiz = path.join(__dirname, '..');
 let totalExt = 0, totalProhibidos = 0;
-for (const fichero of ['index.html', 'smartart/index.html']) {
+for (const fichero of ['index.html', 'smartart/index.html', 'smartart-v2/index.html']) {
   const ruta = path.join(raiz, fichero);
   if (!fs.existsSync(ruta)) { console.log('FALTA ' + fichero + ' — ejecuta scripts/compilar.js'); process.exit(1); }
   const html = fs.readFileSync(ruta, 'utf8');

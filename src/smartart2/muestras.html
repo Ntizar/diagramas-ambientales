@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Muestras — motor v2 (A4)</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#fff}
+  .hoja{width:794px;page-break-after:always;overflow:hidden;background:#fff}
+  .hoja:last-child{page-break-after:auto}
+  .hoja svg{display:block}
+</style></head>
+<body>
+<div id="salida"></div>
+<script src="logos.js"></script>
+<script src="nucleo.js"></script>
+<script src="layouts.js"></script>
+<script src="ejemplos.js"></script>
+<script>
+(function(){
+  'use strict';
+  var TIPOS=['pasos','secuencia','tarjetas','radial','ciclo','concepto','informe','radial3'];
+  var ANCHO=794;   // A4 (210 mm) a 96 ppp
+  var out=document.getElementById('salida');
+  var avisos=[];
+  TIPOS.forEach(function(t,i){
+    var r=Motor2.render({tipo:t,datos:JSON.parse(JSON.stringify(EJEMPLOS2[t])),ancho:ANCHO,logos:LOGOS2,figura:i+1});
+    var d=document.createElement('div'); d.className='hoja'; d.innerHTML=r.svg; out.appendChild(d);
+    avisos.push(t+':'+r.alto);
+  });
+  window.__resumen=avisos.join(' | ');
+  document.title='hojas='+TIPOS.length+' | '+avisos.join(' | ');
+})();
+</script>
+</body></html>

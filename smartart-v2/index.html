@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6FBF8">
+<title>Diagramas ambientales — editor</title>
+<style>
+:root{
+  --bg:#F4F7F4; --card:#fff; --linea:#DFE6E0; --linea2:#C9D5CC;
+  --tinta:#132A3E; --tinta2:#4E657A; --verde:#1FA971; --verdeOsc:#0E7A50; --verdeClaro:#EBF5EF;
+  --rojo:#C0392B; --amar:#8A6100;
+  --sombra:0 1px 2px rgba(19,42,62,.06),0 8px 24px rgba(19,42,62,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tinta);
+  height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+/* ---------- cabecera ---------- */
+header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+  background:var(--card);border-bottom:1px solid var(--linea);flex-shrink:0;flex-wrap:wrap}
+.marca{font-weight:700;font-size:15px;letter-spacing:-.2px;white-space:nowrap}
+.marca b{color:var(--verde)}
+.btn{min-height:40px;padding:8px 14px;border-radius:10px;border:1px solid var(--linea2);background:var(--card);
+  color:var(--tinta);font:inherit;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  transition:border-color .13s,background .13s}
+.btn:hover{border-color:var(--verde);color:var(--verdeOsc)}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--verde);border-color:var(--verde);color:#fff}
+.btn.pri:hover{background:var(--verdeOsc);border-color:var(--verdeOsc);color:#fff}
+.btn svg{width:16px;height:16px;fill:currentColor;flex:none}
+.sp{flex:1}
+/* ---------- cuerpo ---------- */
+.cuerpo{flex:1;display:flex;min-height:0}
+main{flex:1;overflow:auto;padding:18px 18px 40px;display:flex;justify-content:center;align-items:flex-start;min-width:0}
+#lienzoWrap{width:100%;max-width:1180px;filter:drop-shadow(0 10px 30px rgba(19,42,62,.10));
+  border-radius:14px;overflow:hidden;background:#fff}
+#lienzoWrap svg{display:block}
+[data-e]{cursor:pointer}
+[data-e]:hover>*:first-child{stroke:var(--verde);stroke-width:2}
+/* ---------- panel ---------- */
+aside{width:340px;flex:none;background:var(--card);border-left:1px solid var(--linea);overflow-y:auto;padding:16px;
+  display:flex;flex-direction:column;gap:14px}
+aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--verdeOsc)}
+.fld label{display:block;font-size:12.5px;color:var(--tinta2);margin-bottom:5px;font-weight:500}
+.fld input,.fld textarea{width:100%;background:#FBFDFC;border:1px solid var(--linea);border-radius:9px;color:var(--tinta);
+  padding:10px 11px;font:inherit;font-size:15px;outline:none;resize:vertical}
+.fld input:focus,.fld textarea:focus{border-color:var(--verde);background:#fff}
+.fld+.fld{margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.ch{display:inline-flex;align-items:center;gap:6px;background:var(--verdeClaro);border:1px solid var(--linea);
+  border-radius:16px;padding:6px 8px 6px 11px;font-size:13px;color:var(--tinta2)}
+.ch button{border:0;background:none;cursor:pointer;color:var(--tinta2);font-size:15px;line-height:1;padding:0 2px}
+.ch button:hover{color:var(--rojo)}
+.add{border:1px dashed var(--linea2);background:none;border-radius:16px;padding:6px 12px;font:inherit;font-size:13px;
+  color:var(--tinta2);cursor:pointer}
+.add:hover{border-color:var(--verde);color:var(--verdeOsc)}
+.aviso{border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.45;display:none}
+.aviso.error{display:block;background:#FDEDEB;border:1px solid #F3C2BC;color:#8C2A20}
+.aviso.ok{display:block;background:var(--verdeClaro);border:1px solid #CBE6D8;color:var(--verdeOsc)}
+/* ---------- galería ---------- */
+.galeria{position:fixed;inset:0;z-index:60;background:rgba(244,247,244,.985);overflow-y:auto;padding:20px;
+  transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.galeria.on{transform:none}
+.galeria h3{font-size:19px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.ggrid{display:grid;gap:12px;grid-template-columns:1fr}
+.tar{background:var(--card);border:1.5px solid var(--linea);border-radius:14px;padding:12px;cursor:pointer;transition:border-color .14s}
+.tar:hover{border-color:var(--verde)}
+.tar .thumb{aspect-ratio:4/3;border-radius:9px;overflow:hidden;background:#fff;border:1px solid var(--linea)}
+.tar .thumb svg{width:100%;height:100%;display:block}
+.tar .n{font-weight:600;margin-top:8px;font-size:14.5px}
+.tar .d{font-size:12.5px;color:var(--tinta2)}
+@media(min-width:760px){.ggrid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1100px){.ggrid{grid-template-columns:repeat(4,1fr)}}
+/* ---------- móvil ---------- */
+@media(max-width:860px){
+  aside{position:fixed;left:0;right:0;bottom:0;width:auto;max-height:68dvh;border-left:0;border-top:1px solid var(--linea);
+    border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(19,42,62,.16);transform:translateY(110%);
+    transition:transform .26s cubic-bezier(.2,.8,.2,1);z-index:50;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  aside.on{transform:none}
+  main{padding:12px 12px 32px}
+}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--tinta);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.22s;
+  pointer-events:none;z-index:80;max-width:88%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<header>
+  <div class="marca">Diagramas<b>.</b></div>
+  <button class="btn" id="bTipo"><svg viewBox="0 0 24 24"><path d="M4 5h4v14H4zM10 5h4v14h-4zM16 5h4v14h-4z"/></svg><span id="nombreTipo">Pasos</span></button>
+  <button class="btn" id="bAncho"><svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h12v2H3zm0 5h18v2H3z"/></svg><span id="anchoTxt">—</span></button>
+  <div class="sp"></div>
+  <button class="btn" id="bMenu"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg></button>
+  <button class="btn pri" id="bPNG"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</button>
+</header>
+<div class="cuerpo">
+  <main><div id="lienzoWrap"></div></main>
+  <aside id="panel"></aside>
+</div>
+
+<div class="galeria" id="galeria">
+  <h3>Elige el tipo de diagrama <button class="btn" id="gCerrar">✕</button></h3>
+  <div class="ggrid" id="gGrid"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ==== logos.js ==== */
+/* Logos del catálogo (paths 24x24), generados desde el motor v1 */
+(function(root){
+  var L={
+   "hoja": "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10zm-1.7-2.2c.5-.3 1.1-.8 1.7-1.4-2 .4-4.2.2-6.3-.6 1.2 1.2 2.9 1.9 4.6 2z",
+   "gota": "M12 2C8 8 5 11 5 15a7 7 0 0 0 14 0c0-4-3-7-7-13z",
+   "montana": "M3 20h18L14 7l-3.5 6L8 9l-5 11z",
+   "arbol": "M12 2L6 10h3l-4 6h5v4h4v-4h5l-4-6h3L12 2z",
+   "onda": "M2 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2v-3zm0-6c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2V6zm0 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2v-3z",
+   "pajaro": "M21 6c-1 0-2 .5-2.5 1.2C17.8 6.5 17 6 16 6c-1.7 0-3 1.3-3 3 0 .3 0 .5.1.8C9 9.5 5.5 7.5 3.5 4.5c-1 2-.5 4.5 1.2 5.8-.7 0-1.3-.2-1.7-.5 0 1.8 1.3 3.5 3.2 3.9-.5.2-1.1.2-1.7.1.5 1.5 1.9 2.5 3.5 2.6-1.3 1-3 1.6-4.7 1.6H2c1.7 1.1 3.8 1.7 6 1.7 7.2 0 11.2-6 11.2-11.2v-.5c.8-.6 1.4-1.3 1.8-2z",
+   "escudo": "M12 2L4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5l-8-3zm-2 14l-4-4 1.4-1.4L10 13.2l6.6-6.6L18 8l-8 8z",
+   "chispa": "M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z",
+   "lupa": "M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z",
+   "mapa": "M20.5 3l-.2 0-4.8 1.9L9.5 3 3.9 4.9c-.5.2-.9.6-.9 1.1v15.1c0 .5.4.9.9.9l.2-.1 4.8-1.9 6 1.9 5.6-1.9c.5-.2.9-.6.9-1.1V3.9c0-.5-.4-.9-.9-.9zM15 19.9l-6-1.9V4.1l6 1.9v13.9z",
+   "documento": "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
+   "barras": "M4 21h16v-2H4v2zM6 17h3V8H6v9zm5.5 0h3V4h-3v13zM17 17h3v-6h-3v6z",
+   "portapapeles": "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2zm-6 2h4V4h-4v2zm-2 6h8v2H8v-2zm0 4h6v2H8v-2z",
+   "pin": "M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z",
+   "nube": "M19.4 10a7 7 0 0 0-13.1-2A4.5 4.5 0 0 0 6.5 17h12.4a3.5 3.5 0 0 0 .5-7z",
+   "bd": "M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zm0 2c3.9 0 6 1.3 6 2s-2.1 2-6 2-6-1.3-6-2 2.1-2 6-2zm6 14c0 .7-2.1 2-6 2s-6-1.3-6-2v-3.1c1.5.8 3.7 1.1 6 1.1s4.5-.3 6-1.1V18zm0-5c0 .7-2.1 2-6 2s-6-1.3-6-2v-3.1c1.5.8 3.7 1.1 6 1.1s4.5-.3 6-1.1V13z",
+   "bombilla": "M9 21h6v-1H9v1zm3-19a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z",
+   "camara": "M9 3L7.5 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.5L15 3H9zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+   "micro": "M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2z",
+   "casa": "M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z",
+   "ojo": "M12 5C6.5 5 2.3 9.1 1 12c1.3 2.9 5.5 7 11 7s9.7-4.1 11-7c-1.3-2.9-5.5-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"
+  };
+  root.LOGOS2=L;
+  if(typeof module!=="undefined"&&module.exports)module.exports=L;
+})(typeof window!=="undefined"?window:globalThis);
+
+/* ==== nucleo.js ==== */
+/* ============================================================================
+   Motor2 — núcleo del editor de diagramas (v2)
+   Principios:
+   1. NO se escala: se recompone. El motor recibe el ANCHO disponible y ahí
+      decide cuántas columnas y qué tamaños de letra (la letra no encoge).
+   2. Nada se estima: el texto se mide con getComputedTextLength() cuando hay
+      DOM; fuera del navegador se usa un factor conservador.
+   3. Nada se dibuja en coordenadas "a ojo": todo lo coloca el compositor en
+      flujo vertical y el icono va SIEMPRE en su propia columna con aire mínimo.
+   4. Auditor propio: detecta solapes, desbordes, NaN y textos que son un peso.
+   ============================================================================ */
+(function (root) {
+  'use strict';
+  const NS = 'http://www.w3.org/2000/svg';
+  const FONT = "'Inter','Helvetica Neue',Helvetica,Arial,sans-serif";
+
+  const TEMA = {
+    verde: '#1FA971', verdeOsc: '#0E7A50', verdeClaro: '#EBF5EF', verdeSuave: '#F6FBF8',
+    tinta: '#132A3E', tinta2: '#4E657A', borde: '#DFE6E0', blanco: '#FFFFFF', fondo: '#FFFFFF'
+  };
+
+  /* ---- escalas por tamaño de pantalla: la LETRA no encoge, crece el lienzo ---- */
+  const ESCALAS = {
+    compacto: { h1: 25, h2: 19, h3: 16, cuerpo: 14, micro: 11.5, pad: 14, gap: 12, col: 1, radio: 11 },
+    medio: { h1: 30, h2: 21.5, h3: 17, cuerpo: 15, micro: 12, pad: 18, gap: 16, col: 2, radio: 14 },
+    amplio: { h1: 34, h2: 24, h3: 18, cuerpo: 15.5, micro: 12.5, pad: 22, gap: 20, col: 2, radio: 16 }
+  };
+  function escalaPara(ancho) { return ancho < 620 ? ESCALAS.compacto : (ancho < 1024 ? ESCALAS.medio : ESCALAS.amplio); }
+
+  /* ---- medición real de texto ---- */
+  let tMed = null;
+  function initMedidor() {
+    if (tMed || typeof document === 'undefined') return !!tMed;
+    const s = document.createElementNS(NS, 'svg');
+    s.setAttribute('viewBox', '0 0 1000 100');
+    s.setAttribute('style', 'position:absolute;left:-9999px;top:0;width:1000px;height:100px');
+    const t = document.createElementNS(NS, 'text'); s.appendChild(t);
+    document.body.appendChild(s); tMed = t; return true;
+  }
+  function anchoTexto(txt, fs, peso, tracking) {
+    const t = String(txt == null ? '' : txt);
+    if (!t) return 0;
+    if (initMedidor()) {
+      tMed.setAttribute('font-family', FONT);
+      tMed.setAttribute('font-size', fs);
+      tMed.setAttribute('font-weight', peso || 400);
+      tMed.setAttribute('letter-spacing', tracking || '0');
+      tMed.textContent = t;
+      const w = tMed.getComputedTextLength();
+      if (w > 0) return w;
+    }
+    // fuera del navegador: estimación deliberadamente conservadora (se pasa, no se queda corta)
+    return t.length * fs * 0.565;
+  }
+  function wrapTexto(texto, anchoMax, fs, peso, maxLin, tracking) {
+    const palabras = String(texto == null ? '' : texto).split(/\s+/).filter(Boolean);
+    const lineas = []; let l = '';
+    for (const p of palabras) {
+      const c = l ? l + ' ' + p : p;
+      if (anchoTexto(c, fs, peso, tracking) > anchoMax && l) { lineas.push(l); l = p; } else l = c;
+    }
+    if (l) lineas.push(l);
+    if (!lineas.length) lineas.push('');
+    return { lineas: maxLin ? lineas.slice(0, maxLin) : lineas, cortado: !!(maxLin && lineas.length > maxLin) };
+  }
+
+  /* ---- utilidades de dibujo ---- */
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const n2 = v => (Math.round(v * 100) / 100);
+  const txt = (x, y, fs, s, c, w, a, tr) =>
+    `<text x="${n2(x)}" y="${n2(y)}" font-family="${FONT}" font-size="${n2(fs)}" font-weight="${w || 400}" fill="${c}" text-anchor="${a || 'start'}"${tr ? ` letter-spacing="${n2(tr)}"` : ''}>${esc(s)}</text>`;
+  const blk = (x, y, fs, lh, ls, c, w, a) => ls.map((l, i) => txt(x, y + i * lh, fs, l, c, w, a)).join('');
+  const rect = (x, y, w, h, o) => { o = o || {}; return `<rect x="${n2(x)}" y="${n2(y)}" width="${n2(w)}" height="${n2(h)}" rx="${n2(o.rx == null ? 3 : o.rx)}" fill="${o.fill || TEMA.blanco}" stroke="${o.borde || TEMA.borde}" stroke-width="${o.grosor == null ? 1 : o.grosor}"${o.sombra ? ' filter="url(#sombra)"' : ''}/>`; };
+  const circulo = (cx, cy, r, o) => { o = o || {}; return `<circle cx="${n2(cx)}" cy="${n2(cy)}" r="${n2(r)}" fill="${o.fill || 'url(#gradAcento)'}"${o.borde ? ` stroke="${o.borde}" stroke-width="1"` : ''}${o.sombra ? ' filter="url(#sombra)"' : ''}/>`; };
+  const icono = (nombre, x, y, tam, color, LOGOS) => `<g class="ico" transform="translate(${n2(x)},${n2(y)}) scale(${n2(tam / 24)})"><path d="${(LOGOS && LOGOS[nombre]) || (LOGOS && LOGOS.hoja) || ''}" fill="${color}"/></g>`;
+  const chip = (x, y, w, h, o) => { o = o || {}; return `<rect x="${n2(x)}" y="${n2(y)}" width="${n2(w)}" height="${n2(h)}" rx="${n2(h / 2)}" fill="${o.fill || TEMA.verdeSuave}" stroke="${o.borde || TEMA.borde}" stroke-width="1"/>`; };
+  const flechaV = (x, y1, y2, color, g) => `<line x1="${n2(x)}" y1="${n2(y1)}" x2="${n2(x)}" y2="${n2(y2 - g)}" stroke="${color}" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.5"/><polygon points="${n2(x)},${n2(y2)} ${n2(x - g * 0.52)},${n2(y2 - g)} ${n2(x + g * 0.52)},${n2(y2 - g)}" fill="${color}"/>`;
+  const flechaH = (x1, x2, y, color, g) => `<line x1="${n2(x1)}" y1="${n2(y)}" x2="${n2(x2 - g)}" y2="${n2(y)}" stroke="${color}" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.5"/><polygon points="${n2(x2)},${n2(y)} ${n2(x2 - g)},${n2(y - g * 0.52)} ${n2(x2 - g)},${n2(y + g * 0.52)}" fill="${color}"/>`;
+
+  /* ---- DEFS comunes ---- */
+  const defs = () => `<defs>
+    <linearGradient id="gradAcento" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0" stop-color="${TEMA.verde}"/><stop offset="1" stop-color="${TEMA.verdeOsc}"/></linearGradient>
+    <filter id="sombra" x="-12%" y="-12%" width="124%" height="124%"><feDropShadow dx="0" dy="1" stdDeviation="1.4" flood-color="#0d1f17" flood-opacity="0.10"/></filter>
+  </defs>`;
+
+  /* ---- cabecera y pie de la lámina ---- */
+  function cabecera(datos, ctx) {
+    const e = ctx.esc, W = ctx.ancho;
+    const tl = wrapTexto(datos.titulo, W - 2 * e.pad - 10, e.h1, 700, 3);
+    const sl = datos.subtitulo ? wrapTexto(datos.subtitulo, W - 2 * e.pad - 10, e.cuerpo, 500, 3) : { lineas: [] };
+    const kicker = (datos.kicker || datos.tipo || '').toUpperCase();
+    const alto = e.pad * 0.7 + e.micro * 1.6 + 6 + tl.lineas.length * (e.h1 * 1.16) + (sl.lineas.length ? 8 + sl.lineas.length * (e.cuerpo * 1.35) : 0) + 6;
+    let o = '';
+    o += rect(e.pad, 0, 4, alto - 8, { fill: 'url(#gradAcento)', rx: 2, borde: 'none' });
+    let y = e.micro * 1.5;
+    o += txt(e.pad + 14, y, e.micro, kicker, TEMA.verdeOsc, 700, 'start', 0.9); y += e.micro * 1.2 + 6;
+    o += blk(e.pad + 14, y + e.h1 * 0.86, e.h1, e.h1 * 1.16, tl.lineas, TEMA.tinta, 700);
+    y += tl.lineas.length * e.h1 * 1.16;
+    if (sl.lineas.length) o += blk(e.pad + 14, y + e.cuerpo * 1.02, e.cuerpo, e.cuerpo * 1.35, sl.lineas, TEMA.verdeOsc, 500);
+    return { svg: o, alto: alto };
+  }
+  function pie(datos, ctx, alto) {
+    const e = ctx.esc, W = ctx.ancho;
+    const t = ctx.figura ? 'Figura ' + ctx.figura + ' · ' + datos.titulo : datos.titulo;
+    const izq = wrapTexto(t, W - 2 * e.pad - 110, e.micro, 600, 1);
+    let o = `<line x1="${n2(e.pad)}" y1="0.5" x2="${n2(W - e.pad)}" y2="0.5" stroke="${TEMA.borde}" stroke-width="1"/>`;
+    o += txt(e.pad, e.micro * 1.5, e.micro, izq.lineas[0], TEMA.tinta2, 600);
+    o += txt(W - e.pad, e.micro * 1.5, e.micro, 'Elaboración propia', TEMA.tinta2, 400, 'end');
+    return { svg: o, alto: e.micro * 2.4 };
+  }
+
+  /* ---- compositor vertical: coloca bloques y garantiza separación ---- */
+  function componer(bloques, ctx, topY) {
+    const e = ctx.esc, GAP = Math.max(6, e.gap * 0.55);
+    let y = topY, svg = '';
+    bloques.forEach((b, i) => {
+      svg += mover(b.svg, 0, y);
+      y += b.alto + (i < bloques.length - 1 ? GAP : 0);
+    });
+    return { svg: svg, alto: y - topY };
+  }
+  // reubica un bloque dibujado desde y=0 (mueve también los transform de los iconos)
+  function mover(s, dx, dy) {
+    if (!dy && !dx) return s;
+    return s.replace(/translate\((-?[\d.]+),\s*(-?[\d.]+)\)/g, (m, a, b) => `translate(${n2(+a + dx)},${n2(+b + dy)})`)
+      .replace(/\b(x|y|cx|cy)="(-?[\d.]+)"/g, (m, k, v) => ((k === 'x' || k === 'cx') ? k + '="' + n2(+v + dx) + '"' : k + '="' + n2(+v + dy) + '"'));
+  }
+
+  /* ---- AUDITOR: mide el SVG renderizado y detecta lo que no debe pasar ---- */
+  function auditar(svgEl, opts) {
+    opts = opts || {};
+    const errores = { choques: [], fuera: [], nan: [], textoPeso: [], aireJusto: [] };
+    if (!svgEl || !svgEl.getScreenCTM) return errores;
+    const inv = svgEl.getScreenCTM().inverse();
+    const p2u = (px, py) => { const p = svgEl.createSVGPoint(); p.x = px; p.y = py; return p.matrixTransform(inv); };
+    const bb = el => { const r = el.getBoundingClientRect(); const a = p2u(r.left, r.top), b = p2u(r.right, r.bottom); return { x: a.x, y: a.y, x2: b.x, y2: b.y, w: b.x - a.x, h: b.y - a.y }; };
+    const caja = svgEl.viewBox.baseVal;
+    const textos = [], iconos = [];
+    svgEl.querySelectorAll('text').forEach(t => { const b = bb(t); if (b.w > 0) textos.push({ s: t.textContent, b: b, el: t }); });
+    svgEl.querySelectorAll('g.ico').forEach(g => { const b = bb(g); if (b.w > 0 && b.h > 0) iconos.push({ b: b }); });
+    textos.forEach(t => {
+      if (/NaN|undefined|null/.test(t.s)) errores.nan.push(t.s);
+      if (/^(100|200|300|400|500|600|700|800|900)$/.test(t.s.trim())) errores.textoPeso.push(t.s.trim());
+      if (t.b.x < -1 || t.b.y < -1 || t.b.x2 > caja.width + 1 || t.b.y2 > caja.height + 1) errores.fuera.push(t.s);
+      iconos.forEach(ic => {
+        const ix = Math.min(t.b.x2, ic.b.x2) - Math.max(t.b.x, ic.b.x);
+        const iy = Math.min(t.b.y2, ic.b.y2) - Math.max(t.b.y, ic.b.y);
+        if (ix > 0.4 && iy > 0.4) { errores.choques.push({ texto: t.s, solape: [n2(ix), n2(iy)] }); return; }
+        const dx = Math.max(ic.b.x - t.b.x2, t.b.x - ic.b.x2, 0), dy = Math.max(ic.b.y - t.b.y2, t.b.y - ic.b.y2, 0);
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < (opts.aireMin || 3)) errores.aireJusto.push({ texto: t.s, distancia: n2(d) });
+      });
+    });
+    return errores;
+  }
+
+  /* ---- API ---- */
+  function render(peticion) {
+    const { tipo, datos } = peticion;
+    const ancho = Math.max(280, Math.round(peticion.ancho || 900));
+    const est = peticion.estilo || {};
+    const ctx = {
+      ancho: ancho, esc: escalaPara(ancho), tema: TEMA, LOGOS: peticion.logos || {},
+      figura: peticion.figura || 0, avisos: [],
+      medir: anchoTexto, wrap: wrapTexto,
+      dibujar: { rect, circulo, icono, chip, txt, blk, flechaV, flechaH, n2 },
+      hit: peticion.hit || null,
+      compacto: ancho < 620, medio: ancho >= 620 && ancho < 1024, amplio: ancho >= 1024
+    };
+    if (est.acento) { TEMA.verde = est.acento; TEMA.verdeOsc = oscurecer(est.acento, 0.62); }
+    const L = LAYOUTS[tipo] || LAYOUTS.pasos;
+    const cab = cabecera(datos, ctx);
+    const cuerpo = L.cuerpo(datos, ctx);
+    const comp = componer(cuerpo.bloques, ctx, cab.alto + ctx.esc.gap);
+    const p = pie(datos, ctx);
+    const altoTotal = cab.alto + ctx.esc.gap + comp.alto + ctx.esc.gap * 1.4 + p.alto + ctx.esc.pad * 0.6;
+    const pieY = altoTotal - p.alto - ctx.esc.pad * 0.4;
+    const svg = `<svg xmlns="${NS}" viewBox="0 0 ${ancho} ${n2(altoTotal)}" width="100%" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto">`
+      + defs()
+      + `<rect width="${ancho}" height="${n2(altoTotal)}" fill="${TEMA.fondo}"/>`
+      + cab.svg + comp.svg + mover(p.svg, 0, pieY)
+      + `</svg>`;
+    return { svg: svg, ancho: ancho, alto: n2(altoTotal), avisos: ctx.avisos,
+      _debug: peticion.debug ? { cabecera: n2(cab.alto), pie: n2(p.alto), bloques: cuerpo.bloques.map(b => n2(b.alto)) } : null };
+  }
+  function oscurecer(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
+    return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+  }
+
+  const LAYOUTS = {};
+  const Motor2 = {
+    TEMA: TEMA, ESCALAS: ESCALAS, escalaPara: escalaPara, anchoTexto: anchoTexto, wrapTexto: wrapTexto,
+    defs: defs, cabecera: cabecera, pie: pie, componer: componer, mover: mover, auditar: auditar,
+    render: render, LAYOUTS: LAYOUTS, dib: { rect, circulo, icono, chip, txt, blk, flechaV, flechaH, n2, esc }, TEMA_REF: TEMA
+  };
+  root.Motor2 = Motor2;
+  if (typeof module !== 'undefined' && module.exports) module.exports = Motor2;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ==== layouts.js ==== */
+/* ============================================================================
+   Motor2 — layouts. Cada tipo es una función pura que devuelve bloques en
+   flujo vertical; el compositor del núcleo los coloca. Los elementos editables
+   van envueltos en <g data-e="N"> (el editor los detecta con closest()).
+   El modo (compacto/medio/amplio) lo decide el ancho disponible.
+   ============================================================================ */
+(function (root) {
+  'use strict';
+  const M2 = root.Motor2 || (typeof require !== 'undefined' ? require('./nucleo.js') : null);
+  const L = M2.LAYOUTS;
+  const T = M2.TEMA;
+  const d = M2.dib;
+
+  /* ---------- helpers compartidos ---------- */
+  // chips en flujo: caben los que quepan por fila, nunca se salen
+  function flujoChips(ctx, chips, x0, y0, anchoMax, fs) {
+    const e = ctx.esc, padCh = fs * 0.85, gapX = 6, gapY = 6;
+    const filas = []; let fila = [], usado = 0;
+    chips.forEach(c => {
+      const w = M2.anchoTexto(c, fs, 500) + padCh * 2;
+      if (usado + w > anchoMax && fila.length) { filas.push({ fila: fila, usado: usado }); fila = []; usado = 0; }
+      fila.push(c); usado += w + gapX;
+    });
+    if (fila.length) filas.push({ fila: fila, usado: usado });
+    const h = fs * 2.1;
+    let o = '', y = y0;
+    filas.forEach(f => {
+      let x = x0;
+      f.fila.forEach(c => {
+        const w = M2.anchoTexto(c, fs, 500) + padCh * 2;
+        o += d.chip(x, y, w, h, {});
+        o += d.txt(x + w / 2, y + h / 2 + fs * 0.35, fs, c, T.tinta2, 500, 'middle');
+        x += w + gapX;
+      });
+      y += h + gapY;
+    });
+    return { svg: o, alto: Math.max(0, y - y0 - gapY) };
+  }
+  // anchura natural de una fila de chips
+  function anchoChips(ctx, chips, fs) { return chips.reduce((a, c) => a + M2.anchoTexto(c, fs, 500) + fs * 1.7 + 6, 0); }
+
+  // tarjeta con marca (número y/o icono) + texto + chips. Alto SIEMPRE calculado.
+  function tarjeta(ctx, it, W, o) {
+    o = o || {};
+    const e = ctx.esc, u = ctx.tema;
+    const padX = Math.max(10, e.pad * 0.7), padY = Math.max(9, e.pad * 0.6);
+    const rNum = e.cuerpo * 0.95, icoTam = rNum * 1.85;
+    let marca = 0;
+    if (o.numero != null) marca += rNum * 2;
+    if (o.icono) marca += (o.numero != null ? 8 : 0) + icoTam;
+    if (marca) marca += 12;   // aire garantizado marca → texto
+    const anchoTxt = W - padX * 2 - marca;
+    const t = ctx.wrap(it.titulo || it.label || '', anchoTxt, o.fsTitulo || e.h3, 700, 3);
+    const desc = it.desc ? ctx.wrap(it.desc, anchoTxt, e.cuerpo, 400, 4) : { lineas: [] };
+    const chips = (it.chips || []).filter(Boolean).slice(0, 5);
+    const lhT = (o.fsTitulo || e.h3) * 1.24, lhD = e.cuerpo * 1.36;
+    let altoTexto = t.lineas.length * lhT;
+    if (desc.lineas.length) altoTexto += 5 + desc.lineas.length * lhD;
+    let altoChips = 0, chipsSvg = '';
+    if (chips.length) {
+      const r = flujoChips(ctx, chips, 0, 0, W - padX * 2, e.micro);
+      chipsSvg = r.svg; altoChips = r.alto + 7;
+    }
+    const alto = padY * 2 + Math.max(altoTexto, (o.numero != null || o.icono) ? Math.max(rNum * 2 + 4, icoTam) : 0) + altoChips;
+    let o2 = `<g${o.editable != null ? ` data-e="${o.editable}"` : ''} class="tar">`;
+    o2 += d.rect(0, 0, W, alto, { sombra: true, rx: e.radio });
+    const rTar = e.radio, sangria = Math.max(2, rTar * 0.62);
+    o2 += d.rect(0, sangria, 4, Math.max(6, alto - sangria * 2), { fill: 'url(#gradAcento)', rx: 2, borde: 'none' });
+    let xTxt = padX + marca;
+    if (o.numero != null) {
+      const cx = padX + rNum, cy = padY + rNum + 2;
+      o2 += d.circulo(cx, cy, rNum, {});
+      o2 += d.txt(cx, cy + rNum * 0.34, rNum * 1.15, String(o.numero), '#FFF', 700, 'middle');
+      if (o.icono) o2 += d.icono(o.icono, padX + rNum * 2 + 8, cy - icoTam / 2, icoTam, u.verdeOsc, ctx.LOGOS);
+    } else if (o.icono) {
+      o2 += d.icono(o.icono, padX, padY + 1, icoTam * 1.05, u.verdeOsc, ctx.LOGOS);
+    }
+    o2 += d.blk(xTxt, padY + (o.fsTitulo || e.h3) * 0.92, o.fsTitulo || e.h3, lhT, t.lineas, u.tinta, 700);
+    if (desc.lineas.length) o2 += d.blk(xTxt, padY + t.lineas.length * lhT + 5 + e.cuerpo * 0.98, e.cuerpo, lhD, desc.lineas, u.tinta2, 400);
+    if (chipsSvg) o2 += M2.mover(chipsSvg, padX, padY + altoTexto + 7);
+    o2 += '</g>';
+    return { svg: o2, alto: alto };
+  }
+
+  // rejilla de tarjetas: devuelve un bloque por fila (nunca columnas desalineadas)
+  function rejilla(ctx, items, cols, gap, o) {
+    const e = ctx.esc, W = ctx.ancho - e.pad * 2;
+    const cw = (W - (cols - 1) * gap) / cols;
+    const filas = [];
+    for (let i = 0; i < items.length; i += cols) filas.push(items.slice(i, i + cols));
+    return filas.map((fila, fi) => {
+      const celdas = fila.map((it, j) => tarjeta(ctx, it, cw, Object.assign({}, o, {
+        editable: it.__e != null ? it.__e : (o.primero + fi * cols + j),
+        numero: (o.primero + fi * cols + j + 1)
+      })));
+      const alto = Math.max.apply(null, celdas.map(c => c.alto));
+      let svg = '';
+      celdas.forEach((c, j) => { svg += M2.mover(c.svg, e.pad + j * (cw + gap), 0); });
+      return { svg: svg, alto: alto };
+    });
+  }
+
+  /* ============ 1. PASOS (proceso paso a paso) ============ */
+  L.pasos = {
+    nombre: 'Pasos',
+    desc: 'Proceso paso a paso',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, n = datos.nodos.length;
+      const cols = (ctx.amplio && n >= 5) ? 2 : 1;
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const gapV = e.gap * 0.7;
+      if (cols === 1) {
+        const W = ctx.ancho - e.pad * 2;
+        const bloques = [];
+        items.forEach((it, i) => {
+          const bl = tarjeta(ctx, it, W, { numero: i + 1, icono: it.icono, editable: i });
+          bloques.push(bl);
+          if (i < items.length - 1) bloques.push({ svg: d.flechaV(W / 2, 0, gapV, T.verdeOsc, 8), alto: gapV });
+        });
+        return { bloques: bloques };
+      }
+      const filas = rejilla(ctx, items, 2, e.gap * 0.7, { primero: 0 });
+      const out = [];
+      filas.forEach((f, i) => { out.push(f); if (i < filas.length - 1) out.push({ svg: d.flechaV(ctx.ancho / 2 - e.pad, 0, gapV, T.verdeOsc, 8), alto: gapV }); });
+      return { bloques: out };
+    }
+  };
+
+  /* ============ 2. SECUENCIA (línea de hitos) ============ */
+  L.secuencia = {
+    nombre: 'Secuencia',
+    desc: 'Línea temporal de fases',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, n = datos.nodos.length;
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const W = ctx.ancho - e.pad * 2;
+      // compacto: columna con raíl lateral | amplio: serpentina de 2 filas
+      if (ctx.compacto || n <= 2) {
+        return L.pasos.cuerpo(datos, ctx);
+      }
+      const fila1 = Math.ceil(n / 2), fila2 = n - fila1;
+      const cw = (W - (fila1 - 1) * e.gap * 0.7) / fila1;
+      const bloques = [];
+      const mk = (fila, primero, invertida) => {
+        const celdas = fila.map((it, j) => tarjeta(ctx, it, cw, { numero: primero + j + 1, icono: it.icono, editable: it.__e }));
+        const alto = Math.max.apply(null, celdas.map(c => c.alto));
+        let svg = '';
+        const orden = invertida ? celdas.slice().reverse() : celdas;
+        orden.forEach((c, j) => {
+          const col = invertida ? (fila.length - 1 - j) : j;
+          svg += M2.mover(c.svg, e.pad + col * (cw + e.gap * 0.7), 0);
+        });
+        for (let j = 0; j < celdas.length - 1; j++) {
+          const x1 = e.pad + j * (cw + e.gap * 0.7) + cw + 2, x2 = e.pad + (j + 1) * (cw + e.gap * 0.7) - 2;
+          svg += d.flechaH(x1, x2, alto / 2, T.verdeOsc, 7);
+        }
+        return { svg: svg, alto: alto };
+      };
+      bloques.push(mk(items.slice(0, fila1), 0, false));
+      const yCodo = e.gap * 1.5;
+      const xDer = e.pad + (fila1 - 1) * (cw + e.gap * 0.7) + cw / 2;
+      const xIzq2 = e.pad + (fila2 - 1) * (cw + e.gap * 0.7) + cw / 2;
+      bloques.push({
+        svg: `<path d="M${d.n2(xDer)},0 V${d.n2(yCodo * 0.55)} H${d.n2(xIzq2)} V${d.n2(yCodo - 7)}" fill="none" stroke="${T.verdeOsc}" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.5"/>`
+          + `<polygon points="${d.n2(xIzq2)},${d.n2(yCodo)} ${d.n2(xIzq2 - 3.6)},${d.n2(yCodo - 7)} ${d.n2(xIzq2 + 3.6)},${d.n2(yCodo - 7)}" fill="${T.verdeOsc}"/>`, alto: yCodo
+      });
+      bloques.push(mk(items.slice(fila1), fila1, false));
+      return { bloques: bloques };
+    }
+  };
+
+  /* ============ 3. TARJETAS (rejilla) ============ */
+  L.tarjetas = {
+    nombre: 'Tarjetas',
+    desc: 'Rejilla de criterios',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, n = datos.nodos.length;
+      const cols = ctx.ancho >= 1200 ? 3 : (ctx.ancho >= 620 ? 2 : 1);
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      return { bloques: rejilla(ctx, items, cols, e.gap * 0.7, { primero: 0, icono: null }) };
+    }
+  };
+
+  /* ============ 4. RADIAL (hub + satélites) ============ */
+  L.radial = {
+    nombre: 'Radial',
+    desc: 'Hub central con satélites',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, W = ctx.ancho;
+      if (ctx.compacto) return radialLista(datos, ctx);
+      const hub = datos.nodos[0], sats = datos.nodos.slice(1), n = sats.length;
+      const area = Math.min(W - e.pad * 2, 640);
+      const cx = W / 2, R = area / 2 - 34, cw = Math.min(190, area / 2.6), ch = e.cuerpo * 2.6;
+      const cyLocal = area / 2, HR = Math.min(78, R * 0.42);
+      let svg = `<circle cx="${d.n2(cx)}" cy="${d.n2(cyLocal)}" r="${d.n2(R)}" fill="none" stroke="${T.borde}" stroke-width="1" stroke-dasharray="2 5"/>`;
+      sats.forEach((nd, i) => {
+        const a = -Math.PI / 2 + i * 2 * Math.PI / n, px = cx + R * Math.cos(a), py = cyLocal + R * Math.sin(a);
+        const ux = Math.cos(a), uy = Math.sin(a);
+        svg += `<line x1="${d.n2(cx + ux * HR)}" y1="${d.n2(cyLocal + uy * HR)}" x2="${d.n2(px - ux * cw / 2)}" y2="${d.n2(py - uy * ch / 2)}" stroke="${T.verdeOsc}" stroke-width="1" opacity="0.35"/>`;
+        svg += `<circle cx="${d.n2(cx + ux * HR)}" cy="${d.n2(cyLocal + uy * HR)}" r="2.4" fill="${T.verde}"/>`;
+        svg += `<g data-e="${i + 1}" class="sat">` + d.rect(px - cw / 2, py - ch / 2, cw, ch, { sombra: true, rx: e.radio })
+          + d.blk(px, py + e.cuerpo * 0.36 - (ctx.wrap(nd.label, cw - 16, e.cuerpo, 600, 2).lineas.length - 1) * e.cuerpo * 1.3 / 2,
+            e.cuerpo, e.cuerpo * 1.3, ctx.wrap(nd.label, cw - 16, e.cuerpo, 600, 2).lineas, T.tinta, 600, 'middle') + `</g>`;
+      });
+      svg += `<g data-e="-1" class="hub">` + d.circulo(cx, cyLocal, HR, { sombra: true })
+        + d.blk(cx, cyLocal + e.cuerpo * 0.4 - (ctx.wrap(hub.label, HR * 1.5, e.cuerpo * 1.15, 700, 3).lineas.length - 1) * e.cuerpo * 1.5 / 2,
+          e.cuerpo * 1.15, e.cuerpo * 1.5, ctx.wrap(hub.label, HR * 1.5, e.cuerpo * 1.15, 700, 3).lineas, '#FFF', 700, 'middle') + `</g>`;
+      return { bloques: [{ svg: svg, alto: area }] };
+    }
+  };
+
+  /* ============ 5. CICLO (mejora continua) ============ */
+  L.ciclo = {
+    nombre: 'Ciclo',
+    desc: 'Circuito de mejora continua',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, W = ctx.ancho;
+      const pasos = datos.nodos, n = pasos.length;
+      if (ctx.compacto || n > 8) {
+        // compacto: hub + lista numerada con los pasos (legible, sin anillo)
+        const bloques = [];
+        bloques.push(cajaHub(datos, ctx, W - e.pad * 2));
+        pasos.forEach((p, i) => bloques.push(tarjeta(ctx, { titulo: p.label, icono: p.icono }, W - e.pad * 2, { numero: i + 1, icono: p.icono, editable: i })));
+        return { bloques: bloques };
+      }
+      const area = Math.min(W - e.pad * 2, 660);
+      const cx = W / 2, cy = area / 2, R = area / 2 - 46, CR = Math.min(40, R * 0.30), HR = CR * 1.28;
+      let svg = '';
+      pasos.forEach((p, i) => {
+        const a = -Math.PI / 2 + i * 2 * Math.PI / n;
+        const a1 = a + 0.42, a2 = (-Math.PI / 2 + ((i + 1) % n) * 2 * Math.PI / n) + (i === n - 1 ? 2 * Math.PI : 0) - 0.42;
+        const p1 = { x: cx + R * Math.cos(a1), y: cy + R * Math.sin(a1) }, p2 = { x: cx + R * Math.cos(a2), y: cy + R * Math.sin(a2) };
+        svg += `<path d="M${d.n2(p1.x)},${d.n2(p1.y)} A${d.n2(R)},${d.n2(R)} 0 0 1 ${d.n2(p2.x)},${d.n2(p2.y)}" fill="none" stroke="${T.verde}" stroke-width="2" opacity="0.45"/>`;
+        const tx = -Math.sin(a2) * 7, ty = Math.cos(a2) * 7;
+        svg += `<polygon points="${d.n2(p2.x + tx)},${d.n2(p2.y + ty)} ${d.n2(p2.x + tx * 0.15 + Math.cos(a2) * 3)},${d.n2(p2.y + ty * 0.15 + Math.sin(a2) * 3)} ${d.n2(p2.x + tx * 0.15 - Math.cos(a2) * 3)},${d.n2(p2.y + ty * 0.15 - Math.sin(a2) * 3)}" fill="${T.verde}"/>`;
+      });
+      pasos.forEach((p, i) => {
+        const a = -Math.PI / 2 + i * 2 * Math.PI / n, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
+        svg += `<g data-e="${i}" class="paso">` + d.circulo(x, y, CR, { fill: T.blanco, borde: T.borde, sombra: true })
+          + d.circulo(x, y - CR * 0.86, CR * 0.30, {})
+          + d.txt(x, y - CR * 0.86 + CR * 0.11, CR * 0.42, String(i + 1), '#FFF', 700, 'middle')
+          + (p.icono ? d.icono(p.icono, x - CR * 0.19, y - CR * 0.52, CR * 0.38, T.verdeOsc, ctx.LOGOS) : '')
+          + d.blk(x, y + CR * 0.26, e.micro, e.micro * 1.28, ctx.wrap(p.label, CR * 1.72, e.micro, 600, 2).lineas, T.tinta, 600, 'middle') + `</g>`;
+      });
+      svg += `<g data-e="-1" class="hub">` + d.circulo(cx, cy, HR, { sombra: true })
+        + d.blk(cx, cy + e.cuerpo * 0.4 - (ctx.wrap(datos.titulo, HR * 1.5, e.cuerpo, 700, 3).lineas.length - 1) * e.cuerpo * 1.35 / 2,
+          e.cuerpo, e.cuerpo * 1.35, ctx.wrap(datos.titulo, HR * 1.5, e.cuerpo, 700, 3).lineas, '#FFF', 700, 'middle') + `</g>`;
+      return { bloques: [{ svg: svg, alto: area }] };
+    }
+  };
+
+  /* ============ 6. CONCEPTO (hub + categorías con subelementos) ============ */
+  L.concepto = {
+    nombre: 'Concepto',
+    desc: 'Mapa de categorías y subelementos',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, W = ctx.ancho - e.pad * 2;
+      const cols = ctx.ancho >= 1000 ? 2 : 1;
+      const bloques = [];
+      bloques.push(cajaHub(datos, ctx, W, datos.tituloCentral || datos.titulo));
+      const cats = datos.nodos.map((c, i) => ({ titulo: c.label, icono: c.icono, chips: c.subs, __e: i }));
+      const fr = rejilla(ctx, cats, cols, e.gap * 0.7, { primero: 0, fsTitulo: e.h3 });
+      fr.forEach((f, i) => {
+        if (i > 0) bloques.push({ svg: '', alto: e.gap * 0.35 });
+        bloques.push(f);
+      });
+      return { bloques: bloques };
+    }
+  };
+
+  /* ============ 7. INFORMES (página con intro + pasos + fuentes + notas) ============ */
+  L.informe = {
+    nombre: 'Informe',
+    desc: 'Página de informe con bandas',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, W = ctx.ancho - e.pad * 2, bloques = [];
+      const esq = (h, extra) => ({ svg: d.rect(0, 0, W, h, { fill: T.verdeClaro, rx: e.radio, borde: 'none' }) + d.rect(0, e.radio * 0.62, 4, Math.max(6, h - e.radio * 1.24), { fill: 'url(#gradAcento)', rx: 2, borde: 'none' }) + (extra || ''), alto: h });
+      if (datos.intro) {
+        const il = ctx.wrap(datos.intro, W - e.pad * 1.4, e.cuerpo, 400, 5);
+        const h = e.pad * 0.8 + il.lineas.length * e.cuerpo * 1.4 + e.pad * 0.8;
+        bloques.push(esq(h, d.blk(e.pad * 0.7, e.pad * 0.8 + e.cuerpo * 0.95, e.cuerpo, e.cuerpo * 1.4, il.lineas, T.tinta2, 400)));
+      }
+      const cols = ctx.ancho >= 900 ? 2 : 1;
+      const pasos = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const fr = rejilla(ctx, pasos, cols, e.gap * 0.7, { primero: 0 });
+      fr.forEach(f => bloques.push(f));
+      if (datos.fuentes && datos.fuentes.length) {
+        const fs2 = e.micro, r = flujoChips(ctx, datos.fuentes.map(f => f.label || f), 0, 0, W, fs2);
+        const rotulo = 'FUENTES Y HERRAMIENTAS';
+        const anchoRot = M2.anchoTexto(rotulo, fs2, 700, 0.9);
+        const notaFuentes = 'se combinan en todas las etapas';
+        const alLado = (anchoRot + 12 + M2.anchoTexto(notaFuentes, fs2, 400)) <= W;
+        const cabFuentes = alLado
+          ? d.txt(0, e.micro, fs2, rotulo, T.verdeOsc, 700, 'start', 0.9)
+            + d.txt(anchoRot + 12, e.micro, fs2, notaFuentes, T.tinta2, 400)
+          : d.txt(0, e.micro, fs2, rotulo, T.verdeOsc, 700, 'start', 0.9)
+            + d.txt(0, e.micro * 2.3, fs2, notaFuentes, T.tinta2, 400);
+        const yChips = alLado ? e.micro * 2.2 : e.micro * 3.5;
+        bloques.push({
+          svg: cabFuentes + M2.mover(r.svg, 0, yChips), alto: yChips + r.alto
+        });
+      }
+      if (datos.notas && datos.notas.length) {
+        const cols2 = ctx.ancho >= 900 ? 3 : 1;
+        const gap = e.gap * 0.6, cw = (W - (cols2 - 1) * gap) / cols2;
+        const trozos = datos.notas.map(n => ctx.wrap(n.texto || n, cw - e.pad * 1.2 - e.micro * 2.8, e.micro * 1.05, 500, 5));
+        const lh = e.micro * 1.35;
+        const altos = trozos.map(t => e.pad * 0.7 + e.micro * 1.9 + 3 + t.lineas.length * lh + e.pad * 0.7);
+        const alto = Math.max.apply(null, altos);
+        let svg = '';
+        trozos.forEach((t, i) => {
+          const x = i % cols2 * (cw + gap), yy = Math.floor(i / cols2) * (alto + gap);
+          svg += d.rect(x, yy, cw, alto, { fill: T.verdeClaro, rx: e.radio, borde: 'none' });
+          const icoTam = e.micro * 1.9, icoY = yy + e.pad * 0.7;
+          svg += d.icono((datos.notas[i].icono) || 'chispa', x + e.pad * 0.6, icoY, icoTam, T.verdeOsc, ctx.LOGOS);
+          svg += d.blk(x + e.pad * 0.6, icoY + icoTam + 4.5 + e.micro * 0.85, e.micro * 1.05, lh, t.lineas, T.tinta2, 500);
+        });
+        const filas = Math.ceil(trozos.length / cols2);
+        bloques.push({ svg: svg, alto: filas * alto + (filas - 1) * gap });
+      }
+      return { bloques: bloques };
+    }
+  };
+
+  /* ============ 8. RADIAL 3 NIVELES (anillos concéntricos) ============ */
+  L.radial3 = {
+    nombre: 'Radial 3 niveles',
+    desc: 'Centro → nivel 1 → nivel 2',
+    cuerpo(datos, ctx) {
+      const e = ctx.esc, W = ctx.ancho;
+      const cats = datos.nodos;
+      if (ctx.compacto) return L.concepto.cuerpo(datos, ctx);
+      const CH1 = e.cuerpo * 2.5, CW1 = Math.min(150, (W - 2 * e.pad) * 0.30), CH2 = e.micro * 2.4;
+      const WUt = W - 2 * e.pad;
+      // El radio se calcula para que los chips quepan EN HORIZONTAL y no se toquen entre grupos.
+      // Si con 3 chips por categoría no cabe, se muestran 2; si tampoco, 1.
+      const anchoChip = (x) => Math.max(CW1 * 0.6, M2.anchoTexto(x, e.micro, 500) + e.micro * 1.8);
+      let R2 = 0, subsMostrar = 3, huecoMin = 8;
+      for (let k = 3; k >= 1; k--) {
+        let grupoMax = 0, chipMax = 0;
+        cats.forEach(c => {
+          const s = (c.subs || []).slice(0, k); let w = 0;
+          s.forEach(x => { const a = anchoChip(x); w += a + huecoMin; chipMax = Math.max(chipMax, a); });
+          grupoMax = Math.max(grupoMax, w);
+        });
+        const R2min = grupoMax * 1.12 * cats.length / (2 * Math.PI);
+        const R2max = WUt / 2 - chipMax / 2 - 2;
+        if (R2min <= R2max) { R2 = Math.min(R2max, Math.max(R2min, WUt * 0.40)); subsMostrar = k; break; }
+        if (k === 1) { R2 = Math.max(40, R2max); subsMostrar = 1; }
+      }
+      const area = 2 * (R2 + CH2);
+      const cx = W / 2, cy = area / 2;
+      const HR = Math.max(40, Math.min(area * 0.115, R2 * 0.42));
+      const R1 = HR + 8 + CH1 / 2 + Math.max(6, (R2 - CH2 / 2 - (HR + 8 + CH1 / 2)) / 2);
+      let svg = '';
+      svg += `<circle cx="${d.n2(cx)}" cy="${d.n2(cy)}" r="${d.n2(R1)}" fill="none" stroke="${T.borde}" stroke-width="1" stroke-dasharray="2 5"/>`;
+      svg += `<circle cx="${d.n2(cx)}" cy="${d.n2(cy)}" r="${d.n2(R2)}" fill="none" stroke="${T.borde}" stroke-width="1" stroke-dasharray="2 5"/>`;
+      const n = cats.length;
+      const posC = cats.map((c, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return { a: a, x: cx + R1 * Math.cos(a), y: cy + R1 * Math.sin(a) }; });
+      posC.forEach(p => {
+        const ux = Math.cos(p.a), uy = Math.sin(p.a);
+        svg += `<line x1="${d.n2(cx + ux * HR)}" y1="${d.n2(cy + uy * HR)}" x2="${d.n2(p.x - ux * CH1 / 2)}" y2="${d.n2(p.y - uy * CH1 / 2)}" stroke="${T.verdeOsc}" stroke-width="1" opacity="0.35"/>`;
+        svg += `<circle cx="${d.n2(cx + ux * HR)}" cy="${d.n2(cy + uy * HR)}" r="2.4" fill="${T.verde}"/>`;
+      });
+      // nivel 2: chips agrupados bajo su categoría
+      const maxSubs = Math.max.apply(null, cats.map(c => Math.min((c.subs || []).length, 3)));
+      cats.forEach((c, i) => {
+        const a = posC[i].a, subs = (c.subs || []).slice(0, subsMostrar);
+        const anchos = subs.map(x => Math.max(CW1 * 0.6, M2.anchoTexto(x, e.micro, 500) + e.micro * 1.8));
+        const angulares = anchos.map(w => (w + 8) / R2);          // ancho angular de cada chip
+        const totalAng = angulares.reduce((s, v) => s + v, 0);
+        subs.forEach((sub, j) => {
+          // se centra el grupo en el ángulo de su categoría y se garantiza 8px entre chips
+          const previo = angulares.slice(0, j).reduce((s, v) => s + v, 0);
+          const aa = a + previo + angulares[j] / 2 - totalAng / 2;
+          const px = cx + R2 * Math.cos(aa), py = cy + R2 * Math.sin(aa);
+          const ancho = anchos[j];
+          svg += `<line x1="${d.n2(posC[i].x)}" y1="${d.n2(posC[i].y)}" x2="${d.n2(px)}" y2="${d.n2(py)}" stroke="${T.verde}" stroke-width="0.9" opacity="0.3"/>`;
+          svg += d.chip(px - ancho / 2, py - CH2 / 2, ancho, CH2, {});
+          svg += d.txt(px, py + e.micro * 0.35, e.micro, sub, T.tinta2, 500, 'middle');
+        });
+      });
+      cats.forEach((c, i) => {
+        const x = posC[i].x - CW1 / 2, y = posC[i].y - CH1 / 2;
+        svg += `<g data-e="${i}" class="cat">` + d.rect(x, y, CW1, CH1, { fill: 'url(#gradAcento)', borde: 'none', rx: e.radio * 0.7, sombra: true });
+        const icT = e.micro * 1.9, txtX = x + 8 + (c.icono ? icT + 7 : 0), anchoLbl = CW1 - (txtX - x) - 8;
+        if (c.icono) svg += d.icono(c.icono, x + 8, y + CH1 / 2 - icT / 2, icT, 'rgba(255,255,255,0.95)', ctx.LOGOS);
+        const lbl = ctx.wrap(c.label, anchoLbl, e.micro * 1.05, 700, 2);
+        svg += d.blk(txtX, y + CH1 / 2 - (lbl.lineas.length - 1) * e.micro * 1.35 / 2 + e.micro * 0.38,
+          e.micro * 1.05, e.micro * 1.35, lbl.lineas, '#FFF', 700);
+        svg += `</g>`;
+      });
+      svg += `<g data-e="-1" class="hub">` + d.circulo(cx, cy, HR, { sombra: true })
+        + d.blk(cx, cy + e.cuerpo * 0.4 - (ctx.wrap(datos.tituloCentral || datos.titulo, HR * 1.7, e.cuerpo, 700, 4).lineas.length - 1) * e.cuerpo * 1.3 / 2,
+          e.cuerpo, e.cuerpo * 1.3, ctx.wrap(datos.tituloCentral || datos.titulo, HR * 1.7, e.cuerpo, 700, 4).lineas, '#FFF', 700, 'middle') + `</g>`;
+      return { bloques: [{ svg: svg, alto: area }] };
+    }
+  };
+
+  /* ---------- auxiliares ---------- */
+  function cajaHub(datos, ctx, W, texto) {
+    const e = ctx.esc, u = ctx.tema;
+    const t = ctx.wrap(texto || datos.titulo, W - e.pad * 1.6, e.h3, 700, 3);
+    const h = e.pad * 0.9 + t.lineas.length * e.h3 * 1.25 + e.pad * 0.9;
+    return {
+      svg: `<g data-e="-1" class="hub">` + d.rect(0, 0, W, h, { fill: 'url(#gradAcento)', borde: 'none', rx: e.radio, sombra: true })
+        + d.blk(W / 2, h / 2 - (t.lineas.length - 1) * e.h3 * 1.25 / 2 + e.h3 * 0.44, e.h3, e.h3 * 1.25, t.lineas, '#FFF', 700, 'middle') + `</g>`,
+      alto: h
+    };
+  }
+  function radialLista(datos, ctx) {
+    const e = ctx.esc, W = ctx.ancho - e.pad * 2;
+    const bloques = [cajaHub(datos, ctx, W, datos.nodos[0].label)];
+    datos.nodos.slice(1).forEach((nd, i) => bloques.push(tarjeta(ctx, { titulo: nd.label, icono: nd.icono }, W, { numero: i + 1, icono: nd.icono, editable: i + 1 })));
+    return { bloques: bloques };
+  }
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = L;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ==== ejemplos.js ==== */
+/* Motor2 — ejemplos: estructura uniforme para los 8 tipos.
+   { tipo, kicker, titulo, subtitulo, intro, tituloCentral, nodos:[{label,desc,icono,subs}], fuentes, notas } */
+(function (root) {
+  'use strict';
+  const E = {
+    pasos: {
+      tipo: 'pasos', kicker: 'Tarea 3 · Metodología', titulo: 'Evolución de una zona tranquila',
+      subtitulo: 'De la identificación preliminar a la verificación',
+      nodos: [
+        { label: 'Identificación preliminar', desc: 'Revisión de la información disponible para localizar espacios favorables.', subs: ['Cartografía acústica', 'Espacios protegidos'] },
+        { label: 'Selección de candidatos', desc: 'Criterios acústicos, territoriales y funcionales.', subs: ['Accesibilidad', 'Compatibilidad de usos'] },
+        { label: 'Validación', desc: 'Contraste con trabajo de campo y comprobación de afecciones.', subs: ['Mediciones', 'Encuestas'] },
+        { label: 'Delimitación y caracterización', desc: 'Perímetro con límites reconocibles y descripción integral.', subs: ['SIG', 'Paisaje sonoro'] },
+        { label: 'Verificación y seguimiento', desc: 'Mantenimiento de la tranquilidad con seguimiento periódico.', subs: ['Indicadores', 'Plan de medidas'] }
+      ]
+    },
+    secuencia: {
+      tipo: 'secuencia', kicker: 'Fases', titulo: 'Proceso en fases',
+      subtitulo: 'Cinco hitos encadenados',
+      nodos: [
+        { label: 'Identificación', desc: 'Detección inicial', subs: ['MER'] },
+        { label: 'Selección', desc: 'Criterios y filtros', subs: ['Multicriterio'] },
+        { label: 'Validación', desc: 'Trabajo de campo', subs: ['Mediciones'] },
+        { label: 'Delimitación', desc: 'Perímetro y coherencia', subs: ['SIG'] },
+        { label: 'Seguimiento', desc: 'Control periódico', subs: ['Indicadores'] }
+      ]
+    },
+    tarjetas: {
+      tipo: 'tarjetas', kicker: 'Criterios', titulo: 'Criterios de evaluación',
+      subtitulo: 'Seis familias de criterios',
+      nodos: [
+        { label: 'Acústicos', desc: 'Niveles, umbrales y evolución temporal.', subs: ['Lden', 'Lnight'] },
+        { label: 'Territoriales y urbanísticos', desc: 'Planeamiento y compatibilidad de usos.', subs: ['Suelo', 'Planeamiento'] },
+        { label: 'Ambientales y ecológicos', desc: 'Valores naturales del entorno.', subs: ['Red Natura'] },
+        { label: 'Paisaje sonoro', desc: 'Percepción y cualidad del sonido.', subs: ['Grabaciones'] },
+        { label: 'Sociales y funcionales', desc: 'Uso ciudadano del espacio.', subs: ['Aforos'] },
+        { label: 'Gestión y participación', desc: 'Gobernanza y seguimiento.', subs: ['Encuestas'] }
+      ]
+    },
+    radial: {
+      tipo: 'radial', kicker: 'Síntesis', titulo: 'Área Potencialmente Tranquila',
+      subtitulo: 'Criterios que la definen',
+      nodos: [
+        { label: 'APT' }, { label: 'Criterios acústicos' }, { label: 'Criterios territoriales' },
+        { label: 'Criterios ambientales' }, { label: 'Paisaje sonoro' }, { label: 'Uso social' }, { label: 'Gestión' }
+      ]
+    },
+    ciclo: {
+      tipo: 'ciclo', kicker: 'Mejora continua', titulo: 'Metodología de zonas tranquilas',
+      subtitulo: 'Mejora continua',
+      nodos: [
+        { label: 'Identificación preliminar', icono: 'lupa' },
+        { label: 'Selección de candidatos', icono: 'mapa' },
+        { label: 'Validación', icono: 'documento' },
+        { label: 'Delimitación', icono: 'pin' },
+        { label: 'Caracterización', icono: 'barras' },
+        { label: 'Propuesta ZT', icono: 'hoja' },
+        { label: 'Evaluación técnica', icono: 'portapapeles' }
+      ]
+    },
+    concepto: {
+      tipo: 'concepto', kicker: 'Tarea 3 · Herramientas', titulo: 'Herramientas para la identificación',
+      tituloCentral: 'Herramientas de identificación y delimitación',
+      nodos: [
+        { label: 'Cartografía acústica', icono: 'mapa', subs: ['MER', 'Isofonas', 'Indicadores'] },
+        { label: 'Sistemas de Información Geográfica', icono: 'bd', subs: ['Delimitación', 'Catastro', 'Parcelario'] },
+        { label: 'Participación', icono: 'pajaro', subs: ['Encuestas', 'Cuestionarios', 'Percepción'] },
+        { label: 'Información ambiental', icono: 'arbol', subs: ['Espacios protegidos', 'Red Natura 2000'] },
+        { label: 'Mediciones acústicas', icono: 'micro', subs: ['Validación', 'Caracterización'] }
+      ]
+    },
+    informe: {
+      tipo: 'informe', kicker: 'Tarea 3 · Metodología', titulo: 'Proceso de identificación y delimitación de zonas tranquilas',
+      subtitulo: 'Una aproximación integral para preservar los espacios tranquilos',
+      intro: 'La identificación y delimitación requiere combinar fuentes cartográficas, ambientales, territoriales, funcionales y perceptivas.',
+      nodos: [
+        { label: 'Identificación preliminar', desc: 'Revisión de la información disponible para localizar espacios favorables.', icono: 'lupa', subs: ['Cartografía acústica', 'Espacios protegidos', 'Uso del suelo'] },
+        { label: 'Selección de candidatos', desc: 'Criterios acústicos, territoriales y funcionales para escoger la candidatura.', icono: 'escudo', subs: ['Criterios multicriterio', 'Accesibilidad', 'Compatibilidad de usos'] },
+        { label: 'Validación', desc: 'Contraste con trabajo de campo y comprobación de afecciones.', icono: 'pajaro', subs: ['Mediciones acústicas', 'Verificación in situ', 'Encuestas'] },
+        { label: 'Delimitación', desc: 'Perímetro con límites reconocibles y coherencia funcional.', icono: 'pin', subs: ['SIG y cartografía', 'Límites naturales', 'Planeamiento'] },
+        { label: 'Caracterización', desc: 'Descripción de valores acústicos, ambientales y sociales.', icono: 'documento', subs: ['Paisaje sonoro', 'Indicadores ambientales'] },
+        { label: 'Gestión y seguimiento', desc: 'Mantenimiento de la tranquilidad con seguimiento periódico.', icono: 'onda', subs: ['Fichas de seguimiento', 'Plan de medidas'] },
+        { label: 'Evaluación', desc: 'Valoración técnica de resultados y revisión de objetivos.', icono: 'chispa', subs: ['Valoración técnica', 'Actualización del MER'] }
+      ],
+      fuentes: [
+        { icono: 'mapa', label: 'Cartografía oficial (MER)' }, { icono: 'micro', label: 'Mediciones in situ' },
+        { icono: 'bd', label: 'SIG' }, { icono: 'arbol', label: 'Información ambiental' },
+        { icono: 'pajaro', label: 'Participación ciudadana' }
+      ],
+      notas: [
+        { icono: 'chispa', texto: 'El enfoque es flexible y se adapta al tipo de territorio.' },
+        { icono: 'bd', texto: 'Los SIG y los Mapas Estratégicos de Ruido son el apoyo técnico principal.' },
+        { icono: 'pajaro', texto: 'La percepción social matiza la evaluación final.' }
+      ]
+    },
+    radial3: {
+      tipo: 'radial3', kicker: 'Tarea 3 · Herramientas', titulo: 'Herramientas de identificación y delimitación',
+      tituloCentral: 'Herramientas de identificación y delimitación',
+      nodos: [
+        { label: 'Cartografía acústica', icono: 'mapa', subs: ['Mapas de ruido', 'Isofonas', 'Indicadores'] },
+        { label: 'SIG', icono: 'bd', subs: ['Delimitación cartográfica', 'Catastro', 'Parcelario'] },
+        { label: 'Participación', icono: 'pajaro', subs: ['Entrevistas', 'Encuestas', 'Percepción ciudadana'] },
+        { label: 'Información ambiental', icono: 'arbol', subs: ['Espacios protegidos', 'Red Natura 2000'] },
+        { label: 'Mediciones acústicas', icono: 'micro', subs: ['Campañas de medición', 'Validación in situ'] }
+      ]
+    }
+  };
+  root.EJEMPLOS2 = E;
+  if (typeof module !== 'undefined' && module.exports) module.exports = E;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+'use strict';
+(function(){
+  const $ = id => document.getElementById(id);
+  const clon = o => JSON.parse(JSON.stringify(o));
+  const TIPOS = ['pasos','secuencia','tarjetas','radial','ciclo','concepto','informe','radial3'];
+  let S = null, sel = null;              // S = {tipo, datos}; sel = índice de nodo o -1 (documento)
+  let ultimoError = null;
+
+  /* ---------- ancho disponible → el motor se recompone ---------- */
+  function anchoLienzo(){
+    const anchoVentana = window.innerWidth;
+    const enDesktop = anchoVentana > 860;
+    // en escritorio el panel come 340px; el lienzo es lo que queda
+    const disponible = enDesktop ? Math.min(1180, anchoVentana - 340 - 60) : Math.max(280, anchoVentana - 24);
+    return Math.round(disponible);
+  }
+  /* ---------- render + auditoría en vivo ---------- */
+  function pintar(){
+    const ancho = anchoLienzo();
+    const r = Motor2.render({ tipo:S.tipo, datos:S.datos, ancho:ancho, logos:LOGOS2, figura:1 });
+    const wrap = $('lienzoWrap');
+    wrap.innerHTML = r.svg;
+    $('anchoTxt').textContent = ancho + ' px';
+    $('nombreTipo').textContent = (Motor2.LAYOUTS[S.tipo]||{}).nombre || S.tipo;
+    // AUDITORÍA: si algo se solapa o se sale, se dice (no se esconde)
+    const err = Motor2.auditar(wrap.querySelector('svg'), { aireMin: 3 });
+    const problemas = err.choques.length + err.fuera.length + err.nan.length + err.textoPeso.length + err.aireJusto.length;
+    ultimoError = problemas ? err : null;
+    if (problemas) console.warn('Auditoría:', err);
+    guardar();
+    return problemas;
+  }
+  let tPintar = null;
+  function pintarDebounced(){ clearTimeout(tPintar); tPintar = setTimeout(pintar, 160); }
+
+  /* ---------- panel ---------- */
+  const esc = s => String(s==null?'':s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  function panel(){
+    const p = $('panel');
+    if (sel === null){
+      p.innerHTML = '<h2>Contenido</h2><p style="font-size:13.5px;color:var(--tinta2);line-height:1.5;margin-bottom:12px">Haz clic en cualquier elemento de la lámina —o elígelo aquí— y edítalo. Los cambios se ven al momento.</p>'
+        + '<div class="fld"><label>Documento</label><button class="btn" id="selDoc" style="width:100%;justify-content:flex-start">Título, rótulo y subtítulo</button></div>'
+        + '<div class="fld"><label>Elementos (' + (S.datos.nodos||[]).length + ')</label><div id="listaEl"></div></div>';
+      const ld = $('selDoc'); if (ld) ld.onclick = ()=>{ sel = -1; panel(); };
+      const le = $('listaEl');
+      (S.datos.nodos||[]).forEach((nd,i)=>{
+        const b = document.createElement('button'); b.className='btn'; b.style.cssText='width:100%;justify-content:flex-start;margin-bottom:6px;text-align:left';
+        b.textContent = (i+1) + '. ' + (nd.label||'(sin texto)');
+        b.onclick = ()=>{ sel = i; panel(); };
+        le.appendChild(b);
+      });
+      return;
+    }
+    const esDoc = sel < 0 || !S.datos.nodos[sel];
+    if (esDoc){
+      const d = S.datos;
+      p.innerHTML = '<h2>Documento</h2>'
+        + fld('titulo','Título', d.titulo || '', 'input')
+        + fld('kicker','Rótulo superior', d.kicker || '', 'input')
+        + fld('subtitulo','Subtítulo', d.subtitulo || '', 'input')
+        + (d.intro !== undefined ? fld('intro','Introducción', d.intro || '', 'textarea') : '')
+        + (d.tituloCentral !== undefined ? fld('tituloCentral','Texto del centro', d.tituloCentral || '', 'input') : '')
+        + '<div class="aviso ok" id="avOk">Todo encaja: 0 solapes, 0 desbordes.</div>';
+    } else {
+      const n = S.datos.nodos[sel];
+      p.innerHTML = '<h2>Elemento ' + (sel+1) + '</h2>'
+        + fld('label','Texto', n.label || '', 'input')
+        + fld('desc','Descripción', n.desc || '', 'textarea')
+        + '<div class="fld"><label>Subelementos</label><div class="chips" id="chips"></div></div>';
+      const cont = $('chips');
+      (n.subs||[]).forEach((s,i)=>{
+        const c = document.createElement('span'); c.className='ch';
+        c.innerHTML = esc(s) + ' <button aria-label="quitar">×</button>';
+        c.querySelector('button').onclick = ()=>{ n.subs.splice(i,1); pintar(); panel(); };
+        cont.appendChild(c);
+      });
+      const add = document.createElement('button'); add.className='add'; add.textContent='+ añadir';
+      add.onclick = ()=>{ n.subs = n.subs||[]; n.subs.push('Nuevo'); pintar(); panel(); };
+      cont.appendChild(add);
+    }
+    const av = $('avOk');
+    if (av && ultimoError){
+      av.className = 'aviso error';
+      av.textContent = '⚠ Revisar: ' + [ultimoError.choques.length? ultimoError.choques.length+' solape(s)':'',
+        ultimoError.fuera.length? ultimoError.fuera.length+' fuera de la lámina':'', ultimoError.nan.length?'valores inválidos':'',
+        ultimoError.aireJusto.length? ultimoError.aireJusto.length+' elementos demasiado juntos':''].filter(Boolean).join(' · ');
+    }
+  }
+  function fld(id,rot,val,tipo){
+    return '<div class="fld"><label for="f_'+id+'">'+rot+'</label>' + (tipo==='textarea'
+      ? '<textarea id="f_'+id+'" rows="3">'+esc(val)+'</textarea>'
+      : '<input id="f_'+id+'" type="text" value="'+esc(val)+'">') + '</div>';
+  }
+  document.addEventListener('input', e=>{
+    const id = e.target.id; if (!id || id.indexOf('f_')!==0) return;
+    const campo = id.slice(2);
+    if (sel < 0 || !S.datos.nodos[sel]) { S.datos[campo] = e.target.value; if (campo==='tituloCentral') S.datos.tituloCentral = e.target.value; }
+    else S.datos.nodos[sel][campo] = e.target.value;
+    pintarDebounced();
+  });
+
+  /* ---------- toque en la lámina ---------- */
+  $('lienzoWrap').addEventListener('click', e=>{
+    const el = e.target.closest && e.target.closest('[data-e]');
+    if (!el) return;
+    const v = parseInt(el.dataset.e,10);
+    sel = (isNaN(v) || v < 0) ? -1 : v;
+    // en radial el data-e del hub es -1 y el nodo 0 es el centro
+    if (S.tipo === 'radial' && sel === -1) sel = -1;
+    panel();
+    if (window.innerWidth <= 860) $('panel').classList.add('on');
+  });
+
+  /* ---------- tipos ---------- */
+  function cambiarTipo(t){
+    S.tipo = t;
+    const ej = clon(EJEMPLOS2[t]);
+    // se conserva lo que el usuario había escrito, nodo a nodo
+    if (S.datos && S.datos.nodos && ej.nodos){
+      ej.nodos.forEach((nd,i)=>{ const viejo = S.datos.nodos[i]; if (viejo){ nd.label = viejo.label || nd.label; nd.desc = viejo.desc || nd.desc; nd.subs = (viejo.subs && viejo.subs.length) ? viejo.subs : nd.subs; } });
+    }
+    S.datos = ej; sel = null; pintar(); panel();
+    $('galeria').classList.remove('on');
+  }
+  function galeria(){
+    const g = $('gGrid'); g.innerHTML='';
+    TIPOS.forEach(t=>{
+      const lay = Motor2.LAYOUTS[t] || {};
+      const mini = Motor2.render({ tipo:t, datos:clon(EJEMPLOS2[t]), ancho:520, logos:LOGOS2 });
+      const c = document.createElement('div'); c.className='tar';
+      c.innerHTML = '<div class="thumb">'+mini.svg+'</div><div class="n">'+(lay.nombre||t)+'</div><div class="d">'+(lay.desc||'')+'</div>';
+      c.onclick = ()=>cambiarTipo(t);
+      g.appendChild(c);
+    });
+    $('galeria').classList.add('on');
+  }
+
+  /* ---------- PNG con DPI correcto (Word lo pega al tamaño que toca) ---------- */
+  function crc32(bytes){
+    let c, tabla = crc32.t;
+    if (!tabla){ tabla = crc32.t = []; for (let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1); tabla[n]=c; } }
+    let crc = 0xFFFFFFFF;
+    for (let i=0;i<bytes.length;i++) crc = tabla[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function pngConDpi(buffer, dpi){
+    const src = new Uint8Array(buffer);
+    const ppm = Math.round(dpi / 0.0254);                       // píxeles por metro
+    const chunk = new Uint8Array(21);
+    const dv = new DataView(chunk.buffer);
+    dv.setUint32(0, 9);                                          // longitud de datos
+    chunk[4]=0x70; chunk[5]=0x48; chunk[6]=0x59; chunk[7]=0x73;  // "pHYs"
+    dv.setUint32(8, ppm); dv.setUint32(12, ppm); chunk[16]=1;    // X, Y, unidad = metro
+    dv.setUint32(17, crc32(chunk.subarray(4,17)));
+    const posIHDR = 8;                                           // firma(8) + IHDR(8+13+4)
+    const finIHDR = posIHDR + 8 + 13 + 4;
+    const out = new Uint8Array(src.length + chunk.length);
+    out.set(src.subarray(0, finIHDR), 0);
+    out.set(chunk, finIHDR);
+    out.set(src.subarray(finIHDR), finIHDR + chunk.length);
+    return out;
+  }
+  function svgLimpio(){
+    const svg = $('lienzoWrap').querySelector('svg'); if (!svg) return null;
+    const c = svg.cloneNode(true);
+    c.querySelectorAll('[data-e]').forEach(g => g.removeAttribute('data-e'));
+    return c;
+  }
+  function exportarPNG(){
+    const c = svgLimpio(); if (!c) return;
+    const vb = c.viewBox.baseVal, esc2 = 2.5;                    // ~300 ppp en A4
+    c.setAttribute('width', Math.round(vb.width*esc2)); c.setAttribute('height', Math.round(vb.height*esc2));
+    const str = new XMLSerializer().serializeToString(c);
+    const img = new Image();
+    img.onload = ()=>{
+      const cv = document.createElement('canvas');
+      cv.width = +c.getAttribute('width'); cv.height = +c.getAttribute('height');
+      const ctx = cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      cv.toBlob(b=>{
+        b.arrayBuffer().then(ab=>{
+          const conDpi = pngConDpi(ab, Math.round(96*esc2));      // 240 ppp
+          const url = URL.createObjectURL(new Blob([conDpi],{type:'image/png'}));
+          const a = document.createElement('a'); a.href=url; a.download=nombreArchivo()+'.png'; a.click();
+          URL.revokeObjectURL(url); toast('PNG descargado (con DPI declarado)');
+        });
+      },'image/png');
+    };
+    img.onerror = ()=>toast('No se pudo exportar');
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str);
+  }
+  function exportarSVG(){
+    const c = svgLimpio(); if (!c) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(c)],{type:'image/svg+xml'}));
+    a.download = nombreArchivo()+'.svg'; a.click(); URL.revokeObjectURL(a.href); toast('SVG descargado');
+  }
+  function nombreArchivo(){ return (S.datos.titulo||S.tipo).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,44) || 'diagrama'; }
+  function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2100); }
+
+  /* ---------- menú ---------- */
+  $('bMenu').onclick = ()=>{
+    const op = ['exportar SVG','guardar .json','abrir .json','nueva lámina','revisar solapes'];
+    const inp = prompt('Escribe: ' + op.join(' / '), 'revisar solapes');
+    if (inp === null) return;
+    const q = inp.toLowerCase().trim();
+    if (q.indexOf('svg')>=0) exportarSVG();
+    else if (q.indexOf('guardar')>=0){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'})); a.download=nombreArchivo()+'.json'; a.click(); toast('Proyecto guardado'); }
+    else if (q.indexOf('abrir')>=0){ const f=document.createElement('input'); f.type='file'; f.accept='.json'; f.onchange=()=>{ const fr=new FileReader(); fr.onload=()=>{ try{ const p=JSON.parse(fr.result); if(!p.tipo||!p.datos) throw 0; S=p; sel=null; pintar(); panel(); toast('Proyecto abierto'); }catch(e){ toast('Archivo no válido'); } }; fr.readAsText(f.files[0]); }; f.click(); }
+    else if (q.indexOf('nueva')>=0) cambiarTipo(S.tipo);
+    else {
+      const p = pintar();
+      toast(p ? '⚠ ' + p + ' elemento(s) a revisar' : 'Todo encaja: 0 solapes, 0 desbordes');
+      if (p) console.warn('Auditoría:', ultimoError);
+    }
+  };
+  $('bTipo').onclick = galeria;
+  $('gCerrar').onclick = ()=>$('galeria').classList.remove('on');
+  $('bPNG').onclick = exportarPNG;
+  $('bAncho').onclick = ()=>{ const p = pintar(); toast(p ? '⚠ '+p+' a revisar' : 'Ancho '+anchoLienzo()+' px · todo encaja'); };
+
+  /* ---------- estado ---------- */
+  function guardar(){ try{ localStorage.setItem('diagramas2', JSON.stringify(S)); }catch(e){} }
+  function cargar(){
+    try{ const p = JSON.parse(localStorage.getItem('diagramas2')); if (p && p.tipo && p.datos && p.datos.nodos) return p; }catch(e){}
+    return null;
+  }
+  window.addEventListener('resize', pintarDebounced);
+  S = cargar() || { tipo:'informe', datos: clon(EJEMPLOS2.informe) };
+  pintar(); panel();
+  window.__S = ()=>S;
+  window.__cambiarTipo = cambiarTipo;
+  window.__auditar = ()=>{ const w=$('lienzoWrap'); const svg=w.querySelector('svg'); return svg?Motor2.auditar(svg,{aireMin:3}):null; };
+})();
+</script>
+</body></html>

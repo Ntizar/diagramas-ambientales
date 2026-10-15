@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Prueba Motor2 — auditoría de todos los tipos y anchos</title>
+<style>html,body{margin:0;background:#fff}#casos{display:block}</style></head>
+<body>
+<div id="casos"></div>
+<script src="logos.js"></script>
+<script src="nucleo.js"></script>
+<script src="layouts.js"></script>
+<script src="ejemplos.js"></script>
+<script>
+(function () {
+  'use strict';
+  const ANCHOS = [360, 480, 768, 1100, 1440];
+  const TIPOS = ['pasos', 'secuencia', 'tarjetas', 'radial', 'ciclo', 'concepto', 'informe', 'radial3'];
+  const cont = document.getElementById('casos');
+  let casos = [];
+  window.__renderizarTodo = function () {
+   cont.innerHTML=''; casos = [];
+   TIPOS.forEach(tipo => {
+    ANCHOS.forEach(ancho => {
+      const datos = JSON.parse(JSON.stringify(EJEMPLOS2[tipo]));
+      let r, errorRender = null;
+      try { r = Motor2.render({ tipo: tipo, datos: datos, ancho: ancho, logos: LOGOS2, figura: 1, debug: true }); }
+      catch (e) { errorRender = String(e && e.message || e); r = { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"></svg>', alto: 0, avisos: ['RENDER FALLA: ' + errorRender] }; }
+      const div = document.createElement('div');
+      div.style.width = ancho + 'px';
+      div.setAttribute('data-caso', tipo + '@' + ancho);
+      div.innerHTML = r.svg;
+      cont.appendChild(div);
+      casos.push({ tipo: tipo, ancho: ancho, div: div, alto: r.alto, avisos: r.avisos, bloques: r._debug ? r._debug.bloques : null, errorRender: errorRender });
+    });
+   });
+   window.__casos = casos;
+   document.title = 'casos=' + casos.length;
+   return casos.length;
+  };
+  window.__auditarTodo = function (aireMin) {
+    if (!casos.length) window.__renderizarTodo();
+    return casos.map(c => {
+      const svg = c.div.querySelector('svg');
+      let err;
+      try { err = Motor2.auditar(svg, { aireMin: aireMin || 3 }); }
+      catch (e) { err = { choques: [{ texto: 'EXCEPCION: ' + e.message }], fuera: [], nan: [], textoPeso: [], aireJusto: [] }; }
+      const nTextos = svg.querySelectorAll('text').length;
+      const med = Motor2.anchoTexto('Identificación preliminar', 17, 700);
+      const medLargo = Motor2.anchoTexto('Revisión de la información disponible para localizar espacios favorables.', 14, 400);
+      const nEditables = svg.querySelectorAll('[data-e]').length;
+      return {
+        caso: c.tipo + '@' + c.ancho, tipo: c.tipo, ancho: c.ancho, alto: c.alto, avisos: c.avisos,
+        textos: nTextos, editables: nEditables, medicion: [med, medLargo],
+        bloques: c.bloques, errorRender: c.errorRender, choques: err.choques.length, fuera: err.fuera.length, nan: err.nan.length,
+        textoPeso: err.textoPeso.length, aireJusto: err.aireJusto.length,
+        detalle: {
+          choques: err.choques.slice(0, 3), fuera: err.fuera.slice(0, 3),
+          aire: err.aireJusto.slice(0, 3).map(a => a.texto + ' (' + a.distancia + ')'), nan: err.nan.slice(0, 3)
+        }
+      };
+    });
+  };
+})();
+</script>
+</body></html>
