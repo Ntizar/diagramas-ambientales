@@ -54,6 +54,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await ev('document.getElementById("bAncho").click()'); await sleep(700);
   await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-12-cajas.png'), Buffer.from(s.data, 'base64')));
   // captura con otro tono y un elemento seleccionado (chips editables a la vista)
+  await send('Page.navigate', { url: APP }); await sleep(1500);   // parte del ejemplo limpio
+  await ev('localStorage.removeItem("diagramas2"); location.reload();'); await sleep(1600);
   await ev('window.__cambiarTipo("informe")'); await sleep(400);
   await ev(`(function(){ var f=document.getElementById('volverDoc'); if(f) f.click(); var p=document.querySelectorAll('#paleta .sw'); if(p[3]) p[3].click(); })()`); await sleep(700);
   await ev('document.querySelectorAll("#lienzoWrap [data-e]")[1].dispatchEvent(new MouseEvent("click",{bubbles:true}))'); await sleep(500);
