@@ -50,6 +50,7 @@
     if (o.icono) marca += (o.numero != null ? 8 : 0) + icoTam;
     if (marca) marca += 12;   // aire garantizado marca → texto
     const anchoTxt = W - padX * 2 - marca;
+    if (o.color) it.color = o.color;
     const t = ctx.wrap(it.titulo || it.label || '', anchoTxt, o.fsTitulo || e.h3, 700, 3);
     const desc = it.desc ? ctx.wrap(it.desc, anchoTxt, e.cuerpo, 400, 4) : { lineas: [] };
     const chips = (it.chips || []).filter(Boolean).slice(0, 5);
@@ -65,11 +66,11 @@
     let o2 = `<g${o.editable != null ? ` data-e="${o.editable}"` : ''} class="tar">`;
     o2 += d.rect(0, 0, W, alto, { sombra: true, rx: e.radio });
     const rTar = e.radio, sangria = Math.max(2, rTar * 0.62);
-    o2 += d.rect(0, sangria, 4, Math.max(6, alto - sangria * 2), { fill: 'url(#gradAcento)', rx: 2, borde: 'none' });
+    o2 += d.rect(0, sangria, 4, Math.max(6, alto - sangria * 2), { fill: it.color || 'url(#gradAcento)', rx: 2, borde: 'none' });
     let xTxt = padX + marca;
     if (o.numero != null) {
       const cx = padX + rNum, cy = padY + rNum + 2;
-      o2 += d.circulo(cx, cy, rNum, {});
+      o2 += d.circulo(cx, cy, rNum, it.color ? { fill: it.color } : {});
       o2 += d.txt(cx, cy + rNum * 0.34, rNum * 1.15, String(o.numero), '#FFF', 700, 'middle');
       if (o.icono) o2 += d.icono(o.icono, padX + rNum * 2 + 8, cy - icoTam / 2, icoTam, u.verdeOsc, ctx.LOGOS);
     } else if (o.icono) {
@@ -91,7 +92,8 @@
     return filas.map((fila, fi) => {
       const celdas = fila.map((it, j) => tarjeta(ctx, it, cw, Object.assign({}, o, {
         editable: it.__e != null ? it.__e : (o.primero + fi * cols + j),
-        numero: (o.primero + fi * cols + j + 1)
+        numero: (o.primero + fi * cols + j + 1),
+        color: it.color
       })));
       const alto = Math.max.apply(null, celdas.map(c => c.alto));
       let svg = '';
@@ -107,7 +109,7 @@
     cuerpo(datos, ctx) {
       const e = ctx.esc, n = datos.nodos.length;
       const cols = (ctx.amplio && n >= 5) ? 2 : 1;
-      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       const gapV = e.gap * 0.7;
       if (cols === 1) {
         const W = ctx.ancho - e.pad * 2;
@@ -132,7 +134,7 @@
     desc: 'Línea temporal de fases',
     cuerpo(datos, ctx) {
       const e = ctx.esc, n = datos.nodos.length;
-      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       const W = ctx.ancho - e.pad * 2;
       // compacto: columna con raíl lateral | amplio: serpentina de 2 filas
       if (ctx.compacto || n <= 2) {
@@ -176,7 +178,7 @@
     cuerpo(datos, ctx) {
       const e = ctx.esc, n = datos.nodos.length;
       const cols = ctx.ancho >= 1200 ? 3 : (ctx.ancho >= 620 ? 2 : 1);
-      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       return { bloques: rejilla(ctx, items, cols, e.gap * 0.7, { primero: 0, icono: null }) };
     }
   };
@@ -258,7 +260,7 @@
       const cols = ctx.ancho >= 1000 ? 2 : 1;
       const bloques = [];
       bloques.push(cajaHub(datos, ctx, W, datos.tituloCentral || datos.titulo));
-      const cats = datos.nodos.map((c, i) => ({ titulo: c.label, icono: c.icono, chips: c.subs, __e: i }));
+      const cats = datos.nodos.map((c, i) => ({ titulo: c.label, icono: c.icono, chips: c.subs, color: c.color, __e: i }));
       const fr = rejilla(ctx, cats, cols, e.gap * 0.7, { primero: 0, fsTitulo: e.h3 });
       fr.forEach((f, i) => {
         if (i > 0) bloques.push({ svg: '', alto: e.gap * 0.35 });
@@ -281,7 +283,7 @@
         bloques.push(esq(h, d.blk(e.pad * 0.7, e.pad * 0.8 + e.cuerpo * 0.95, e.cuerpo, e.cuerpo * 1.4, il.lineas, T.tinta2, 400)));
       }
       const cols = ctx.ancho >= 900 ? 2 : 1;
-      const pasos = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const pasos = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       const fr = rejilla(ctx, pasos, cols, e.gap * 0.7, { primero: 0 });
       fr.forEach(f => bloques.push(f));
       if (datos.fuentes && datos.fuentes.length) {

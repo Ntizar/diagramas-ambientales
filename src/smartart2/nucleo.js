@@ -14,10 +14,34 @@
   const NS = 'http://www.w3.org/2000/svg';
   const FONT = "'Inter','Helvetica Neue',Helvetica,Arial,sans-serif";
 
-  const TEMA = {
+  const TEMA_BASE = {
+    acento: '#1FA971',
     verde: '#1FA971', verdeOsc: '#0E7A50', verdeClaro: '#EBF5EF', verdeSuave: '#F6FBF8',
     tinta: '#132A3E', tinta2: '#4E657A', borde: '#DFE6E0', blanco: '#FFFFFF', fondo: '#FFFFFF'
   };
+  /* Paletas disponibles en el editor (nombre, color, para qué se recomienda) */
+  const PALETAS = [
+    { id: 'esmeralda', nombre: 'Esmeralda', color: '#1FA971', uso: 'ambiental (por defecto)' },
+    { id: 'teal', nombre: 'Turquesa', color: '#0D9488', uso: 'agua y territorio' },
+    { id: 'azul', nombre: 'Azul', color: '#2563EB', uso: 'institucional' },
+    { id: 'marino', nombre: 'Azul marino', color: '#0F4C81', uso: 'informes formales' },
+    { id: 'morado', nombre: 'Morado', color: '#6D28D9', uso: 'innovación' },
+    { id: 'granate', nombre: 'Granate', color: '#9F1239', uso: 'avisos y riesgos' },
+    { id: 'ambar', nombre: 'Ámbar', color: '#B45309', uso: 'energía y obras' },
+    { id: 'pizarra', nombre: 'Pizarra', color: '#475569', uso: 'documento neutro' }
+  ];
+  const TEMA = Object.assign({}, TEMA_BASE);
+  function aRgb(hex) { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function aHex(r, g, b) { return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join(''); }
+  function oscurecer(hex, f) { const c = aRgb(hex); return aHex(c[0] * f, c[1] * f, c[2] * f); }
+  function aBlanco(hex, ratio) { const c = aRgb(hex); return aHex(c[0] + (255 - c[0]) * ratio, c[1] + (255 - c[1]) * ratio, c[2] + (255 - c[2]) * ratio); }
+  function aplicarAcento(acento) {
+    Object.assign(TEMA, TEMA_BASE);
+    if (acento && /^#[0-9a-fA-F]{6}$/.test(acento)) {
+      TEMA.acento = acento; TEMA.verde = acento; TEMA.verdeOsc = oscurecer(acento, 0.62);
+      TEMA.verdeClaro = aBlanco(acento, 0.90); TEMA.verdeSuave = aBlanco(acento, 0.955);
+    }
+  }
 
   /* ---- escalas por tamaño de pantalla: la LETRA no encoge, crece el lienzo ---- */
   const ESCALAS = {
@@ -159,6 +183,7 @@
     const { tipo, datos } = peticion;
     const ancho = Math.max(280, Math.round(peticion.ancho || 900));
     const est = peticion.estilo || {};
+    aplicarAcento(est.acento || peticion.acento);
     const ctx = {
       ancho: ancho, esc: escalaPara(ancho), tema: TEMA, LOGOS: peticion.logos || {},
       figura: peticion.figura || 0, avisos: [],
@@ -167,7 +192,6 @@
       hit: peticion.hit || null,
       compacto: ancho < 620, medio: ancho >= 620 && ancho < 1024, amplio: ancho >= 1024
     };
-    if (est.acento) { TEMA.verde = est.acento; TEMA.verdeOsc = oscurecer(est.acento, 0.62); }
     const L = LAYOUTS[tipo] || LAYOUTS.pasos;
     const cab = cabecera(datos, ctx);
     const cuerpo = L.cuerpo(datos, ctx);
@@ -191,7 +215,8 @@
 
   const LAYOUTS = {};
   const Motor2 = {
-    TEMA: TEMA, ESCALAS: ESCALAS, escalaPara: escalaPara, anchoTexto: anchoTexto, wrapTexto: wrapTexto,
+    TEMA: TEMA, PALETAS: PALETAS, aplicarAcento: aplicarAcento, oscurecer: oscurecer, aBlanco: aBlanco,
+    ESCALAS: ESCALAS, escalaPara: escalaPara, anchoTexto: anchoTexto, wrapTexto: wrapTexto,
     defs: defs, cabecera: cabecera, pie: pie, componer: componer, mover: mover, auditar: auditar,
     render: render, LAYOUTS: LAYOUTS, dib: { rect, circulo, icono, chip, txt, blk, flechaV, flechaH, n2, esc }, TEMA_REF: TEMA
   };

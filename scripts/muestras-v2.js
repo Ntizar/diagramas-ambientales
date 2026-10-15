@@ -53,6 +53,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await ev(`(function(){ var S=window.__S(); S.datos.nodos=[]; for(var i=1;i<=12;i++) S.datos.nodos.push({label:'Caja '+i+' con un texto largo que obliga a que la tarjeta crezca sola', desc:'Descripción de la caja '+i+'.', subs:['uno','dos']}); })()`);
   await ev('document.getElementById("bAncho").click()'); await sleep(700);
   await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-12-cajas.png'), Buffer.from(s.data, 'base64')));
+  // captura con otro tono y un elemento seleccionado (chips editables a la vista)
+  await ev('window.__cambiarTipo("informe")'); await sleep(400);
+  await ev(`(function(){ var f=document.getElementById('volverDoc'); if(f) f.click(); var p=document.querySelectorAll('#paleta .sw'); if(p[3]) p[3].click(); })()`); await sleep(700);
+  await ev('document.querySelectorAll("#lienzoWrap [data-e]")[1].dispatchEvent(new MouseEvent("click",{bubbles:true}))'); await sleep(500);
+  await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-tonos-chips.png'), Buffer.from(s.data, 'base64')));
   await ev('window.__cambiarTipo("radial3")'); await sleep(500);
   await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-desktop-radial3.png'), Buffer.from(s.data, 'base64')));
   await ev('document.getElementById("bTipo").click()'); await sleep(700);

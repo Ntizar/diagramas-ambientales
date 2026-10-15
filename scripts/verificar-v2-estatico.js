@@ -78,5 +78,18 @@ TIPOS.forEach(tipo => {
     });
   });
 });
-console.log('\n' + casos + ' casos (incluye 1/3/12 cajas por tipo) · ' + (fallos ? fallos + ' con problema' : 'TODO OK ✅'));
+// --- los 8 tonos de color, en dos tipos ---
+M.PALETAS.forEach(pl => {
+  ['informe','ciclo'].forEach(tipo => {
+    casos++;
+    const errs = [];
+    let r;
+    try { r = M.render({ tipo, datos: JSON.parse(JSON.stringify(E[tipo])), ancho: 900, logos: G, acento: pl.color }); }
+    catch (e) { console.log('  ✗ tono ' + pl.id + ' en ' + tipo + ' → EXCEPCIÓN: ' + e.message); fallos++; return; }
+    if (/NaN|undefined/.test(r.svg)) errs.push('NaN/undefined');
+    if (r.svg.indexOf(pl.color) < 0) errs.push('el tono no aparece en el SVG');
+    if (errs.length) { console.log('  ✗ tono ' + pl.nombre.padEnd(12) + ' en ' + tipo.padEnd(8) + ' → ' + errs.join(' · ')); fallos++; }
+  });
+});
+console.log('\n' + casos + ' casos (1/3/12 cajas + 8 tonos) · ' + (fallos ? fallos + ' con problema' : 'TODO OK ✅'));
 process.exit(fallos ? 1 : 0);

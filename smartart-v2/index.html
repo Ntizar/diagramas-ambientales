@@ -81,12 +81,19 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   aside.on{transform:none}
   main{padding:12px 12px 32px}
 }
-#menu{position:fixed;inset:0;z-index:70;background:rgba(19,42,62,.28);display:none;align-items:center;justify-content:center;padding:20px}
-#menu.on{display:flex}
-#menu .caja{background:var(--card);border-radius:16px;padding:18px;width:100%;max-width:420px;box-shadow:var(--sombra)}
-#menu h3{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--verdeOsc);margin-bottom:12px}
-#menu .op{display:flex;flex-direction:column;gap:8px}
+#menu{position:absolute;right:12px;top:calc(56px + env(safe-area-inset-top));z-index:70;background:var(--card);
+  border:1px solid var(--linea);border-radius:14px;box-shadow:var(--sombra);padding:10px;display:none;min-width:270px}
+#menu.on{display:block}
+#menu h3{font-size:11.5px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:var(--verdeOsc);margin:4px 6px 8px}
+#menu .op{display:flex;flex-direction:column;gap:6px}
 #menu .op button{justify-content:flex-start;width:100%}
+#menu .separa{height:1px;background:var(--linea);margin:8px 0}
+#colores{display:flex;flex-wrap:wrap;gap:6px}
+.sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent;cursor:pointer;padding:0}
+.sw.on{border-color:var(--tinta);box-shadow:0 0 0 2px #fff inset}
+.sw.auto{background:#fff;border:1px dashed var(--linea2);color:var(--tinta2);font-size:11px;width:auto;padding:0 10px}
+.ch input{border:0;background:transparent;font:inherit;font-size:13px;color:var(--tinta2);width:auto;min-width:36px;outline:none;padding:0}
+.ch input:focus{color:var(--tinta)}
 #panel .acciones{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
 #panel .acciones .btn{padding:8px 4px;justify-content:center;font-size:13px}
 #panel .add-caja{width:100%;justify-content:center;border-style:dashed}
@@ -104,6 +111,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   <button class="btn" id="bTipo"><svg viewBox="0 0 24 24"><path d="M4 5h4v14H4zM10 5h4v14h-4zM16 5h4v14h-4z"/></svg><span id="nombreTipo">Pasos</span></button>
   <button class="btn" id="bAncho"><svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h12v2H3zm0 5h18v2H3z"/></svg><span id="anchoTxt">—</span></button>
   <div class="sp"></div>
+  <button class="btn" id="bUndo" title="Deshacer (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg></button>
   <button class="btn" id="bMenu"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg></button>
   <button class="btn pri" id="bPNG"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</button>
 </header>
@@ -116,7 +124,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   <h3>Elige el tipo de diagrama <button class="btn" id="gCerrar">✕</button></h3>
   <div class="ggrid" id="gGrid"></div>
 </div>
-<div id="menu"><div class="caja"><h3>Proyecto</h3><div class="op">
+<div id="menu"><h3>Proyecto</h3><div class="op">
   <button class="btn pri" id="mCopiar">Copiar imagen (pegar en Word con Ctrl+V)</button>
   <button class="btn" id="mPNG">Descargar PNG (con DPI para Word)</button>
   <button class="btn" id="mSVG">Descargar SVG (vectorial)</button>
@@ -124,8 +132,9 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   <button class="btn" id="mAbrir">Abrir proyecto (.json)</button>
   <button class="btn" id="mRevisar">Revisar solapes y desbordes</button>
   <button class="btn" id="mNueva">Empezar de cero</button>
+  <div class="separa"></div>
   <button class="btn" id="mCerrar">Cerrar</button>
-</div></div></div>
+</div></div>
 <div id="toast"></div>
 
 <script>
@@ -176,10 +185,34 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   const NS = 'http://www.w3.org/2000/svg';
   const FONT = "'Inter','Helvetica Neue',Helvetica,Arial,sans-serif";
 
-  const TEMA = {
+  const TEMA_BASE = {
+    acento: '#1FA971',
     verde: '#1FA971', verdeOsc: '#0E7A50', verdeClaro: '#EBF5EF', verdeSuave: '#F6FBF8',
     tinta: '#132A3E', tinta2: '#4E657A', borde: '#DFE6E0', blanco: '#FFFFFF', fondo: '#FFFFFF'
   };
+  /* Paletas disponibles en el editor (nombre, color, para qué se recomienda) */
+  const PALETAS = [
+    { id: 'esmeralda', nombre: 'Esmeralda', color: '#1FA971', uso: 'ambiental (por defecto)' },
+    { id: 'teal', nombre: 'Turquesa', color: '#0D9488', uso: 'agua y territorio' },
+    { id: 'azul', nombre: 'Azul', color: '#2563EB', uso: 'institucional' },
+    { id: 'marino', nombre: 'Azul marino', color: '#0F4C81', uso: 'informes formales' },
+    { id: 'morado', nombre: 'Morado', color: '#6D28D9', uso: 'innovación' },
+    { id: 'granate', nombre: 'Granate', color: '#9F1239', uso: 'avisos y riesgos' },
+    { id: 'ambar', nombre: 'Ámbar', color: '#B45309', uso: 'energía y obras' },
+    { id: 'pizarra', nombre: 'Pizarra', color: '#475569', uso: 'documento neutro' }
+  ];
+  const TEMA = Object.assign({}, TEMA_BASE);
+  function aRgb(hex) { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function aHex(r, g, b) { return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join(''); }
+  function oscurecer(hex, f) { const c = aRgb(hex); return aHex(c[0] * f, c[1] * f, c[2] * f); }
+  function aBlanco(hex, ratio) { const c = aRgb(hex); return aHex(c[0] + (255 - c[0]) * ratio, c[1] + (255 - c[1]) * ratio, c[2] + (255 - c[2]) * ratio); }
+  function aplicarAcento(acento) {
+    Object.assign(TEMA, TEMA_BASE);
+    if (acento && /^#[0-9a-fA-F]{6}$/.test(acento)) {
+      TEMA.acento = acento; TEMA.verde = acento; TEMA.verdeOsc = oscurecer(acento, 0.62);
+      TEMA.verdeClaro = aBlanco(acento, 0.90); TEMA.verdeSuave = aBlanco(acento, 0.955);
+    }
+  }
 
   /* ---- escalas por tamaño de pantalla: la LETRA no encoge, crece el lienzo ---- */
   const ESCALAS = {
@@ -321,6 +354,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     const { tipo, datos } = peticion;
     const ancho = Math.max(280, Math.round(peticion.ancho || 900));
     const est = peticion.estilo || {};
+    aplicarAcento(est.acento || peticion.acento);
     const ctx = {
       ancho: ancho, esc: escalaPara(ancho), tema: TEMA, LOGOS: peticion.logos || {},
       figura: peticion.figura || 0, avisos: [],
@@ -329,7 +363,6 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
       hit: peticion.hit || null,
       compacto: ancho < 620, medio: ancho >= 620 && ancho < 1024, amplio: ancho >= 1024
     };
-    if (est.acento) { TEMA.verde = est.acento; TEMA.verdeOsc = oscurecer(est.acento, 0.62); }
     const L = LAYOUTS[tipo] || LAYOUTS.pasos;
     const cab = cabecera(datos, ctx);
     const cuerpo = L.cuerpo(datos, ctx);
@@ -353,7 +386,8 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
 
   const LAYOUTS = {};
   const Motor2 = {
-    TEMA: TEMA, ESCALAS: ESCALAS, escalaPara: escalaPara, anchoTexto: anchoTexto, wrapTexto: wrapTexto,
+    TEMA: TEMA, PALETAS: PALETAS, aplicarAcento: aplicarAcento, oscurecer: oscurecer, aBlanco: aBlanco,
+    ESCALAS: ESCALAS, escalaPara: escalaPara, anchoTexto: anchoTexto, wrapTexto: wrapTexto,
     defs: defs, cabecera: cabecera, pie: pie, componer: componer, mover: mover, auditar: auditar,
     render: render, LAYOUTS: LAYOUTS, dib: { rect, circulo, icono, chip, txt, blk, flechaV, flechaH, n2, esc }, TEMA_REF: TEMA
   };
@@ -414,6 +448,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     if (o.icono) marca += (o.numero != null ? 8 : 0) + icoTam;
     if (marca) marca += 12;   // aire garantizado marca → texto
     const anchoTxt = W - padX * 2 - marca;
+    if (o.color) it.color = o.color;
     const t = ctx.wrap(it.titulo || it.label || '', anchoTxt, o.fsTitulo || e.h3, 700, 3);
     const desc = it.desc ? ctx.wrap(it.desc, anchoTxt, e.cuerpo, 400, 4) : { lineas: [] };
     const chips = (it.chips || []).filter(Boolean).slice(0, 5);
@@ -429,11 +464,11 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     let o2 = `<g${o.editable != null ? ` data-e="${o.editable}"` : ''} class="tar">`;
     o2 += d.rect(0, 0, W, alto, { sombra: true, rx: e.radio });
     const rTar = e.radio, sangria = Math.max(2, rTar * 0.62);
-    o2 += d.rect(0, sangria, 4, Math.max(6, alto - sangria * 2), { fill: 'url(#gradAcento)', rx: 2, borde: 'none' });
+    o2 += d.rect(0, sangria, 4, Math.max(6, alto - sangria * 2), { fill: it.color || 'url(#gradAcento)', rx: 2, borde: 'none' });
     let xTxt = padX + marca;
     if (o.numero != null) {
       const cx = padX + rNum, cy = padY + rNum + 2;
-      o2 += d.circulo(cx, cy, rNum, {});
+      o2 += d.circulo(cx, cy, rNum, it.color ? { fill: it.color } : {});
       o2 += d.txt(cx, cy + rNum * 0.34, rNum * 1.15, String(o.numero), '#FFF', 700, 'middle');
       if (o.icono) o2 += d.icono(o.icono, padX + rNum * 2 + 8, cy - icoTam / 2, icoTam, u.verdeOsc, ctx.LOGOS);
     } else if (o.icono) {
@@ -455,7 +490,8 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     return filas.map((fila, fi) => {
       const celdas = fila.map((it, j) => tarjeta(ctx, it, cw, Object.assign({}, o, {
         editable: it.__e != null ? it.__e : (o.primero + fi * cols + j),
-        numero: (o.primero + fi * cols + j + 1)
+        numero: (o.primero + fi * cols + j + 1),
+        color: it.color
       })));
       const alto = Math.max.apply(null, celdas.map(c => c.alto));
       let svg = '';
@@ -471,7 +507,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     cuerpo(datos, ctx) {
       const e = ctx.esc, n = datos.nodos.length;
       const cols = (ctx.amplio && n >= 5) ? 2 : 1;
-      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       const gapV = e.gap * 0.7;
       if (cols === 1) {
         const W = ctx.ancho - e.pad * 2;
@@ -496,7 +532,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     desc: 'Línea temporal de fases',
     cuerpo(datos, ctx) {
       const e = ctx.esc, n = datos.nodos.length;
-      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       const W = ctx.ancho - e.pad * 2;
       // compacto: columna con raíl lateral | amplio: serpentina de 2 filas
       if (ctx.compacto || n <= 2) {
@@ -540,7 +576,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     cuerpo(datos, ctx) {
       const e = ctx.esc, n = datos.nodos.length;
       const cols = ctx.ancho >= 1200 ? 3 : (ctx.ancho >= 620 ? 2 : 1);
-      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const items = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       return { bloques: rejilla(ctx, items, cols, e.gap * 0.7, { primero: 0, icono: null }) };
     }
   };
@@ -622,7 +658,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
       const cols = ctx.ancho >= 1000 ? 2 : 1;
       const bloques = [];
       bloques.push(cajaHub(datos, ctx, W, datos.tituloCentral || datos.titulo));
-      const cats = datos.nodos.map((c, i) => ({ titulo: c.label, icono: c.icono, chips: c.subs, __e: i }));
+      const cats = datos.nodos.map((c, i) => ({ titulo: c.label, icono: c.icono, chips: c.subs, color: c.color, __e: i }));
       const fr = rejilla(ctx, cats, cols, e.gap * 0.7, { primero: 0, fsTitulo: e.h3 });
       fr.forEach((f, i) => {
         if (i > 0) bloques.push({ svg: '', alto: e.gap * 0.35 });
@@ -645,7 +681,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
         bloques.push(esq(h, d.blk(e.pad * 0.7, e.pad * 0.8 + e.cuerpo * 0.95, e.cuerpo, e.cuerpo * 1.4, il.lineas, T.tinta2, 400)));
       }
       const cols = ctx.ancho >= 900 ? 2 : 1;
-      const pasos = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, __e: i }));
+      const pasos = datos.nodos.map((x, i) => ({ titulo: x.label, desc: x.desc, chips: x.subs, icono: x.icono, color: x.color, __e: i }));
       const fr = rejilla(ctx, pasos, cols, e.gap * 0.7, { primero: 0 });
       fr.forEach(f => bloques.push(f));
       if (datos.fuentes && datos.fuentes.length) {
@@ -903,6 +939,17 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   const TIPOS = ['pasos','secuencia','tarjetas','radial','ciclo','concepto','informe','radial3'];
   let S = null, sel = null;              // S = {tipo, datos}; sel = índice de nodo o -1 (documento)
   let ultimoError = null;
+  const historial = [];             // deshacer (máx 40 pasos)
+  const MAX_HIST = 40;
+  function snapshot(){
+    try { historial.push(JSON.stringify({ tipo:S.tipo, datos:S.datos, acento:S.acento || null })); if (historial.length > MAX_HIST) historial.shift(); } catch(e){}
+  }
+  function deshacer(){
+    if (!historial.length) return toast('No hay nada que deshacer');
+    const p = JSON.parse(historial.pop());
+    S.tipo = p.tipo; S.datos = p.datos; S.acento = p.acento; sel = null;
+    pintar(); panel(); toast('Deshecho');
+  }
 
   /* ---------- ancho disponible → el motor se recompone ---------- */
   function anchoLienzo(){
@@ -916,7 +963,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   function pintar(){
     const ancho = anchoLienzo();
     // el documento (sel=-1) no tiene caja: se resalta el hub si el tipo lo tiene
-    const r = Motor2.render({ tipo:S.tipo, datos:S.datos, ancho:ancho, logos:LOGOS2, figura:1 });
+    const r = Motor2.render({ tipo:S.tipo, datos:S.datos, ancho:ancho, logos:LOGOS2, figura:1, acento: S.acento || undefined });
     const wrap = $('lienzoWrap');
     wrap.innerHTML = r.svg;
     $('anchoTxt').textContent = ancho + ' px';
@@ -940,11 +987,13 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     if (sel === null){
       p.innerHTML = '<h2>Contenido</h2><p style="font-size:13.5px;color:var(--tinta2);line-height:1.5;margin-bottom:12px">Haz clic en cualquier elemento de la lámina —o elígelo aquí— y edítalo. Los cambios se ven al momento.</p>'
         + '<div class="fld"><label>Documento</label><button class="btn" id="selDoc" style="width:100%;justify-content:flex-start">Título, rótulo y subtítulo</button></div>'
+        + '<div class="fld"><label>Tonos de color de la lámina</label><div id="paleta" class="chips"></div></div>'
         + '<div class="fld"><label>Elementos (' + (S.datos.nodos||[]).length + ')</label><div id="listaEl"></div></div>';
+      pintarPaleta();
       const ld = $('selDoc'); if (ld) ld.onclick = ()=>{ sel = -1; resaltar(); panel(); };
       const le = $('listaEl');
       const bAddFin = document.createElement('button'); bAddFin.className='btn add-caja'; bAddFin.textContent='+ Añadir una caja al final';
-      bAddFin.onclick = ()=>{ S.datos.nodos.push({ label:'Nueva caja', desc:'', subs:[] }); sel=S.datos.nodos.length-1; pintar(); panel(); const f=$('f_label'); if(f){f.focus(); f.select();} toast('Caja añadida · se ajusta sola al texto'); };
+      bAddFin.onclick = ()=>{ snapshot(); S.datos.nodos.push({ label:'Nueva caja', desc:'', subs:[] }); sel=S.datos.nodos.length-1; pintar(); panel(); const f=$('f_label'); if(f){f.focus(); f.select();} toast('Caja añadida · se ajusta sola al texto'); };
       le.appendChild(bAddFin);
       (S.datos.nodos||[]).forEach((nd,i)=>{
         const b = document.createElement('button'); b.className='btn'; b.style.cssText='width:100%;justify-content:flex-start;margin-bottom:6px;text-align:left';
@@ -963,10 +1012,13 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
         + fld('subtitulo','Subtítulo', d.subtitulo || '', 'input')
         + (d.intro !== undefined ? fld('intro','Introducción', d.intro || '', 'textarea') : '')
         + (d.tituloCentral !== undefined ? fld('tituloCentral','Texto del centro', d.tituloCentral || '', 'input') : '')
+        + '<div class="fld"><label>Tonos de color de la lámina</label><div id="paleta" class="chips"></div></div>'
         + '<div class="aviso ok" id="avOk">Todo encaja: 0 solapes, 0 desbordes.</div>';
+      pintarPaleta();
     } else {
       const n = S.datos.nodos[sel], total = S.datos.nodos.length;
-      p.innerHTML = '<h2>Elemento ' + (sel+1) + ' de ' + total + '</h2>'
+      p.innerHTML = '<button class="btn" id="volverDoc" style="margin-bottom:10px">' + ICO.volver + ' Documento</button>'
+        + '<h2>Elemento ' + (sel+1) + ' de ' + total + '</h2>'
         + '<div class="acciones">'
         +   '<button class="btn" id="aSubir" title="Mover antes" ' + (sel===0?'disabled':'') + '>' + ICO.subir + ' Subir</button>'
         +   '<button class="btn" id="aBajar" title="Mover después" ' + (sel===total-1?'disabled':'') + '>' + ICO.bajar + ' Bajar</button>'
@@ -976,24 +1028,43 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
         + '<button class="btn add-caja" id="aAdd">+ Añadir una caja después</button>'
         + fld('label','Texto', n.label || '', 'input')
         + fld('desc','Descripción', n.desc || '', 'textarea')
+        + '<div class="fld"><label>Tono de esta caja</label><div id="colorCaja" class="chips"></div></div>'
         + '<div class="fld"><label>Subelementos (chips)</label><div class="chips" id="chips"></div></div>';
+      const ccj = $('colorCaja');
+      if (ccj){
+        const auto = document.createElement('button'); auto.className='sw auto'+(n.color?'':' on'); auto.textContent='Auto';
+        auto.onclick = ()=>{ snapshot(); delete n.color; pintar(); panel(); };
+        ccj.appendChild(auto);
+        Motor2.PALETAS.forEach(pl=>{
+          const b = document.createElement('button'); b.className='sw'+(n.color===pl.color?' on':'');
+          b.style.background = pl.color; b.title = pl.nombre;
+          b.onclick = ()=>{ snapshot(); n.color = pl.color; pintar(); panel(); };
+          ccj.appendChild(b);
+        });
+      }
       const cont = $('chips');
       (n.subs||[]).forEach((s,i)=>{
         const c = document.createElement('span'); c.className='ch';
-        c.innerHTML = esc(s) + ' <button aria-label="quitar">×</button>';
-        c.querySelector('button').onclick = ()=>{ n.subs.splice(i,1); pintar(); panel(); };
+        const inp = document.createElement('input'); inp.type='text'; inp.value = s;
+        inp.setAttribute('aria-label','editar subelemento '+(i+1));
+        inp.style.width = Math.max(3, s.length) + 'ch';
+        inp.oninput = ()=>{ n.subs[i] = inp.value; inp.style.width = Math.max(3, inp.value.length)+'ch'; pintarDebounced(); };
+        const b = document.createElement('button'); b.textContent='×'; b.setAttribute('aria-label','quitar');
+        b.onclick = ()=>{ snapshot(); n.subs.splice(i,1); pintar(); panel(); };
+        c.appendChild(inp); c.appendChild(b);
         cont.appendChild(c);
       });
       const add = document.createElement('button'); add.className='add'; add.textContent='+ añadir';
-      add.onclick = ()=>{ n.subs = n.subs||[]; n.subs.push('Nuevo'); pintar(); panel(); };
+      add.onclick = ()=>{ snapshot(); n.subs = n.subs||[]; n.subs.push('Nuevo'); pintar(); panel(); };
       cont.appendChild(add);
     }
+    const bVolver = $('volverDoc'); if (bVolver) bVolver.onclick = ()=>{ sel = null; resaltar(); panel(); };
     const bSubir = $('aSubir'), bBajar = $('aBajar'), bDup = $('aDup'), bDel = $('aDel'), bAdd = $('aAdd');
-    if (bSubir) bSubir.onclick = ()=>{ if (sel>0){ const a=S.datos.nodos; const t=a[sel-1]; a[sel-1]=a[sel]; a[sel]=t; sel--; pintar(); panel(); } };
-    if (bBajar) bBajar.onclick = ()=>{ const a=S.datos.nodos; if (sel<a.length-1){ const t=a[sel+1]; a[sel+1]=a[sel]; a[sel]=t; sel++; pintar(); panel(); } };
-    if (bDup) bDup.onclick = ()=>{ const a=S.datos.nodos; a.splice(sel+1,0,clon(a[sel])); sel++; pintar(); panel(); toast('Caja duplicada'); };
-    if (bDel) bDel.onclick = ()=>{ const a=S.datos.nodos; if (a.length>1){ a.splice(sel,1); sel=Math.min(sel,a.length-1); pintar(); panel(); toast('Caja eliminada'); } };
-    if (bAdd) bAdd.onclick = ()=>{ const a=S.datos.nodos; a.splice(sel+1,0,{ label:'Nueva caja', desc:'', subs:[] }); sel++; pintar(); panel(); const f=$('f_label'); if(f){ f.focus(); f.select(); } toast('Caja añadida · se ajusta sola al texto'); };
+    if (bSubir) bSubir.onclick = ()=>{ if (sel>0){ snapshot(); const a=S.datos.nodos; const t=a[sel-1]; a[sel-1]=a[sel]; a[sel]=t; sel--; pintar(); panel(); } };
+    if (bBajar) bBajar.onclick = ()=>{ if (sel<a.length-1){ snapshot(); const a=S.datos.nodos; const t=a[sel+1]; a[sel+1]=a[sel]; a[sel]=t; sel++; pintar(); panel(); } };
+    if (bDup) bDup.onclick = ()=>{ snapshot(); const a=S.datos.nodos; a.splice(sel+1,0,clon(a[sel])); sel++; pintar(); panel(); toast('Caja duplicada'); };
+    if (bDel) bDel.onclick = ()=>{ const a=S.datos.nodos; if (a.length>1){ snapshot(); a.splice(sel,1); sel=Math.min(sel,a.length-1); pintar(); panel(); toast('Caja eliminada · puedes deshacer'); } };
+    if (bAdd) bAdd.onclick = ()=>{ snapshot(); const a=S.datos.nodos; a.splice(sel+1,0,{ label:'Nueva caja', desc:'', subs:[] }); sel++; pintar(); panel(); const f=$('f_label'); if(f){ f.focus(); f.select(); } toast('Caja añadida · se ajusta sola al texto'); };
 
     const av = $('avOk');
     if (av && ultimoError){
@@ -1005,6 +1076,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   }
   const ICO = {
     subir: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 8h-5v8H9v-8H4z"/></svg>',
+    volver: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6l-6 6 6 6v-5h9v-2h-9z"/></svg>',
     bajar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20l-8-8h5V4h6v8h5z"/></svg>',
     dup:   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h9a2 2 0 0 1 2 2v9h-2V4H8V2zM5 7h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/></svg>',
     del:   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4zM6 9h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/></svg>'
@@ -1015,11 +1087,28 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     const el = document.querySelector('#lienzoWrap [data-e="'+sel+'"]');
     if (el) el.classList.add('sel');
   }
+  function pintarPaleta(){
+    const pal = $('paleta'); if (!pal) return;
+    pal.innerHTML = '';
+    Motor2.PALETAS.forEach(pl=>{
+      const b = document.createElement('button');
+      b.className = 'sw' + ((S.acento === pl.color) ? ' on' : '');
+      b.style.background = pl.color; b.title = pl.nombre + ' · ' + pl.uso;
+      b.setAttribute('aria-label', pl.nombre);
+      b.onclick = ()=>{ snapshot(); S.acento = pl.color; pintar(); panel(); };
+      pal.appendChild(b);
+    });
+    const auto = document.createElement('button');
+    auto.className = 'sw auto' + (S.acento ? '' : ' on'); auto.textContent = 'Por defecto';
+    auto.onclick = ()=>{ snapshot(); S.acento = null; pintar(); panel(); };
+    pal.appendChild(auto);
+  }
   function fld(id,rot,val,tipo){
     return '<div class="fld"><label for="f_'+id+'">'+rot+'</label>' + (tipo==='textarea'
       ? '<textarea id="f_'+id+'" rows="3">'+esc(val)+'</textarea>'
       : '<input id="f_'+id+'" type="text" value="'+esc(val)+'">') + '</div>';
   }
+  document.addEventListener('focusin', e=>{ if (e.target && (e.target.id||'').indexOf('f_')===0) snapshot(); });
   document.addEventListener('input', e=>{
     const id = e.target.id; if (!id || id.indexOf('f_')!==0) return;
     const campo = id.slice(2);
@@ -1041,6 +1130,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
 
   /* ---------- tipos ---------- */
   function cambiarTipo(t){
+    if (S) snapshot();
     S.tipo = t;
     const ej = clon(EJEMPLOS2[t]);
     // se conserva lo que el usuario había escrito, nodo a nodo
@@ -1160,6 +1250,10 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   /* ---------- menú ---------- */
   $('bMenu').onclick = ()=>{ $('menu').classList.add('on'); };
   $('mCerrar').onclick = ()=>{ $('menu').classList.remove('on'); };
+  document.addEventListener('click', (e)=>{
+    const m = $('menu');
+    if (m.classList.contains('on') && !m.contains(e.target) && e.target.id !== 'bMenu' && !e.target.closest('#bMenu')) m.classList.remove('on');
+  });
   $('mCopiar').onclick = ()=>{ copiarImagen(); $('menu').classList.remove('on'); };
   $('mPNG').onclick = ()=>{ exportarPNG(); $('menu').classList.remove('on'); };
   $('mSVG').onclick = ()=>{ exportarSVG(); $('menu').classList.remove('on'); };
@@ -1168,6 +1262,8 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   $('mRevisar').onclick = ()=>{ const p=pintar(); toast(p ? '\u26a0 '+p+' elemento(s) a revisar' : 'Todo encaja: 0 solapes, 0 desbordes'); $('menu').classList.remove('on'); };
   $('mNueva').onclick = ()=>{ cambiarTipo(S.tipo); toast('Lámina nueva con el ejemplo del tipo'); $('menu').classList.remove('on'); };
 
+  $('bUndo').onclick = deshacer;
+  document.addEventListener('keydown', e=>{ if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); deshacer(); } });
   $('bTipo').onclick = galeria;
   $('gCerrar').onclick = ()=>$('galeria').classList.remove('on');
   $('bPNG').onclick = exportarPNG;

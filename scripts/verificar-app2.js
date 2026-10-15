@@ -88,7 +88,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(1500);
   console.log('\n  ESTRUCTURA (añadir / quitar cajas):');
   const estructura = await ev(`(async function(){
-    var log=[];
+    var log=[]; window.confirm = function(){ return true; };
     function medir(){ var svg=document.querySelector('#lienzoWrap svg'); var e=Motor2.auditar(svg,{aireMin:3});
       return {cajas:(window.__S().datos.nodos||[]).length, textos:svg.querySelectorAll('text').length,
         choques:e.choques.length, fuera:e.fuera.length, nan:e.nan.length, aire:e.aireJusto.length}; }
@@ -115,6 +115,66 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     console.log('    ' + (malo ? '✗' : '·') + ' ' + String(p.paso).padEnd(4) + ' cajas ' + String(p.cajas).padStart(2) + ' textos ' + String(p.textos).padStart(3) +
       ' | choques ' + p.choques + ' fuera ' + p.fuera + ' nan ' + p.nan + ' aire ' + p.aire);
   });
+
+  // --- chips editables, paleta de tonos y color por caja ---
+  console.log('\n  COLORES Y CHIPS:');
+  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+  await send('Page.navigate', { url: 'file://' + (process.argv[2] || path.join(RAIZ, 'smartart-v2', 'index.html')) });
+  await sleep(1500);
+  const pruebas = await ev(`(async function(){
+    var out=[];
+    window.__cambiarTipo('informe');
+    await new Promise(r=>setTimeout(r,300));
+    // 1) abrir el panel de un elemento con chips
+    document.querySelectorAll('#lienzoWrap [data-e]')[1].dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    await new Promise(r=>setTimeout(r,250));
+    var chips=document.querySelectorAll('#chips input');
+    out.push({prueba:'chips editables', inputs:chips.length});
+    if (chips.length){
+      chips[0].value='CHIPEDITADO'; chips[0].dispatchEvent(new Event('input',{bubbles:true}));
+      await new Promise(r=>setTimeout(r,400));
+      out.push({prueba:'chip renombrado en la lamina', aparece:document.querySelector('#lienzoWrap svg').innerHTML.indexOf('CHIPEDITADO')>=0});
+    }
+    // 2) paleta de tonos (panel del documento)
+    var svg0=document.querySelector('#lienzoWrap svg').innerHTML;
+    var vd=document.getElementById('volverDoc'); if(vd) vd.click(); else { var sd=document.getElementById('selDoc'); if(sd) sd.click(); }
+    await new Promise(r=>setTimeout(r,300));
+    var sws=document.querySelectorAll('#paleta .sw');
+    out.push({prueba:'paleta de tonos', botones:sws.length});
+    if (sws.length>2){ sws[2].dispatchEvent(new MouseEvent('click',{bubbles:true})); await new Promise(r=>setTimeout(r,500)); }
+    var svg1=document.querySelector('#lienzoWrap svg').innerHTML;
+    out.push({prueba:'el color de la lamina cambia', cambia:svg0!==svg1, acento:window.__S().acento||'(defecto)'});
+    // 3) color por caja
+    document.querySelectorAll('#lienzoWrap [data-e]')[0].dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    await new Promise(r=>setTimeout(r,250));
+    var cj=document.querySelectorAll('#colorCaja .sw');
+    out.push({prueba:'color por caja', botones:cj.length});
+    if (cj.length>3){ cj[3].dispatchEvent(new MouseEvent('click',{bubbles:true})); await new Promise(r=>setTimeout(r,450)); }
+    out.push({prueba:'color guardado en la caja', color:(window.__S().datos.nodos[0]||{}).color||'(auto)'});
+    // 4) el menú es desplegable, no modal
+    document.getElementById('bMenu').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    await new Promise(r=>setTimeout(r,200));
+    var m=document.getElementById('menu');
+    out.push({prueba:'menu desplegable', visible:m.classList.contains('on'), esModal:getComputedStyle(m).position==='fixed'});
+    m.classList.remove('on');
+    // 5) auditar tras todos los cambios
+    var e2=Motor2.auditar(document.querySelector('#lienzoWrap svg'),{aireMin:3});
+    out.push({prueba:'auditoria final', choques:e2.choques.length, fuera:e2.fuera.length, nan:e2.nan.length});
+    return JSON.stringify(out);
+  })()`);
+  if (pruebas && pruebas.__err) { console.log('    ✗ excepción en la página: ' + pruebas.__err); fallos++; }
+  const pr = typeof pruebas === 'string' ? JSON.parse(pruebas) : (Array.isArray(pruebas) ? pruebas : null);
+  if (!Array.isArray(pr)) { console.log('    ✗ las pruebas de color no devolvieron resultados'); fallos++; }
+  if (pr && pr.length) pr.forEach(x => console.log('    · ' + JSON.stringify(x)));
+  if (Array.isArray(pr)) {
+    if (pr[0].inputs < 1) { console.log('    ✗ los chips no son editables'); fallos++; }
+    if (pr[1] && !pr[1].aparece) { console.log('    ✗ el chip renombrado no llega a la lámina'); fallos++; }
+    if (pr[2] && pr[2].botones < 8) { console.log('    ✗ faltan tonos en la paleta'); fallos++; }
+    if (pr[3] && !pr[3].cambia) { console.log('    ✗ el tono de la lámina no cambia'); fallos++; }
+    if (pr[4] && pr[4].botones < 8) { console.log('    ✗ falta el color por caja'); fallos++; }
+    if (pr[5] && pr[5].color === '(auto)') { console.log('    ✗ el color de la caja no se guarda'); fallos++; }
+    if (pr[8] && (pr[8].choques || pr[8].fuera || pr[8].nan)) { console.log('    ✗ la auditoría final detecta problemas'); fallos++; }
+  }
 
   // --- edición real: cambiar el título y ver que la lámina cambia ---
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
