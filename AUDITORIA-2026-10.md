@@ -195,6 +195,29 @@ Página A4 exacta (210×297 mm, todo el `viewBox` en milímetros), una columna, 
 
 ---
 
+### Iteración 2 — defectos medidos y corregidos
+
+Tras la primera entrega del prototipo se detectaron (midiendo, no mirando) estos defectos:
+
+| Defecto | Medición que lo prueba | Corrección |
+|---|---|---|
+| Texto a **1,27 mm por debajo del icono** («letras encima de logos») | distancia mínima texto↔icono | separación **garantizada por construcción** (≥ 3 mm) |
+| Bullets **saliéndose 1,3-1,8 mm** de su caja | el ancho calculado era 7 mm optimista | el ancho real disponible |
+| Notas con el texto a **2,08 mm** del icono | icono y texto compartían columna | notas en columna (icono izq., texto der.) |
+| **«NaN»** dentro del círculo del número | índice no propagado tras refactorizar | índice explícito |
+| Iconos **descolocados** respecto a su tarjeta | `getBBox()` ignora el `transform` propio del elemento | reubicar también el `translate()`; verificar con `getScreenCTM()` |
+
+**Estado final medido:** 0 solapes texto↔icono · 0 textos fuera de caja · 0 «NaN» · distancia mínima texto↔icono **3,03 mm** · letra mínima **2,65 mm (7,5 pt)** en rótulos y **3,2 mm (9,1 pt)** en cuerpo · 72 textos · cabe en 210×297 mm.
+
+### Aprendizajes para el motor (aplicar en el producto, no solo en el prototipo)
+
+1. **Medir el texto con `getComputedTextLength()`**, no estimar por caracteres: la estimación es la raíz de los recortes que hoy avisa `_avisos`.
+2. **Separación texto↔icono garantizada por construcción**, no por suerte del contenido.
+3. **Al mover un bloque SVG hay que mover también los `transform="translate()"`** de iconos; si solo se mueven `x/y`, los iconos quedan descolocados (letras y logos desalineados).
+4. **Verificar solapes con `getScreenCTM()` + `getBoundingClientRect()`**, nunca con `getBBox()` (que ignora el transform propio).
+
+---
+
 ## Anexo — Evidencia
 
 - 13 capturas en `~/.hermes/cache/scratch/audit-smartart/` (390/1440/1600 px, 7 layouts + galería + colisión de ids).
