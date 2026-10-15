@@ -191,7 +191,6 @@ function layCards(){
   e.nodos.forEach((nd,i)=>{
     const x=M+(i%COLS)*(CW+gx), y=yTop+Math.floor(i/COLS)*(CH+gy);
     o+=caja(x,y,CW,CH,{sombra:true})+acento(x,y,CH);
-    o+=txt(x+CW-6,y+CH-6,9,600,String(i+1).padStart(2,'0'),T.verdeClaro,800,'end');
     o+=num(x+9,y+9,4.4,i+1);
     const w=wrapReal(nd.label, CW-11, 4.3, 700, 4, 'cards: '+nd.label);
     const lh=5.2, alto=w.lineas.length*lh;
@@ -356,8 +355,59 @@ function layInfografia(){
   o+=reubicar(pie(7,e.titulo).svg,0,H-M+1);
   return o;
 }
+
+/* ===================== 8. RADIAL 3 NIVELES — anillos concéntricos ===================== */
+function layRadial3(){
+  const e=EJEMPLOS.concepto;
+  const cats=e.nodos;
+  const cab=cabecera('Radial 3 niveles', e.tituloCentral||e.titulo, 'Centro → nivel 1 → nivel 2');
+  const yTop=M+cab.alto+6, area=H-2*M-cab.alto-5.2-10;
+  const cx=W/2, cy=yTop+area/2;
+  const R1=48, R2=74, HR=24, CATE_W=50, CATE_H=14, CHIP_W=27, CHIP_H=8;
+  const n=cats.length;
+  let o='';
+  o+=`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${R1}" fill="none" stroke="${T.borde}" stroke-width="0.5" stroke-dasharray="1.6 2.6"/>`;
+  o+=`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${R2}" fill="none" stroke="${T.borde}" stroke-width="0.5" stroke-dasharray="1.6 2.6"/>`;
+  const posCat=cats.map((c,i)=>{ const a=-Math.PI/2+i*2*Math.PI/n; return {a:a, x:cx+R1*Math.cos(a), y:cy+R1*Math.sin(a)}; });
+  // conectores centro → categorías
+  posCat.forEach(pc=>{ const ux=Math.cos(pc.a), uy=Math.sin(pc.a);
+    o+=`<line x1="${(cx+ux*HR).toFixed(2)}" y1="${(cy+uy*HR).toFixed(2)}" x2="${(pc.x-ux*CATE_H/2).toFixed(2)}" y2="${(pc.y-uy*CATE_H/2).toFixed(2)}" stroke="${T.verdeOsc}" stroke-width="0.6" opacity="0.4"/>`;
+    o+=`<circle cx="${(cx+ux*HR).toFixed(2)}" cy="${(cy+uy*HR).toFixed(2)}" r="1.1" fill="${T.verde}"/>`; });
+  // nivel 2: chips agrupados bajo su categoría
+  const maxSubs=Math.max.apply(null,cats.map(c=>Math.min((c.subs||[]).length,4)));
+  const paso=Math.min(0.40, (2*Math.PI/n)*0.62/Math.max(1,maxSubs-1));
+  cats.forEach((c,i)=>{
+    const a=posCat[i].a, subs=(c.subs||[]).slice(0,4);
+    subs.forEach((sub,j)=>{
+      const aa=a+(j-(subs.length-1)/2)*paso;
+      const px=cx+R2*Math.cos(aa), py=cy+R2*Math.sin(aa);
+      const x=px-CHIP_W/2, y=py-CHIP_H/2;
+      o+=`<line x1="${posCat[i].x.toFixed(2)}" y1="${posCat[i].y.toFixed(2)}" x2="${px.toFixed(2)}" y2="${py.toFixed(2)}" stroke="${T.verde}" stroke-width="0.45" opacity="0.35"/>`;
+      o+=`<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${CHIP_W}" height="${CHIP_H}" rx="${CHIP_H/2}" fill="${T.verdeSuave}" stroke="${T.borde}" stroke-width="0.3"/>`;
+      const w=wrapReal(sub, CHIP_W-7, 2.5, 500, 2, 'radial3 chip: '+sub);
+      o+=blk(px,y+CHIP_H/2-(w.lineas.length-1)*3.0/2+0.95,2.5,3.0,w.lineas,T.tinta2,500,'middle');
+    });
+  });
+  // nivel 1: tarjetas de categoría
+  cats.forEach((c,i)=>{
+    const x=posCat[i].x-CATE_W/2, y=posCat[i].y-CATE_H/2;
+    o+=caja(x,y,CATE_W,CATE_H,{rx:2.2,fill:'url(#gNum)',borde:T.verde,sombra:true});
+    if(c.icono) o+=IC(c.icono,x+3.1,y+CATE_H/2-2.4,4.8,'rgba(255,255,255,0.95)');
+    const w=wrapReal(c.label, CATE_W-15, 2.85, 700, 3, 'radial3: '+c.label);
+    o+=blk(x+11.6,y+CATE_H/2-(w.lineas.length-1)*3.4/2+1.1,2.85,3.4,w.lineas,'#FFF',700);
+  });
+  // centro
+  o+=`<circle cx="${(cx+1).toFixed(2)}" cy="${(cy+1.4).toFixed(2)}" r="${HR}" fill="#0d1f17" opacity="0.10"/>`;
+  o+=`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${HR}" fill="url(#gNum)"/>`;
+  const hw=wrapReal(e.tituloCentral||e.titulo, HR*1.75, 3.3, 700, 4, 'radial3 hub');
+  o+=blk(cx,cy-(hw.lineas.length-1)*4.1/2+1.4,3.3,4.1,hw.lineas,'#FFF',700,'middle');
+  o+=reubicar(cab.svg,0,M);
+  o+=reubicar(pie(8,e.titulo).svg,0,H-M+1);
+  return o;
+}
+
 /* ===================== render ===================== */
-const paginas=[layVertical(),layHorizontal(),layRadial(),layCards(),layCiclo(),layConcepto(),layInfografia()];
+const paginas=[layVertical(),layHorizontal(),layRadial(),layCards(),layCiclo(),layConcepto(),layInfografia(),layRadial3()];
 document.getElementById('salida').innerHTML = paginas.map(function(c,i){
   return '<section class="pagina"><svg xmlns="http://www.w3.org/2000/svg" width="793.7" height="1122.5" viewBox="0 0 210 297">'+svgDefs()+'<rect width="210" height="297" fill="#fff"/>'+c+'</svg></section>';
 }).join('');

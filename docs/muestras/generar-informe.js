@@ -56,9 +56,11 @@ console.log('informe.html escrito (' + Math.round(html.length / 1024) + ' KB)');
       var fuera=0, fueraLista=[];
       T.forEach(function(t){ if(t.x<1||t.x2>209||t.y<1||t.y2>296){ fuera++; fueraLista.push(t.s.slice(0,26)+'@'+t.x.toFixed(0)+','+t.y.toFixed(0)); } });
       var nan=0, nanList=[]; svg.querySelectorAll('text').forEach(function(t){ if(/NaN|undefined/.test(t.textContent)){ nan++; if(nanList.length<5) nanList.push(t.textContent.slice(0,24)); } });
-      var fs=[]; svg.querySelectorAll('text').forEach(function(t){ fs.push(parseFloat(t.getAttribute('font-size'))); });
+      var fs=[]; var sospechosos=[];
+      svg.querySelectorAll('text').forEach(function(t){ fs.push(parseFloat(t.getAttribute('font-size')));
+        if(/^(100|200|300|400|500|600|700|800|900)$/.test(t.textContent.trim())) sospechosos.push(t.textContent.trim()); });
       out.push({p:pi+1, textos:T.length, iconos:I.length, choques:choques, distanciaMin:+dmin.toFixed(2), parCercano:par,
-        textoFueraPagina:fuera, ejemplosFuera:fueraLista.slice(0,3), nan:nan, nanList:nanList,
+        textoFueraPagina:fuera, ejemplosFuera:fueraLista.slice(0,3), nan:nan, nanList:nanList, textoPeso:sospechosos,
         letraMinMM:+Math.min.apply(null,fs).toFixed(2), letraMinPT:+(Math.min.apply(null,fs)*72/25.4).toFixed(1)});
     });
     return JSON.stringify({paginas:out.length, detalle:out, avisos:(window.__AVISOS||[])});
@@ -68,12 +70,12 @@ console.log('informe.html escrito (' + Math.round(html.length / 1024) + ' KB)');
   let fallos = 0;
   d.detalle.forEach(function (o) {
     if (o.error) { console.log('  ✗ p' + o.p + ': ' + o.error); fallos++; return; }
-    const malo = o.choques > 0 || o.textoFueraPagina > 0 || o.nan > 0 || o.distanciaMin < 2.4;
+    const malo = o.choques > 0 || o.textoFueraPagina > 0 || o.nan > 0 || o.distanciaMin < 2.4 || (o.textoPeso && o.textoPeso.length > 0);
     if (malo) fallos++;
     console.log('  ' + (malo ? '✗' : '·') + ' p' + o.p + '  textos=' + String(o.textos).padStart(3) +
       '  choques=' + o.choques + '  fuera=' + o.textoFueraPagina + '  NaN=' + o.nan +
       '  distMin=' + o.distanciaMin + 'mm  letraMin=' + o.letraMinPT + 'pt' +
-      (o.ejemplosFuera.length ? '  [' + o.ejemplosFuera.join(' | ') + ']' : '') + (o.nanList && o.nanList.length ? '  NaN:[' + o.nanList.join(' | ') + ']' : ''));
+      (o.ejemplosFuera.length ? '  [' + o.ejemplosFuera.join(' | ') + ']' : '') + (o.nanList && o.nanList.length ? '  NaN:[' + o.nanList.join(' | ') + ']' : '') + (o.textoPeso && o.textoPeso.length ? '  ⚠ texto-peso:[' + o.textoPeso.join(',') + ']' : ''));
   });
   console.log('AVISOS de recorte:', d.avisos.length ? d.avisos.join(' ; ') : 'ninguno');
 
