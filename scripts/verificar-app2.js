@@ -82,6 +82,40 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     }
   }
 
+  // --- estructura: añadir 5 cajas, auditar, eliminar hasta 1, auditar ---
+  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+  await send('Page.navigate', { url: 'file://' + (process.argv[2] || path.join(RAIZ, 'smartart-v2', 'index.html')) });
+  await sleep(1500);
+  console.log('\n  ESTRUCTURA (añadir / quitar cajas):');
+  const estructura = await ev(`(async function(){
+    var log=[];
+    function medir(){ var svg=document.querySelector('#lienzoWrap svg'); var e=Motor2.auditar(svg,{aireMin:3});
+      return {cajas:(window.__S().datos.nodos||[]).length, textos:svg.querySelectorAll('text').length,
+        choques:e.choques.length, fuera:e.fuera.length, nan:e.nan.length, aire:e.aireJusto.length}; }
+    window.__cambiarTipo('pasos');
+    for (var i=0;i<5;i++){
+      document.querySelector('#lienzoWrap [data-e]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      var b=document.getElementById('aAdd'); if(!b) return JSON.stringify({error:'sin botón añadir'});
+      b.click();
+      await new Promise(r=>setTimeout(r,220));
+      log.push(Object.assign({paso:'+'+i}, medir()));
+    }
+    for (var j=0;j<10;j++){
+      var d=document.getElementById('aDel'); if(!d || d.disabled) break;
+      d.click(); await new Promise(r=>setTimeout(r,220));
+      log.push(Object.assign({paso:'-'+j}, medir()));
+    }
+    return JSON.stringify(log);
+  })()`);
+  const est = typeof estructura === 'string' ? JSON.parse(estructura) : estructura;
+  if (est.error) { console.log('    ✗ ' + est.error); fallos++; }
+  else est.forEach(p => {
+    const malo = p.choques || p.fuera || p.nan || p.aire || p.cajas < 1;
+    if (malo) fallos++;
+    console.log('    ' + (malo ? '✗' : '·') + ' ' + String(p.paso).padEnd(4) + ' cajas ' + String(p.cajas).padStart(2) + ' textos ' + String(p.textos).padStart(3) +
+      ' | choques ' + p.choques + ' fuera ' + p.fuera + ' nan ' + p.nan + ' aire ' + p.aire);
+  });
+
   // --- edición real: cambiar el título y ver que la lámina cambia ---
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: 'file://' + (process.argv[2] || path.join(RAIZ, 'smartart-v2', 'index.html')) });

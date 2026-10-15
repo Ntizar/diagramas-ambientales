@@ -86,6 +86,11 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
 #menu h3{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--verdeOsc);margin-bottom:12px}
 #menu .op{display:flex;flex-direction:column;gap:8px}
 #menu .op button{justify-content:flex-start;width:100%}
+#panel .acciones{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+#panel .acciones .btn{padding:8px 4px;justify-content:center;font-size:13px}
+#panel .add-caja{width:100%;justify-content:center;border-style:dashed}
+[data-e].sel > :first-child{stroke:var(--verde);stroke-width:2.5}
+[data-e].sel{filter:drop-shadow(0 0 6px rgba(31,169,113,.35))}
 #toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--tinta);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.22s;
   pointer-events:none;z-index:80;max-width:88%;text-align:center}
@@ -145,6 +150,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   /* ---------- render + auditoría en vivo ---------- */
   function pintar(){
     const ancho = anchoLienzo();
+    // el documento (sel=-1) no tiene caja: se resalta el hub si el tipo lo tiene
     const r = Motor2.render({ tipo:S.tipo, datos:S.datos, ancho:ancho, logos:LOGOS2, figura:1 });
     const wrap = $('lienzoWrap');
     wrap.innerHTML = r.svg;
@@ -155,6 +161,11 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     const problemas = err.choques.length + err.fuera.length + err.nan.length + err.textoPeso.length + err.aireJusto.length;
     ultimoError = problemas ? err : null;
     if (problemas) console.warn('Auditoría:', err);
+    // resaltar lo que se está editando
+    if (sel !== null){
+      const objetivo = wrap.querySelector('[data-e="' + sel + '"]');
+      if (objetivo) objetivo.classList.add('sel');
+    }
     guardar();
     return problemas;
   }
@@ -171,6 +182,9 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
         + '<div class="fld"><label>Elementos (' + (S.datos.nodos||[]).length + ')</label><div id="listaEl"></div></div>';
       const ld = $('selDoc'); if (ld) ld.onclick = ()=>{ sel = -1; panel(); };
       const le = $('listaEl');
+      const bAddFin = document.createElement('button'); bAddFin.className='btn add-caja'; bAddFin.textContent='+ Añadir una caja al final';
+      bAddFin.onclick = ()=>{ S.datos.nodos.push({ label:'Nueva caja', desc:'', subs:[] }); sel=S.datos.nodos.length-1; pintar(); panel(); const f=$('f_label'); if(f){f.focus(); f.select();} toast('Caja añadida · se ajusta sola al texto'); };
+      le.appendChild(bAddFin);
       (S.datos.nodos||[]).forEach((nd,i)=>{
         const b = document.createElement('button'); b.className='btn'; b.style.cssText='width:100%;justify-content:flex-start;margin-bottom:6px;text-align:left';
         b.textContent = (i+1) + '. ' + (nd.label||'(sin texto)');
@@ -190,11 +204,18 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
         + (d.tituloCentral !== undefined ? fld('tituloCentral','Texto del centro', d.tituloCentral || '', 'input') : '')
         + '<div class="aviso ok" id="avOk">Todo encaja: 0 solapes, 0 desbordes.</div>';
     } else {
-      const n = S.datos.nodos[sel];
-      p.innerHTML = '<h2>Elemento ' + (sel+1) + '</h2>'
+      const n = S.datos.nodos[sel], total = S.datos.nodos.length;
+      p.innerHTML = '<h2>Elemento ' + (sel+1) + ' de ' + total + '</h2>'
+        + '<div class="acciones">'
+        +   '<button class="btn" id="aSubir" title="Mover antes" ' + (sel===0?'disabled':'') + '>↑</button>'
+        +   '<button class="btn" id="aBajar" title="Mover después" ' + (sel===total-1?'disabled':'') + '>↓</button>'
+        +   '<button class="btn" id="aDup" title="Duplicar">⧉</button>'
+        +   '<button class="btn" id="aDel" title="Eliminar" ' + (total<=1?'disabled':'') + '>🗑</button>'
+        + '</div>'
+        + '<button class="btn add-caja" id="aAdd">+ Añadir una caja después</button>'
         + fld('label','Texto', n.label || '', 'input')
         + fld('desc','Descripción', n.desc || '', 'textarea')
-        + '<div class="fld"><label>Subelementos</label><div class="chips" id="chips"></div></div>';
+        + '<div class="fld"><label>Subelementos (chips)</label><div class="chips" id="chips"></div></div>';
       const cont = $('chips');
       (n.subs||[]).forEach((s,i)=>{
         const c = document.createElement('span'); c.className='ch';
@@ -206,6 +227,13 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
       add.onclick = ()=>{ n.subs = n.subs||[]; n.subs.push('Nuevo'); pintar(); panel(); };
       cont.appendChild(add);
     }
+    const bSubir = $('aSubir'), bBajar = $('aBajar'), bDup = $('aDup'), bDel = $('aDel'), bAdd = $('aAdd');
+    if (bSubir) bSubir.onclick = ()=>{ if (sel>0){ const a=S.datos.nodos; const t=a[sel-1]; a[sel-1]=a[sel]; a[sel]=t; sel--; pintar(); panel(); } };
+    if (bBajar) bBajar.onclick = ()=>{ const a=S.datos.nodos; if (sel<a.length-1){ const t=a[sel+1]; a[sel+1]=a[sel]; a[sel]=t; sel++; pintar(); panel(); } };
+    if (bDup) bDup.onclick = ()=>{ const a=S.datos.nodos; a.splice(sel+1,0,clon(a[sel])); sel++; pintar(); panel(); toast('Caja duplicada'); };
+    if (bDel) bDel.onclick = ()=>{ const a=S.datos.nodos; if (a.length>1){ a.splice(sel,1); sel=Math.min(sel,a.length-1); pintar(); panel(); toast('Caja eliminada'); } };
+    if (bAdd) bAdd.onclick = ()=>{ const a=S.datos.nodos; a.splice(sel+1,0,{ label:'Nueva caja', desc:'', subs:[] }); sel++; pintar(); panel(); const f=$('f_label'); if(f){ f.focus(); f.select(); } toast('Caja añadida · se ajusta sola al texto'); };
+
     const av = $('avOk');
     if (av && ultimoError){
       av.className = 'aviso error';

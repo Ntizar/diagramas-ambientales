@@ -44,6 +44,15 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     return nombre;
   };
   await shot('app-desktop-informe', 1440, 900, false);
+  // captura con un elemento seleccionado (se ve el panel de acciones)
+  await ev('window.__cambiarTipo("pasos")'); await sleep(400);
+  await ev('document.querySelectorAll("#lienzoWrap [data-e]")[1].dispatchEvent(new MouseEvent("click",{bubbles:true}))'); await sleep(500);
+  await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-panel-elemento.png'), Buffer.from(s.data, 'base64')));
+  // captura con muchas cajas (auto-adaptación)
+  await ev(`(function(){ var S=window.__S(); S.datos.nodos=[]; for(var i=1;i<=12;i++) S.datos.nodos.push({label:'Caja '+i+' con un texto largo que obliga a que la tarjeta crezca sola', desc:'Descripción de la caja '+i+'.', subs:['uno','dos']}); window.__cambiarTipo(S.tipo); })()`); await sleep(600);
+  await ev(`(function(){ var S=window.__S(); S.datos.nodos=[]; for(var i=1;i<=12;i++) S.datos.nodos.push({label:'Caja '+i+' con un texto largo que obliga a que la tarjeta crezca sola', desc:'Descripción de la caja '+i+'.', subs:['uno','dos']}); })()`);
+  await ev('document.getElementById("bAncho").click()'); await sleep(700);
+  await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-12-cajas.png'), Buffer.from(s.data, 'base64')));
   await ev('window.__cambiarTipo("radial3")'); await sleep(500);
   await send('Page.captureScreenshot', { format: 'png' }).then(s => fs.writeFileSync(path.join(OUT, 'app-desktop-radial3.png'), Buffer.from(s.data, 'base64')));
   await ev('document.getElementById("bTipo").click()'); await sleep(700);

@@ -54,5 +54,29 @@ TIPOS.forEach(tipo => {
     if (errs.length) { console.log('  ✗ ' + tipo.padEnd(10) + '@' + String(ancho).padStart(4) + ' → ' + errs.join(' · ')); fallos++; }
   });
 });
-console.log('\n' + casos + ' casos · ' + (fallos ? fallos + ' con problema' : 'TODO OK ✅'));
+// --- casos extremos: 1, 3 y 12 cajas (auto-adaptación al contenido) ---
+TIPOS.forEach(tipo => {
+  [1, 3, 12].forEach(n => {
+    [390, 900, 1440].forEach(ancho => {
+      casos++;
+      const datos = JSON.parse(JSON.stringify(E[tipo]));
+      datos.nodos = Array.from({ length: n }, (_, i) => ({ label: 'Caja ' + (i + 1) + ' con texto bastante largo para forzar el ajuste', desc: 'Descripción de la caja número ' + (i + 1) + ' que también ocupa su espacio.', subs: ['uno', 'dos', 'tres'], icono: 'lupa' }));
+      const errs = [];
+      let r;
+      try { r = M.render({ tipo, datos, ancho, logos: G, figura: 1 }); }
+      catch (e) { console.log('  ✗ ' + tipo + ' con ' + n + ' cajas @' + ancho + ' → EXCEPCIÓN: ' + e.message); fallos++; return; }
+      if (/NaN|undefined/.test(r.svg)) errs.push('NaN/undefined');
+      const vb = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(r.svg);
+      if (vb) {
+        const W = +vb[1], H = +vb[2];
+        const fuera = [];
+        atributos(r.svg, 'x').forEach(x => { if (x < -1 || x > W + 1) fuera.push('x=' + x); });
+        atributos(r.svg, 'y').forEach(y => { if (y < -1 || y > H + 1) fuera.push('y=' + y); });
+        if (fuera.length) errs.push(fuera.length + ' coordenadas fuera: ' + fuera.slice(0, 3).join(','));
+      } else errs.push('sin viewBox');
+      if (errs.length) { console.log('  ✗ ' + (tipo + ' ×' + n + ' cajas').padEnd(26) + '@' + String(ancho).padStart(4) + ' → ' + errs.join(' · ')); fallos++; }
+    });
+  });
+});
+console.log('\n' + casos + ' casos (incluye 1/3/12 cajas por tipo) · ' + (fallos ? fallos + ' con problema' : 'TODO OK ✅'));
 process.exit(fallos ? 1 : 0);
