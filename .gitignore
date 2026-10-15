@@ -1,2 +1,5 @@
 # El index.html se compila desde src/ (node scripts/compilar.js) pero se
 # commitea: GitHub Pages lo sirve directamente.
+
+# Salida de la auditoría medible (capturas + medidas.json)
+.auditoria/
