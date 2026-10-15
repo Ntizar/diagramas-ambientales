@@ -47,11 +47,12 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   padding:10px 11px;font:inherit;font-size:15px;outline:none;resize:vertical}
 .fld input:focus,.fld textarea:focus{border-color:var(--verde);background:#fff}
 .fld+.fld{margin-top:12px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding-right:2px}
 .ch{display:inline-flex;align-items:center;gap:6px;background:var(--verdeClaro);border:1px solid var(--linea);
   border-radius:16px;padding:6px 8px 6px 11px;font-size:13px;color:var(--tinta2)}
 .ch button{border:0;background:none;cursor:pointer;color:var(--tinta2);font-size:15px;line-height:1;padding:0 2px}
 .ch button:hover{color:var(--rojo)}
+#panel .fld{min-width:0}
 .add{border:1px dashed var(--linea2);background:none;border-radius:16px;padding:6px 12px;font:inherit;font-size:13px;
   color:var(--tinta2);cursor:pointer}
 .add:hover{border-color:var(--verde);color:var(--verdeOsc)}
@@ -925,11 +926,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     const problemas = err.choques.length + err.fuera.length + err.nan.length + err.textoPeso.length + err.aireJusto.length;
     ultimoError = problemas ? err : null;
     if (problemas) console.warn('Auditoría:', err);
-    // resaltar lo que se está editando
-    if (sel !== null){
-      const objetivo = wrap.querySelector('[data-e="' + sel + '"]');
-      if (objetivo) objetivo.classList.add('sel');
-    }
+    resaltar();
     guardar();
     return problemas;
   }
@@ -944,7 +941,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
       p.innerHTML = '<h2>Contenido</h2><p style="font-size:13.5px;color:var(--tinta2);line-height:1.5;margin-bottom:12px">Haz clic en cualquier elemento de la lámina —o elígelo aquí— y edítalo. Los cambios se ven al momento.</p>'
         + '<div class="fld"><label>Documento</label><button class="btn" id="selDoc" style="width:100%;justify-content:flex-start">Título, rótulo y subtítulo</button></div>'
         + '<div class="fld"><label>Elementos (' + (S.datos.nodos||[]).length + ')</label><div id="listaEl"></div></div>';
-      const ld = $('selDoc'); if (ld) ld.onclick = ()=>{ sel = -1; panel(); };
+      const ld = $('selDoc'); if (ld) ld.onclick = ()=>{ sel = -1; resaltar(); panel(); };
       const le = $('listaEl');
       const bAddFin = document.createElement('button'); bAddFin.className='btn add-caja'; bAddFin.textContent='+ Añadir una caja al final';
       bAddFin.onclick = ()=>{ S.datos.nodos.push({ label:'Nueva caja', desc:'', subs:[] }); sel=S.datos.nodos.length-1; pintar(); panel(); const f=$('f_label'); if(f){f.focus(); f.select();} toast('Caja añadida · se ajusta sola al texto'); };
@@ -952,7 +949,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
       (S.datos.nodos||[]).forEach((nd,i)=>{
         const b = document.createElement('button'); b.className='btn'; b.style.cssText='width:100%;justify-content:flex-start;margin-bottom:6px;text-align:left';
         b.textContent = (i+1) + '. ' + (nd.label||'(sin texto)');
-        b.onclick = ()=>{ sel = i; panel(); };
+        b.onclick = ()=>{ sel = i; resaltar(); panel(); };
         le.appendChild(b);
       });
       return;
@@ -971,10 +968,10 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
       const n = S.datos.nodos[sel], total = S.datos.nodos.length;
       p.innerHTML = '<h2>Elemento ' + (sel+1) + ' de ' + total + '</h2>'
         + '<div class="acciones">'
-        +   '<button class="btn" id="aSubir" title="Mover antes" ' + (sel===0?'disabled':'') + '>↑</button>'
-        +   '<button class="btn" id="aBajar" title="Mover después" ' + (sel===total-1?'disabled':'') + '>↓</button>'
-        +   '<button class="btn" id="aDup" title="Duplicar">⧉</button>'
-        +   '<button class="btn" id="aDel" title="Eliminar" ' + (total<=1?'disabled':'') + '>🗑</button>'
+        +   '<button class="btn" id="aSubir" title="Mover antes" ' + (sel===0?'disabled':'') + '>' + ICO.subir + ' Subir</button>'
+        +   '<button class="btn" id="aBajar" title="Mover después" ' + (sel===total-1?'disabled':'') + '>' + ICO.bajar + ' Bajar</button>'
+        +   '<button class="btn" id="aDup" title="Duplicar esta caja">' + ICO.dup + ' Duplicar</button>'
+        +   '<button class="btn" id="aDel" title="Eliminar esta caja" ' + (total<=1?'disabled':'') + '>' + ICO.del + ' Eliminar</button>'
         + '</div>'
         + '<button class="btn add-caja" id="aAdd">+ Añadir una caja después</button>'
         + fld('label','Texto', n.label || '', 'input')
@@ -1006,6 +1003,18 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
         ultimoError.aireJusto.length? ultimoError.aireJusto.length+' elementos demasiado juntos':''].filter(Boolean).join(' · ');
     }
   }
+  const ICO = {
+    subir: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 8h-5v8H9v-8H4z"/></svg>',
+    bajar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20l-8-8h5V4h6v8h5z"/></svg>',
+    dup:   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h9a2 2 0 0 1 2 2v9h-2V4H8V2zM5 7h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/></svg>',
+    del:   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4zM6 9h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/></svg>'
+  };
+  function resaltar(){
+    document.querySelectorAll('#lienzoWrap [data-e].sel').forEach(el=>el.classList.remove('sel'));
+    if (sel === null) return;
+    const el = document.querySelector('#lienzoWrap [data-e="'+sel+'"]');
+    if (el) el.classList.add('sel');
+  }
   function fld(id,rot,val,tipo){
     return '<div class="fld"><label for="f_'+id+'">'+rot+'</label>' + (tipo==='textarea'
       ? '<textarea id="f_'+id+'" rows="3">'+esc(val)+'</textarea>'
@@ -1025,8 +1034,7 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     if (!el) return;
     const v = parseInt(el.dataset.e,10);
     sel = (isNaN(v) || v < 0) ? -1 : v;
-    // en radial el data-e del hub es -1 y el nodo 0 es el centro
-    if (S.tipo === 'radial' && sel === -1) sel = -1;
+    resaltar();
     panel();
     if (window.innerWidth <= 860) $('panel').classList.add('on');
   });

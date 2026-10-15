@@ -134,6 +134,10 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(600);
   const despues = await ev(`document.querySelector('#lienzoWrap svg').innerHTML.indexOf('PRUEBAX')>=0`);
   const ed = typeof edit === 'string' ? JSON.parse(edit) : edit;
+  const selOk = await ev("(function(){ var s=document.querySelector('#lienzoWrap [data-e].sel'); if(!s) return 'sin resaltar'; var r=s.getBoundingClientRect(); return JSON.stringify({resaltado:true, w:Math.round(r.width), h:Math.round(r.height), iconos:document.querySelectorAll('#panel .acciones svg').length}); })()");
+  console.log('  resaltado del seleccionado: ' + selOk);
+  if (String(selOk).indexOf('sin resaltar') >= 0 || String(selOk).indexOf('"iconos":4') < 0) { console.log('  ✗ falta el resaltado o los iconos de los botones'); fallos++; }
+
   // el menú debe ser un panel real (nada de prompt) con los botones de exportación
   const menuRaw = await ev("JSON.stringify({menu:!!document.getElementById('menu'), botones:document.querySelectorAll('#menu .op button').length, copiar:!!document.getElementById('mCopiar'), hayPrompt:/window.prompt\\(/.test(document.documentElement.innerHTML)})");
   const mo = typeof menuRaw === 'string' ? JSON.parse(menuRaw) : menuRaw;
