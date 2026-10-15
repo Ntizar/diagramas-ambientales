@@ -159,6 +159,42 @@ La cabecera tiene 5 controles en una fila con `overflow-x:auto` y scrollbar ocul
 
 ---
 
+## Anexo B — Reenfoque a «informe para Word» (2026-10-15, decisión del usuario)
+
+**Contexto:** el uso real es **PC** y **pegar la infografía en documentos Word**, hecha por **gente no técnica**. El móvil deja de ser prioridad (queda como «que no se rompa»), el móvil-póster desaparece y **no se usa Aurora** (no es el ecosistema de este producto). Esto cambia el formato objetivo.
+
+### Medido (no estimado)
+
+- **PNG exportado**: 4480×2264 px, 1,2 MB, **sin chunk `pHYs` (DPI)** → Word asume 96 DPI e inserta la imagen a **118,5 cm de ancho**; el usuario tiene que encogerla a mano. Cada PNG exportado hoy es un problema de maquetación para quien lo pega.
+- **Letra más pequeña de la infografía** (10,5 px sobre un lienzo de 2240 px): en A4 vertical = **0,80 mm = 2,3 pt** · en A4 apaisado = 3,4 pt. **Ilegible en papel por mucho que se pegue.**
+- Para que la letra mínima sea de **9 pt** en A4 vertical, el lienzo lógico tendría que medir **≈8.925 px** de ancho: **hoy hay 4× más densidad horizontal de la que cabe en una página.**
+- **7 pasos apilados** con letra de ~9 pt ocupan **240 mm** de los 257 mm útiles de un A4 → **el formato «página» sí cabe** y es el formato correcto.
+
+### Prototipo construido y medido (`docs/prototipo-informe-a4/`)
+
+Página A4 exacta (210×297 mm, todo el `viewBox` en milímetros), una columna, 7 pasos en tarjetas (2 columnas y el último a ancho completo), banda de fuentes, notas clave y **pie de figura** («Figura 1 · … / Elaboración propia»), que es lo que espera un informe.
+
+| Medida | Infografía actual | Prototipo A4 |
+|---|---|---|
+| Letra mínima en papel (A4 vertical) | **2,3 pt** ✗ | **8,4 pt** (rótulos 7,4 pt) ✓ |
+| Cabe en una página | no (118,5 cm) | sí (293,7 de 297 mm) |
+| Desbordes de texto | sí (63/91 textos ilegibles) | **0** |
+| Alto de tarjeta | fijo | **medido**, no adivinado |
+
+### Hallazgo nuevo, aplicable al motor
+
+`wrap()` estima el ancho de línea con `nº de caracteres × 0,53 × tamaño`. Medido en SVG real, una línea estimada se salía **2,2 mm** de su caja. **Esa estimación es la raíz de los recortes que el motor ya denuncia con `_avisos`.** Solución para el producto: medir con `getComputedTextLength()` sobre el SVG real antes de posicionar, no estimar por caracteres.
+
+### Plan reenfocado (sustituye al de la §9)
+
+1. **Formato de salida «Página» (A4 vertical) como opción por defecto**, junto al «Póster» actual. Geometría y tipografía en **milímetros**, letra mínima 8,5-9 pt garantizada por construcción.
+2. **Exportar pensando en Word**: PNG con **chunk `pHYs` a 300 DPI** (se inserta ya al tamaño correcto), botón **«Copiar imagen»** al portapapeles para un Ctrl+V directo, **PDF** y SVG con opción «texto → curvas».
+3. **Editor para gente no técnica en PC**: panel lateral con **todos** los campos (hoy fuentes, notas y rótulos se clonan del ejemplo), **pegar texto desde Word** y repartirlo en pasos automáticamente, plantillas por tipo de informe, sin `prompt()` ni JSON.
+4. **Tipografía fija** (self-hosted) para que el diagrama se vea igual en cualquier PC y en la exportación.
+5. **El móvil, sin rediseño**: que abra, que no rompa.
+
+---
+
 ## Anexo — Evidencia
 
 - 13 capturas en `~/.hermes/cache/scratch/audit-smartart/` (390/1440/1600 px, 7 layouts + galería + colisión de ids).

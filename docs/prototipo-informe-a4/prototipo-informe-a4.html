@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Prototipo informe A4 v4</title>
+<style>html,body{margin:0;background:#fff}svg{display:block}</style>
+</head><body>
+<script>
+// ===== Prototipo v4: página A4 (210x297mm) para pegar en Word.
+// Toda la geometría en milímetros; el alto de cada tarjeta se MIDE, no se adivina.
+const LOGOS = {
+  lupa:'M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z',
+  escudo:'M12 2L4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5l-8-3zm-2 14l-4-4 1.4-1.4L10 13.2l6.6-6.6L18 8l-8 8z',
+  pajaro:'M21 6c-1 0-2 .5-2.5 1.2C17.8 6.5 17 6 16 6c-1.7 0-3 1.3-3 3 0 .3 0 .5.1.8C9 9.5 5.5 7.5 3.5 4.5c-1 2-.5 4.5 1.2 5.8-.7 0-1.3-.2-1.7-.5 0 1.8 1.3 3.5 3.2 3.9-.5.2-1.1.2-1.7.1.5 1.5 1.9 2.5 3.5 2.6-1.3 1-3 1.6-4.7 1.6H2c1.7 1.1 3.8 1.7 6 1.7 7.2 0 11.2-6 11.2-11.2v-.5c.8-.6 1.4-1.3 1.8-2z',
+  pin:'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z',
+  documento:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z',
+  onda:'M2 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2v-3zm0-6c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2V6zm0 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2v-3z',
+  chispa:'M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z',
+  mapa:'M20.5 3l-.2 0-4.8 1.9L9.5 3 3.9 4.9c-.5.2-.9.6-.9 1.1v15.1c0 .5.4.9.9.9l.2-.1 4.8-1.9 6 1.9 5.6-1.9c.5-.2.9-.6.9-1.1V3.9c0-.5-.4-.9-.9-.9zM15 19.9l-6-1.9V4.1l6 1.9v13.9z',
+  bd:'M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zm0 2c3.9 0 6 1.3 6 2s-2.1 2-6 2-6-1.3-6-2 2.1-2 6-2zm6 14c0 .7-2.1 2-6 2s-6-1.3-6-2v-3.1c1.5.8 3.7 1.1 6 1.1s4.5-.3 6-1.1V18zm0-5c0 .7-2.1 2-6 2s-6-1.3-6-2v-3.1c1.5.8 3.7 1.1 6 1.1s4.5-.3 6-1.1V13z',
+  arbol:'M12 2L6 10h3l-4 6h5v4h4v-4h5l-4-6h3L12 2z',
+  micro:'M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2z'
+};
+const PASOS = [
+  {t:'Identificación preliminar', i:'lupa',   d:'Revisión de la información disponible de la zona.', b:['Cartografía acústica','Espacios protegidos','Uso del suelo']},
+  {t:'Selección de candidatos',   i:'escudo', d:'Criterios acústicos, territoriales y funcionales para escoger.', b:['Criterios multicriterio','Accesibilidad','Compatibilidad de usos']},
+  {t:'Validación',                i:'pajaro', d:'Contraste con trabajo de campo y comprobación de afecciones.', b:['Mediciones acústicas','Verificación in situ','Encuestas de percepción']},
+  {t:'Delimitación',              i:'pin',    d:'Definición del perímetro con límites reconocibles y coherencia funcional.', b:['SIG y cartografía','Límites naturales','Planeamiento']},
+  {t:'Caracterización',           i:'documento', d:'Descripción de valores acústicos, ambientales y sociales.', b:['Paisaje sonoro','Indicadores ambientales','Valores sociales']},
+  {t:'Gestión y seguimiento',     i:'onda',   d:'Mantenimiento de la tranquilidad con seguimiento periódico.', b:['Fichas de seguimiento','Indicadores de control','Plan de medidas']},
+  {t:'Evaluación',                i:'chispa', d:'Valoración técnica de resultados y revisión de objetivos.', b:['Valoración técnica','Revisión periódica','Actualización del MER (Mapas Estratégicos de Ruido)']}
+];
+const FUENTES = [['mapa','Cartografía oficial (MER)'],['micro','Mediciones in situ'],['bd','SIG'],['arbol','Información ambiental'],['pajaro','Participación ciudadana']];
+const NOTAS = [['chispa','El enfoque es flexible y se adapta al tipo de territorio.'],['bd','Los SIG y los Mapas Estratégicos de Ruido son el apoyo técnico principal.'],['pajaro','La percepción social matiza la evaluación final.']];
+const INTRO = 'Conjuga fuentes cartográficas, ambientales, territoriales, funcionales y perceptivas.';
+const TITULO = 'Proceso de identificación y delimitación de zonas tranquilas';
+const SUB = 'Una aproximación integral para preservar los espacios tranquilos';
+
+const VERDE='#1FA971', VERDE_OSC='#0E7A50', TINTA='#132A3E', TINTA2='#4E657A', BORDE='#DFE6E0', VERDE_CLARO='#EBF5EF';
+const esc = s => String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+const IC = (n,x,y,s,c)=>`<g transform="translate(${x},${y}) scale(${s/24})"><path d="${LOGOS[n]||LOGOS.chispa}" fill="${c}"/></g>`;
+function wrap(txt, maxMM, fs, maxLin){ const max=Math.max(4,Math.floor(maxMM/(fs*0.565))); const w=String(txt).split(/\s+/); const out=[]; let l='';
+  for(const p of w){ if((l+' '+p).trim().length>max && l){out.push(l); l=p;} else l=(l+' '+p).trim(); } if(l) out.push(l);
+  return maxLin?out.slice(0,maxLin):out; }
+function txt(x,y,fs,s,c,w,anch,tr){ return `<text x="${x}" y="${y}" font-family="'Helvetica Neue',Arial,sans-serif" font-size="${fs}" font-weight="${w||400}" fill="${c}" text-anchor="${anch||'start'}"${tr?` letter-spacing="${tr}"`:''}>${esc(s)}</text>`; }
+const blk=(x,y,fs,lh,ls,c,w)=>ls.map((l,i)=>txt(x,y+i*lh,fs,l,c,w)).join('');
+const PADT=4.6, LHT=4.7, LHD=4.2, LHB=4.0;
+
+// --- mide el contenido de una tarjeta ANTES de dibujarla (nada de adivinar) ---
+function layoutTarjeta(p, w, full){
+  const anchoT = full ? (w-34)/2 : w-28;
+  const tls = wrap(p.t, anchoT, 4.1, 2);
+  const dls = wrap(p.d, anchoT, 3.25, tls.length>1 ? 1 : 2);
+  const bw   = full ? (w-34)/2 : w-9;
+  const bls  = wrap(p.b.join(' · '), bw, 3.05, full?3:2);
+  const alto = PADT + tls.length*LHT + 1.4 + dls.length*LHD + 2.6 + bls.length*LHB + 3.4;
+  return {tls,dls,bls,alto};
+}
+function tarjeta(p, idx, x, yy, w, h, full){
+  const L = layoutTarjeta(p, w, full);
+  let o = `<rect x="${x}" y="${yy}" width="${w}" height="${h}" rx="2.6" fill="${full?'#F2FAF6':'#FFFFFF'}" stroke="${full?VERDE:BORDE}" stroke-width="${full?0.5:0.35}" filter="url(#sh)"/>`;
+  o += `<rect x="${x}" y="${yy}" width="1.9" height="${h}" rx="0.95" fill="url(#gNum)"/>`;
+  o += `<circle cx="${x+9}" cy="${yy+9}" r="4.6" fill="url(#gNum)"/>`;
+  o += txt(x+9, yy+10.6, 4.2, String(idx+1), '#FFFFFF', 700, 'middle');
+  o += IC(p.i, x+16.6, yy+5.6, 6.2, VERDE_OSC);
+  let cy = yy + PADT + 3.6;
+  o += blk(x+23.5, cy, 4.1, LHT, L.tls, TINTA, 700);
+  cy += (L.tls.length-1)*LHT + 4.2;
+  o += blk(x+4.8, cy, 3.25, LHD, L.dls, TINTA2, 400);
+  cy += (L.dls.length-1)*LHD + 3.6;
+  o += `<circle cx="${x+5.9}" cy="${cy-1.05}" r="0.85" fill="${VERDE}"/>`;
+  o += blk(x+8.4, cy, 3.05, LHB, L.bls, VERDE_OSC, 600);
+  s += o;
+}
+
+const M=14, W=210, H=297, UTIL=W-2*M, GAP=4, CW=(UTIL-GAP)/2;
+let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${(W/25.4*96).toFixed(1)}" height="${(H/25.4*96).toFixed(1)}" viewBox="0 0 ${W} ${H}">`;
+s += `<defs>
+ <linearGradient id="gNum" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${VERDE}"/><stop offset="1" stop-color="${VERDE_OSC}"/></linearGradient>
+ <filter id="sh" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="0.45" stdDeviation="0.55" flood-color="#0d1f17" flood-opacity="0.10"/></filter>
+</defs><rect width="${W}" height="${H}" fill="#FFFFFF"/>`;
+
+// CABECERA
+let y=M;
+s += `<rect x="${M}" y="${y}" width="3.2" height="27" rx="1.6" fill="url(#gNum)"/>`;
+s += txt(M+8, y+3.2, 2.6, 'TAREA 3 · METODOLOGÍA', VERDE_OSC, 700, 'start', 0.6);
+const tl = wrap(TITULO, UTIL-13, 6.8, 2);
+s += blk(M+8, y+11.5, 6.8, 7.9, tl, TINTA, 700);
+s += txt(M+8, y+11.5+tl.length*7.9+4.4, 3.3, SUB, VERDE_OSC, 500);
+y += 34;
+
+// INTRO
+const il = wrap(INTRO, UTIL-16, 3.3); const iH = 8+il.length*4.7;
+s += `<rect x="${M}" y="${y}" width="${UTIL}" height="${iH}" rx="2.2" fill="${VERDE_CLARO}"/>`;
+s += `<rect x="${M}" y="${y}" width="1.7" height="${iH}" rx="0.85" fill="${VERDE}"/>`;
+s += blk(M+6.5, y+6.2, 3.3, 4.7, il, TINTA2, 400);
+y += iH+7;
+
+// PASOS
+const pares = PASOS.length-1, filas=Math.ceil(pares/2);
+const CH = Math.max.apply(null, PASOS.slice(0,pares).map(p=>layoutTarjeta(p,CW,false).alto)) + 0.8;
+for (let f=0; f<filas; f++) for (let c=0;c<2;c++){ const i=f*2+c; if(i<pares) tarjeta(PASOS[i], i, M+c*(CW+GAP), y+f*(CH+GAP), CW, CH); }
+y += filas*(CH+GAP) - GAP + 8;
+const CHfull = layoutTarjeta(PASOS[PASOS.length-1], UTIL, true).alto + 1.2;
+tarjeta(PASOS[PASOS.length-1], PASOS.length-1, M, y, UTIL, CHfull, true);
+y += CHfull + 9;
+
+// FUENTES
+s += txt(M, y+3, 2.6, 'FUENTES Y HERRAMIENTAS', VERDE_OSC, 700, 'start', 0.55);
+s += txt(M+62, y+3, 2.8, 'Se combinan a lo largo de todas las etapas', TINTA2, 400);
+y += 7;
+const fGap=3, fW=(UTIL-4*fGap)/5;
+FUENTES.forEach(([ic,lab],j)=>{ const fx=M+j*(fW+fGap);
+  s += `<rect x="${fx}" y="${y}" width="${fW}" height="12" rx="2.2" fill="#F7FAF8" stroke="${BORDE}" stroke-width="0.3"/>`;
+  s += IC(ic, fx+2.8, y+4.1, 5.4, VERDE_OSC);
+  s += blk(fx+9.6, y+4.6, 2.95, 3.7, wrap(lab, fW-12.5, 2.95, 2), TINTA, 600);
+});
+y += 12+7;
+
+// NOTAS
+const NW=(UTIL-2*GAP)/3;
+NOTAS.forEach((n,i)=>{ const nx=M+i*(NW+GAP);
+  s += `<rect x="${nx}" y="${y}" width="${NW}" height="20" rx="2.4" fill="${VERDE_CLARO}"/>`;
+  s += IC(n[0], nx+3.2, y+3.4, 5, VERDE_OSC);
+  s += blk(nx+3.2, y+12.6, 3.0, 3.9, wrap(n[1], NW-7, 3.0, 3), TINTA2, 500);
+});
+y += 20+7;
+
+// PIE DE FIGURA
+s += `<rect x="${M}" y="${y}" width="${UTIL}" height="0.3" fill="${BORDE}"/>`;
+s += txt(M, y+4.8, 2.9, 'Figura 1 · Proceso de identificación y delimitación de zonas tranquilas', TINTA2, 600);
+s += txt(W-M, y+4.8, 2.9, 'Elaboración propia', TINTA2, 400, 'end');
+y += 8;
+
+s += '</svg>';
+document.title = `ALTO=${y.toFixed(1)}mm/297 · libre abajo=${(297-y).toFixed(1)}mm · letra min 2.95mm=${(2.95*72/25.4).toFixed(1)}pt`;
+document.body.innerHTML = s;
+</script>
+</body></html>
