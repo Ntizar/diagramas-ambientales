@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#F5F7FA">
+<title>SmartArt — diagramas editor</title>
+<style>
+:root{
+  --bg:#F5F7FA; --card:#fff; --linea:#E4E8EF; --linea2:#CBD4E0;
+  --tinta:#1E293B; --tinta2:#64748B; --azul:#2563eb; --verde:#059669; --rojo:#dc2626;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;touch-action:manipulation;overscroll-behavior:none}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tinta);
+  height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* barra superior */
+header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;
+  background:var(--card);border-bottom:1px solid var(--linea);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+header::-webkit-scrollbar{display:none}
+header .marca{font-weight:800;font-size:15px;color:var(--tinta);white-space:nowrap;margin-right:2px}
+header .marca span{color:var(--azul)}
+.btn{flex-shrink:0;min-height:44px;padding:8px 15px;border-radius:11px;border:1px solid var(--linea2);
+  background:var(--card);color:var(--tinta);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:border-color .13s, background .13s}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--azul);border-color:var(--azul);color:#fff}
+.btn.pri:active{background:#1d4fd8}
+.btn svg{width:17px;height:17px;fill:currentColor}
+#nombreLay{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* lienzo */
+#lienzo{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(120% 100% at 50% 0%, #FFFFFF 0%, var(--bg) 70%)}
+#lienzo .svgwrap{position:absolute;left:50%;top:50%;transform-origin:center;will-change:transform;
+  filter:drop-shadow(0 14px 34px rgba(30,41,59,.14))}
+#lienzo svg{display:block;border-radius:8px;max-width:none}
+.hit:hover{fill:rgba(37,99,235,.05)}
+.ayuda{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:rgba(30,41,59,.88);
+  color:#fff;padding:9px 15px;border-radius:11px;font-size:12.5px;max-width:88%;text-align:center;
+  pointer-events:none;transition:opacity .6s;z-index:5}
+.ayuda b{color:#93c5fd}
+#aviso{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:#FEF3C7;color:#92400E;
+  border:1px solid #FCD34D;padding:8px 14px;border-radius:10px;font-size:12px;max-width:90%;display:none;z-index:5}
+
+/* bottom sheets */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);
+  border-radius:20px 20px 0 0;border-top:1px solid var(--linea);box-shadow:0 -10px 34px rgba(30,41,59,.16);
+  transform:translateY(110%);transition:transform .27s cubic-bezier(.2,.8,.2,1);
+  max-height:72dvh;overflow-y:auto;padding:8px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet.on{transform:translateY(0)}
+.sheet .asa{width:38px;height:4px;border-radius:2px;background:var(--linea2);margin:4px auto 12px;border:none;cursor:pointer}
+.sheet h3{font-size:12px;font-weight:800;letter-spacing:1.6px;color:var(--azul);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sheet h3 .num{background:var(--azul);color:#fff;min-width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;letter-spacing:0}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:12px;color:var(--tinta2);margin-bottom:5px;font-weight:600}
+.fld input[type=text],.fld textarea{width:100%;background:var(--bg);border:1px solid var(--linea2);border-radius:10px;
+  color:var(--tinta);padding:11px 12px;font-size:16px;font-family:inherit;outline:none}
+.fld textarea{min-height:60px;font-size:16px;line-height:1.45;resize:none}
+.fld input:focus,.fld textarea:focus{border-color:var(--azul);background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.ch{min-width:42px;min-height:42px;padding:5px;border-radius:10px;border:1.5px solid var(--linea);
+  background:var(--card);cursor:pointer;display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--tinta2);font-family:inherit}
+.ch svg{width:20px;height:20px;fill:var(--tinta2)}
+.ch.on{border-color:var(--azul);background:#EFF6FF}
+.ch.on svg{fill:var(--azul)}
+.ch.color{border-radius:10px;border:2px solid var(--linea)}
+.ch.color.on{border-color:var(--tinta)}
+.sub{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--linea2);
+  border-radius:12px;padding:8px 11px;font-size:14px}
+.sub button{background:none;border:none;color:var(--tinta2);font-size:15px;cursor:pointer;padding:1px}
+.sub button:active{color:var(--rojo)}
+.addChip{background:none;border:1.5px dashed var(--linea2);border-radius:12px;color:var(--tinta2);
+  padding:8px 13px;font-size:13px;cursor:pointer;font-family:inherit;min-height:38px;font-weight:600}
+.addChip:active{border-color:var(--azul);color:var(--azul)}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.fila .btn{justify-content:center;width:100%}
+
+/* galería */
+.galeria{position:fixed;inset:0;z-index:40;background:rgba(245,247,250,.97);overflow-y:auto;
+  padding:calc(16px + env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.galeria.on{transform:translateY(0)}
+.galeria .cabe{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;
+  background:var(--bg);padding-bottom:12px;z-index:2}
+.galeria h2{font-size:19px;font-weight:800}
+.gcerrar{width:42px;height:42px;border-radius:11px;border:1px solid var(--linea2);background:var(--card);
+  font-size:17px;cursor:pointer;color:var(--tinta)}
+.ggrid{display:grid;grid-template-columns:1fr;gap:13px}
+.layCard{background:var(--card);border:1.5px solid var(--linea);border-radius:16px;padding:11px;cursor:pointer;transition:border-color .14s}
+.layCard:active,.layCard.on{border-color:var(--azul)}
+.layCard .thumb{width:100%;aspect-ratio:4/3;border-radius:11px;overflow:hidden;display:block;background:#0B1220}
+.layCard .thumb svg{width:100%;height:100%}
+.layCard .nombre{font-size:15px;font-weight:700;margin-top:9px}
+.layCard .desc{font-size:12.5px;color:var(--tinta2);margin-top:2px}
+
+/* toast */
+#toast{position:fixed;bottom:calc(86px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(14px);
+  background:var(--tinta);color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;opacity:0;
+  transition:all .25s;pointer-events:none;z-index:60;max-width:88%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* escritorio */
+@media(min-width:900px){
+  .sheet{left:auto;right:20px;bottom:20px;width:400px;border-radius:16px;border:1px solid var(--linea);
+    max-height:80dvh;transform:translateY(16px) scale(.98);opacity:0;pointer-events:none}
+  .sheet.on{transform:none;opacity:1;pointer-events:auto}
+  .ggrid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marca">SmartArt<span>.</span></div>
+  <button class="btn" id="bTipo"><svg viewBox="0 0 24 24"><path d="M4 5h4v14H4zM10 5h4v14h-4zM16 5h4v14h-4z"/></svg><span id="nombreLay">Vertical</span></button>
+  <button class="btn" id="bNodo"><svg viewBox="0 0 24 24"><path d="M11 5h2v14h-2zM5 11h14v2H5z"/></svg>Nodo</button>
+  <button class="btn" id="bEstilo"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2v-1c0-.6.4-1 1-1h2a5 5 0 0 0 5-5c0-6-4.5-11-10-11zM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg></button>
+  <div style="flex:1"></div>
+  <button class="btn" id="bMenu"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z"/></svg></button>
+  <button class="btn pri" id="bPNG"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</button>
+</header>
+
+<div id="lienzo">
+  <div class="svgwrap" id="svgwrap"></div>
+  <div class="ayuda" id="ayuda">Toca un elemento para <b>editarlo</b> · arrastra para mover · pellizca para zoom</div>
+  <div id="aviso"></div>
+</div>
+
+<div class="sheet" id="sheetNodo">
+  <button class="asa" data-cerrar></button>
+  <h3><span class="num" id="snNum">1</span><span id="snTipo">Nodo</span></h3>
+  <div class="fld"><label>Texto</label><textarea id="snText" rows="2" placeholder="Texto del nodo"></textarea></div>
+  <div class="fld" id="snDescW" style="display:none"><label>Descripción</label><textarea id="snDesc" rows="2" placeholder="Qué hace este paso"></textarea></div>
+  <div class="fld" id="snIcoW" style="display:none"><label>Icono</label><div class="chips" id="snIco"></div></div>
+  <div class="fld"><label>Color del nodo</label><div class="chips" id="snColor"></div></div>
+  <div class="fld" id="snSubsW" style="display:none"><label>Sub-elementos</label><div class="chips" id="snSubs"></div></div>
+  <div class="fila">
+    <button class="btn" id="snPrev">← Mover</button>
+    <button class="btn" id="snNext">Mover →</button>
+    <button class="btn" id="snDup">Duplicar</button>
+    <button class="btn" id="snDel" style="color:var(--rojo)">Eliminar</button>
+  </div>
+  <div class="fila" style="grid-template-columns:1fr;margin-top:8px"><button class="btn pri" id="snMas">+ Añadir siguiente</button></div>
+</div>
+
+<div class="sheet" id="sheetDoc">
+  <button class="asa" data-cerrar></button>
+  <h3>Documento</h3>
+  <div class="fld"><label>Título</label><input type="text" id="sdTitulo"></div>
+  <div class="fld"><label>Kicker (etiqueta superior)</label><input type="text" id="sdKicker"></div>
+  <div class="fld" id="sdSubW" style="display:none"><label>Subtítulo / cierre</label><input type="text" id="sdSub"></div>
+  <div class="fld" id="sdIntroW" style="display:none"><label>Introducción</label><textarea id="sdIntro" rows="2"></textarea></div>
+  <div class="fld"><label>Color principal</label><div class="chips" id="sdColor"></div></div>
+  <div class="fld"><label>Estilo</label><div class="chips" id="sdStyle"></div></div>
+  <div class="fld"><label>Logo</label><div class="chips" id="sdLogo"></div></div>
+</div>
+
+<div class="galeria" id="galeria">
+  <div class="cabe"><h2>Tipo de gráfico</h2><button class="gcerrar" id="gCerrar">✕</button></div>
+  <div class="ggrid" id="gGrid"></div>
+</div>
+
+<div class="sheet" id="sheetMenu">
+  <button class="asa" data-cerrar></button>
+  <h3>Proyecto</h3>
+  <div class="fila">
+    <button class="btn" id="mPNG">PNG 2×</button>
+    <button class="btn" id="mSVG">SVG vector</button>
+    <button class="btn" id="mGuardar">Guardar .json</button>
+    <button class="btn" id="mAbrir">Abrir .json</button>
+  </div>
+  <div class="fila" style="margin-top:8px"><button class="btn" id="mIr">Ir a Cuadros libres</button><button class="btn" id="mEj">Recargar ejemplo</button></div>
+  <input type="file" id="mFile" accept=".json" style="display:none">
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MOTOR 2026 — estética premium (dark + light)
+// Dark: fondo profundo con glows, glass cards, números fantasma,
+//       conectores finos, UN acento esmeralda.
+// Light: papel cálido, hairlines, sombra suave, tinta rica.
+// ============================================================
+(function (root) {
+  'use strict';
+
+  const ACCENT = {
+    esmeralda: { hi: '#34D399', lo: '#059669', glow: 'rgba(52,211,153,0.16)' },
+    teal:      { hi: '#2DD4BF', lo: '#0D9488', glow: 'rgba(45,212,191,0.16)' },
+    lima:      { hi: '#A3E635', lo: '#65A30D', glow: 'rgba(163,230,53,0.13)' },
+    ambar:     { hi: '#FBBF24', lo: '#D97706', glow: 'rgba(251,191,36,0.13)' },
+    cielo:     { hi: '#38BDF8', lo: '#0284C7', glow: 'rgba(56,189,248,0.15)' }
+  };
+
+  const LOGOS = {
+    hoja: 'M12 2C7 2 3 6 3 12c0 6 4 10 9 10 5 0 9-4 9-10 0-6-4-10-9-10zm-1 15v-6l-3 1.5V9l5-2.5V19h-2zm4 0V8l3-1.5V17h-3z',
+    gota: 'M12 2C8 8 5 11 5 15a7 7 0 0 0 14 0c0-4-3-7-7-13z',
+    montana: 'M3 20h18L14 7l-3.5 6L8 9l-5 11z',
+    arbol: 'M12 2L6 10h3l-4 6h5v4h4v-4h5l-4-6h3L12 2z',
+    onda: 'M2 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2v-3zm0-6c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2V6zm0 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v3c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2v-3z',
+    pajaro: 'M21 6c-1 0-2 .5-2.5 1.2C17.8 6.5 17 6 16 6c-1.7 0-3 1.3-3 3 0 .3 0 .5.1.8C9 9.5 5.5 7.5 3.5 4.5c-1 2-.5 4.5 1.2 5.8-.7 0-1.3-.2-1.7-.5 0 1.8 1.3 3.5 3.2 3.9-.5.2-1.1.2-1.7.1.5 1.5 1.9 2.5 3.5 2.6-1.3 1-3 1.6-4.7 1.6H2c1.7 1.1 3.8 1.7 6 1.7 7.2 0 11.2-6 11.2-11.2v-.5c.8-.6 1.4-1.3 1.8-2z',
+    escudo: 'M12 2L4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5l-8-3zm-2 14l-4-4 1.4-1.4L10 13.2l6.6-6.6L18 8l-8 8z',
+    chispa: 'M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z',
+    lupa: 'M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z',
+    mapa: 'M20.5 3l-.2 0-4.8 1.9L9.5 3 3.9 4.9c-.5.2-.9.6-.9 1.1v15.1c0 .5.4.9.9.9l.2-.1 4.8-1.9 6 1.9 5.6-1.9c.5-.2.9-.6.9-1.1V3.9c0-.5-.4-.9-.9-.9zM15 19.9l-6-1.9V4.1l6 1.9v13.9z',
+    documento: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z',
+    barras: 'M4 21h16v-2H4v2zM6 17h3V8H6v9zm5.5 0h3V4h-3v13zM17 17h3v-6h-3v6z',
+    portapapeles: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2zm-6 2h4V4h-4v2zm-2 6h8v2H8v-2zm0 4h6v2H8v-2z',
+    pin: 'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z',
+    nube: 'M19.4 10a7 7 0 0 0-13.1-2A4.5 4.5 0 0 0 6.5 17h12.4a3.5 3.5 0 0 0 .5-7z',
+    bd: 'M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zm0 2c3.9 0 6 1.3 6 2s-2.1 2-6 2-6-1.3-6-2 2.1-2 6-2zm6 14c0 .7-2.1 2-6 2s-6-1.3-6-2v-3.1c1.5.8 3.7 1.1 6 1.1s4.5-.3 6-1.1V18zm0-5c0 .7-2.1 2-6 2s-6-1.3-6-2v-3.1c1.5.8 3.7 1.1 6 1.1s4.5-.3 6-1.1V13z',
+    bombilla: 'M9 21h6v-1H9v1zm3-19a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z',
+    camara: 'M9 3L7.5 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.5L15 3H9zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+    micro: 'M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2z',
+    casa: 'M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z',
+    ojo: 'M12 5C6.5 5 2.3 9.1 1 12c1.3 2.9 5.5 7 11 7s9.7-4.1 11-7c-1.3-2.9-5.5-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'
+  };
+
+  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ESCAPES[c]);
+  const FONT = "'Helvetica Neue', 'Segoe UI', Arial, sans-serif";
+  function av(cfg, msg){ if (cfg && Array.isArray(cfg._avisos) && cfg._avisos.indexOf(msg) < 0) cfg._avisos.push(msg); }
+
+  // utilidades editor: hit zones + color por nodo
+  function luminancia(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f((n >> 16) & 255) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255);
+  }
+  function textoPara(hex) { return luminancia(hex) > 0.45 ? '#0B1220' : '#FFFFFF'; }
+  function hit(i, x, y, w, h) {
+    return `<rect class="hit" data-i="${i}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent" style="cursor:pointer"/>`;
+  }
+  function hitC(i, cx, cy, r) {
+    return `<circle class="hit" data-i="${i}" cx="${cx}" cy="${cy}" r="${r}" fill="transparent" style="cursor:pointer"/>`;
+  }
+
+  function wrap(texto, maxChars) {
+    const palabras = String(texto).split(/\s+/);
+    const lineas = []; let linea = '';
+    for (const p of palabras) {
+      if ((linea + ' ' + p).trim().length > maxChars && linea) { lineas.push(linea); linea = p; }
+      else linea = (linea + ' ' + p).trim();
+    }
+    if (linea) lineas.push(linea);
+    return lineas;
+  }
+
+  // -------- temas --------
+  // -------- tema (acepta objeto de acento ya resuelto) --------
+  function tema(style, accentKey) {
+    const A = (typeof accentKey === 'object' && accentKey !== null) ? accentKey : (ACCENT[accentKey] || ACCENT.esmeralda);
+    if (style === 'light') {
+      return {
+        A, oscuro: false,
+        bg1: '#FBFBF9', bg2: '#F3F4F0',
+        ink: '#101418', ink2: '#5B6572',
+        card: '#FFFFFF', cardBorder: 'rgba(16,20,24,0.09)',
+        cardText: '#101418', cardText2: '#5B6572',
+        hairline: 'rgba(16,20,24,0.10)',
+        glowA: 'rgba(5,150,105,0.05)', glowB: 'rgba(45,212,191,0.05)',
+        fillHi: A.lo, fillHiText: '#FFFFFF',
+        connector: 'rgba(16,20,24,0.22)', ghost: 'rgba(16,20,24,0.05)',
+        chipBg: 'rgba(5,150,105,0.10)', chipText: A.lo
+      };
+    }
+    return {
+      A, oscuro: true,
+      bg1: '#0B1220', bg2: '#0F1A2E',
+      ink: '#F2F6FB', ink2: '#8B98AB',
+      card: 'rgba(255,255,255,0.045)', cardBorder: 'rgba(255,255,255,0.10)',
+      cardText: '#E8EEF6', cardText2: '#9AA7B8',
+      hairline: 'rgba(255,255,255,0.14)',
+      glowA: A.glow, glowB: 'rgba(56,189,248,0.07)',
+      fillHi: `url(#accFill)`, fillHiText: '#06281C',
+      connector: 'rgba(255,255,255,0.20)', ghost: 'rgba(255,255,255,0.05)',
+      chipBg: 'rgba(255,255,255,0.07)', chipText: A.hi
+    };
+  }
+
+  function defs(T, uid) {
+    let s = `<defs>
+      <linearGradient id="acc${uid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${T.A.hi}"/><stop offset="1" stop-color="${T.A.lo}"/>
+      </linearGradient>
+      <linearGradient id="bg${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${T.bg1}"/><stop offset="1" stop-color="${T.bg2}"/>
+      </linearGradient>
+      <radialGradient id="glowA${uid}" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="${T.glowA}"/><stop offset="1" stop-color="${T.glowA}" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="glowB${uid}" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="${T.glowB}"/><stop offset="1" stop-color="${T.glowB}" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="accFill${uid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${T.A.hi}"/><stop offset="1" stop-color="${T.A.lo}"/>
+      </linearGradient>
+    </defs>`;
+    return s;
+  }
+
+  function fondo(W, H, T, uid) {
+    let s = `<rect width="${W}" height="${H}" fill="url(#bg${uid})"/>`;
+    s += `<circle cx="${W * 0.85}" cy="${H * 0.12}" r="${W * 0.42}" fill="url(#glowA${uid})"/>`;
+    s += `<circle cx="${W * 0.08}" cy="${H * 0.9}" r="${W * 0.38}" fill="url(#glowB${uid})"/>`;
+    return s;
+  }
+
+  function logoSVG(tipo, color, x, y, size) {
+    const d = LOGOS[tipo] || LOGOS.hoja;
+    return `<g transform="translate(${x},${y}) scale(${size / 24})"><path d="${d}" fill="${color}"/></g>`;
+  }
+
+  function cabecera(W, cfg, T) {
+    const A = T.A;
+    let s = '';
+    // chip del logo con borde de acento sutil
+    const L = 54, x = 44, y = 40;
+    s += `<rect x="${x}" y="${y}" width="${L}" height="${L}" rx="15" fill="${T.chipBg}" stroke="${T.hairline}" stroke-width="1"/>`;
+    s += logoSVG(cfg.logo || 'hoja', A.hi, x + 12, y + 12, 30);
+    // kicker + título
+    s += `<text x="${x + L + 18}" y="${y + 15}" font-family="${FONT}" font-size="11" font-weight="700" letter-spacing="3.2" fill="${A.hi}">${esc((cfg.kicker || 'DIAGRAMA').toUpperCase())}</text>`;
+    const maxC = Math.floor((W - (x + L + 18) - 60) / 14);
+    const _tl = wrap(cfg.titulo || '', maxC);
+    if (_tl.length > 2) av(cfg, 'El titulo no cabe entero: se ha recortado a 2 lineas');
+    const lineas = _tl.slice(0, 2);
+    lineas.forEach((l, i) => {
+      s += `<text x="${x + L + 18}" y="${y + 42 + i * 26}" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="-0.3" fill="${T.ink}">${esc(l)}</text>`;
+    });
+    s += hit(-1, 0, 0, W, y + L + 34);  // tocar la cabecera abre el editor del documento
+    return s;
+  }
+
+  function pie() { return ''; }
+
+  // conector fino: línea + punto de origen + flecha pequeña
+  function conector(x1, y1, x2, y2, T) {
+    const A = T.A;
+    let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2 - 8}" stroke="${T.connector}" stroke-width="1.5"/>`;
+    s += `<circle cx="${x1}" cy="${y1}" r="3.5" fill="${A.hi}"/>`;
+    s += `<polygon points="${x2},${y2} ${x2 - 5},${y2 - 8} ${x2 + 5},${y2 - 8}" fill="${A.hi}"/>`;
+    return s;
+  }
+
+  // número fantasma gigante detrás de la card (con margen de seguridad)
+  function fantasma(x, y, num, T) {
+    return `<text x="${x}" y="${y}" font-family="${FONT}" font-size="86" font-weight="800" fill="${T.ghost}" text-anchor="middle">${num}</text>`;
+  }
+
+  // -------- LAYOUT VERTICAL --------
+  function lVertical(cfg, T, uid) {
+    const W = 780;
+    const AW = cfg.anchoNodo || 460;
+    const GAP = 40;
+    const TOP = 170, BOTTOM = 120;
+    let y = TOP;
+    const items = cfg.nodos.map(n => {
+      const lineas = wrap(n.label, Math.floor((AW - 96) / 8.6));
+      const h = Math.max(58, lineas.length * 22 + 30);
+      const it = { n, lineas, y, h };
+      y += h + GAP;
+      return it;
+    });
+    const H = y - GAP + BOTTOM;
+    const cx = W / 2;
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += defs(T, uid) + fondo(W, H, T, uid) + cabecera(W, cfg, T);
+
+    items.forEach((it, i) => {
+      const x = cx - AW / 2;
+      const esPrimero = i === 0, esUltimo = i === items.length - 1;
+      const destacada = esPrimero || esUltimo;
+      // número fantasma a la izquierda (dentro de lienzo: nunca a menos de 70px del borde)
+      const gx = Math.max(cx - AW / 2 - 52, 70);
+      s += fantasma(gx, it.y + it.h / 2 + 26, i + 1, T);
+      const cp = it.n.color;
+      if (destacada || cp) {
+        s += `<rect x="${x}" y="${it.y}" width="${AW}" height="${it.h}" rx="16" fill="${cp || `url(#accFill${uid})`}"/>`;
+        s += textoCard(cx, it.y + it.h / 2, AW - 40, it.lineas, cp ? textoPara(cp) : T.fillHiText, 15, 650);
+      } else {
+        s += `<rect x="${x}" y="${it.y}" width="${AW}" height="${it.h}" rx="16" fill="${T.card}" stroke="${T.cardBorder}" stroke-width="1"/>`;
+        s += `<rect x="${x}" y="${it.y + 14}" width="3.5" height="${it.h - 28}" rx="1.75" fill="${T.A.hi}" opacity="0.85"/>`;
+        s += textoCard(cx + 8, it.y + it.h / 2, AW - 40, it.lineas, T.cardText, 14.5, 550);
+      }
+      s += hit(i, x, it.y, AW, it.h);
+      if (!esUltimo) s += conector(cx, it.y + it.h + 3, cx, items[i + 1].y - 2, T);
+    });
+
+    s += pie(W, H, T) + '</svg>';
+    return s;
+
+    function textoCard(x, y, w, lineas, color, tam, peso) {
+      const lh = tam + 6;
+      const h0 = y - (lineas.length - 1) * lh / 2;
+      let o = '';
+      lineas.forEach((l, i) => {
+        o += `<text x="${x}" y="${h0 + i * lh}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="${tam}" font-weight="${peso}" letter-spacing="-0.1" fill="${color}">${esc(l)}</text>`;
+      });
+      return o;
+    }
+  }
+
+  // -------- LAYOUT CARDS (grid con acento en una) --------
+  function lCards(cfg, T, uid) {
+    const nodos = cfg.nodos;
+    const COLS = Math.min(3, nodos.length);
+    const FILAS = Math.ceil(nodos.length / COLS);
+    const CW = 350, CH = 190, GX = 30, GY = 30;
+    const W = 60 + COLS * CW + (COLS - 1) * GX + 60;
+    const H = 150 + FILAS * CH + (FILAS - 1) * GY + 110;
+    const destacada = cfg.destacada != null ? cfg.destacada : 0;
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += defs(T, uid) + fondo(W, H, T, uid) + cabecera(W, cfg, T);
+
+    nodos.forEach((nd, i) => {
+      const col = i % COLS, fila = Math.floor(i / COLS);
+      const x = 60 + col * (CW + GX);
+      const y = 150 + fila * (CH + GY);
+      const esAcc = i === destacada;
+      const cp = nd.color;
+      s += fantasma(x + CW - 44, y + CH - 18, String(i + 1).padStart(2, '0'), T);
+      if (esAcc || cp) {
+        s += `<rect x="${x}" y="${y}" width="${CW}" height="${CH}" rx="20" fill="${cp || `url(#accFill${uid})`}"/>`;
+        const tc = cp ? textoPara(cp) : T.fillHiText;
+        s += `<text x="${x + 28}" y="${y + 52}" font-family="${FONT}" font-size="12" font-weight="700" letter-spacing="2.5" fill="${tc}" opacity="0.75">${String(i + 1).padStart(2, '0')}</text>`;
+        s += textoTarjeta(x, y, tc, true);
+      } else {
+        s += `<rect x="${x}" y="${y}" width="${CW}" height="${CH}" rx="20" fill="${T.card}" stroke="${T.cardBorder}" stroke-width="1"/>`;
+        s += `<text x="${x + 28}" y="${y + 52}" font-family="${FONT}" font-size="12" font-weight="700" letter-spacing="2.5" fill="${T.A.hi}">${String(i + 1).padStart(2, '0')}</text>`;
+        s += textoTarjeta(x, y, T.cardText, false);
+      }
+      s += hit(i, x, y, CW, CH);
+      function textoTarjeta(x0, y0, color, acc) {
+        const _l = wrap(nd.label, Math.floor((CW - 56) / 8));
+        if (_l.length > 4) av(cfg, 'Tarjeta ' + (i + 1) + ': el texto se ha recortado a 4 lineas');
+        const lineas = _l.slice(0, 4);
+        const tam = 15.5, lh = 23;
+        const yTxt = y0 + 100 - (lineas.length - 1) * lh / 2;
+        let o = '';
+        lineas.forEach((l, j) => {
+          o += `<text x="${x0 + 28}" y="${yTxt + j * lh}" font-family="${FONT}" font-size="${tam}" font-weight="600" letter-spacing="-0.2" fill="${color}">${esc(l)}</text>`;
+        });
+        return o;
+      }
+    });
+
+    s += pie(W, H, T) + '</svg>';
+    return s;
+  }
+
+  // -------- LAYOUT RADIAL --------
+  function lRadial(cfg, T, uid) {
+    const W = 980, H = 960;
+    const cx = W / 2, cy = 170 + (H - 250) / 2;
+    const R = 310;
+    const hub = cfg.nodos[0], sat = cfg.nodos.slice(1);
+    const n = sat.length, SW = 250, SH = 100;
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += defs(T, uid) + fondo(W, H, T, uid) + cabecera(W, cfg, T);
+
+    // órbita
+    s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${T.hairline}" stroke-width="1.5" stroke-dasharray="1 10" stroke-linecap="round"/>`;
+
+    const pos = sat.map((nd, i) => {
+      const ang = -Math.PI / 2 + i * 2 * Math.PI / n;
+      return { px: cx + R * Math.cos(ang), py: cy + R * Math.sin(ang) };
+    });
+    // conectores finos con punto
+    pos.forEach(({ px, py }) => {
+      const ux = (px - cx) / R, uy = (py - cy) / R;
+      s += `<line x1="${cx + ux * 128}" y1="${cy + uy * 128}" x2="${px - ux * (SW / 2 + 6)}" y2="${py - uy * (SH / 2 + 4)}" stroke="${T.connector}" stroke-width="1.5"/>`;
+      s += `<circle cx="${cx + ux * 128}" cy="${cy + uy * 128}" r="3.5" fill="${T.A.hi}"/>`;
+    });
+    // satélites (i+1: el 0 es el hub)
+    sat.forEach((nd, i) => {
+      const { px, py } = pos[i];
+      const x = px - SW / 2, y = py - SH / 2;
+      s += `<rect x="${x}" y="${y}" width="${SW}" height="${SH}" rx="18" fill="${T.card}" stroke="${T.cardBorder}" stroke-width="1"/>`;
+      const _l = wrap(nd.label, Math.floor((SW - 52) / 7.6));
+      if (_l.length > 3) av(cfg, 'Satelite ' + (i + 1) + ': el texto se ha recortado a 3 lineas');
+      const lineas = _l.slice(0, 3);
+      const lh = 19, y0 = py - (lineas.length - 1) * lh / 2;
+      lineas.forEach((l, j) => {
+        s += `<text x="${px}" y="${y0 + j * lh}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="13" font-weight="550" fill="${T.cardText}">${esc(l)}</text>`;
+      });
+      s += hit(i + 1, x, y, SW, SH);
+    });
+    // hub
+    const HR = 122;
+    s += `<circle cx="${cx + 3}" cy="${cy + 4}" r="${HR}" fill="${T.oscuro ? '#000' : '#101418'}" opacity="${T.oscuro ? 0.35 : 0.10}"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${HR}" fill="url(#accFill${uid})"/>`;
+    const _h = wrap(hub.label, 18);
+    if (_h.length > 3) av(cfg, 'El centro del radial se ha recortado a 3 lineas');
+    const hl = _h.slice(0, 3);
+    const hlh = 22, hy0 = cy - (hl.length - 1) * hlh / 2;
+    hl.forEach((l, j) => {
+      s += `<text x="${cx}" y="${hy0 + j * hlh}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="17" font-weight="700" fill="${T.fillHiText}">${esc(l)}</text>`;
+    });
+    s += hitC(0, cx, cy, HR);
+
+    s += pie(W, H, T) + '</svg>';
+    return s;
+  }
+
+  // -------- LAYOUT HORIZONTAL --------
+  function lHorizontal(cfg, T, uid) {
+    const nodos = cfg.nodos, n = nodos.length;
+    const BW = 268, BH = 150, GAPX = 58;
+    const W = 70 + n * BW + (n - 1) * GAPX + 70;
+    const H = 560;
+    const cy = 330;
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += defs(T, uid) + fondo(W, H, T, uid) + cabecera(W, cfg, T);
+
+    nodos.forEach((nd, i) => {
+      const x = 70 + i * (BW + GAPX);
+      const esUltimo = i === n - 1;
+      const cpH = nd.color;
+      // número fantasma sobre la card
+      s += `<text x="${x + BW / 2}" y="${cy - BH / 2 - 18}" text-anchor="middle" font-family="${FONT}" font-size="72" font-weight="800" fill="${T.ghost}">${i + 1}</text>`;
+      if (esUltimo || cpH) {
+        s += `<rect x="${x}" y="${cy - BH / 2}" width="${BW}" height="${BH}" rx="20" fill="${cpH || `url(#accFill${uid})`}"/>`;
+        s += texto(nd, cpH ? textoPara(cpH) : T.fillHiText);
+      } else {
+        s += `<rect x="${x}" y="${cy - BH / 2}" width="${BW}" height="${BH}" rx="20" fill="${T.card}" stroke="${T.cardBorder}" stroke-width="1"/>`;
+        s += texto(nd, T.cardText);
+      }
+      s += hit(i, x, cy - BH / 2, BW, BH);
+      function texto(nd, color) {
+        const _l = wrap(nd.label, Math.floor((BW - 48) / 8));
+        if (_l.length > 4) av(cfg, 'Nodo ' + (i + 1) + ': el texto se ha recortado a 4 lineas');
+        const lineas = _l.slice(0, 4);
+        const lh = 21, y0 = cy - (lineas.length - 1) * lh / 2;
+        let o = '';
+        lineas.forEach((l, j) => {
+          o += `<text x="${x + BW / 2}" y="${y0 + j * lh}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="14.5" font-weight="600" letter-spacing="-0.2" fill="${color}">${esc(l)}</text>`;
+        });
+        return o;
+      }
+      if (!esUltimo) {
+        const x1 = x + BW + 6, x2 = x + BW + GAPX - 6;
+        s += `<line x1="${x1}" y1="${cy}" x2="${x2 - 8}" y2="${cy}" stroke="${T.connector}" stroke-width="1.5"/>`;
+        s += `<circle cx="${x1}" cy="${cy}" r="3.5" fill="${T.A.hi}"/>`;
+        s += `<polygon points="${x2},${cy} ${x2 - 8},${cy - 5} ${x2 - 8},${cy + 5}" fill="${T.A.hi}"/>`;
+      }
+    });
+
+    s += pie(W, H, T) + '</svg>';
+    return s;
+  }
+
+  // -------- DISPATCH --------
+  function render(cfg) {
+    // color personalizable: cfg.color = '#RRGGBB' o nombre del acento
+    let A;
+    if (cfg.color && cfg.color.startsWith('#')) {
+      A = { hi: cfg.color, lo: oscurecer(cfg.color, 0.62), glow: hexGlow(cfg.color) };
+    } else {
+      A = ACCENT[cfg.acento || 'esmeralda'];
+    }
+    const T = tema(cfg.style || 'dark', A);
+    const uid = Math.abs(hash((cfg.titulo || '') + (cfg.nodos || []).length)) % 9973;
+    switch (cfg.layout) {
+      case 'cards': return lCards(cfg, T, uid);
+      case 'radial': return lRadial(cfg, T, uid);
+      case 'horizontal': return lHorizontal(cfg, T, uid);
+      default: return lVertical(cfg, T, uid);
+    }
+  }
+  function oscurecer(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
+    return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+  }
+  function hexGlow(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return `rgba(${r},${g},${b},0.16)`;
+  }
+  function hash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+    return h;
+  }
+
+  const Motor2026 = { render, ACCENT, LOGOS };
+  root.Motor2026 = Motor2026;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+// LAYOUTS CICLO (proceso circular de mejora continua) y CONCEPTO (mapa de herramientas 2 niveles)
+(function (root) {
+  'use strict';
+  const M26 = root.Motor2026;
+  const LOGOS = M26.LOGOS;
+  const FONT = "'Helvetica Neue', 'Segoe UI', Arial, sans-serif";
+  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ESCAPES[c]);
+
+  function wrap(texto, maxChars) {
+    const palabras = String(texto).split(/\s+/);
+    const lineas = []; let linea = '';
+    for (const p of palabras) {
+      if ((linea + ' ' + p).trim().length > maxChars && linea) { lineas.push(linea); linea = p; }
+      else linea = (linea + ' ' + p).trim();
+    }
+    if (linea) lineas.push(linea);
+    return lineas;
+  }
+  function logoIcon(tipo, color, x, y, size) {
+    const d = LOGOS[tipo] || LOGOS.hoja;
+    return `<g transform="translate(${x},${y}) scale(${size / 24})"><path d="${d}" fill="${color}"/></g>`;
+  }
+  function hit(i, x, y, w, h) {
+    return `<rect class="hit" data-i="${i}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent" style="cursor:pointer"/>`;
+  }
+  function av(cfg, msg){ if (cfg && Array.isArray(cfg._avisos) && cfg._avisos.indexOf(msg) < 0) cfg._avisos.push(msg); }
+  function hitC(i, cx, cy, r) {
+    return `<circle class="hit" data-i="${i}" cx="${cx}" cy="${cy}" r="${r}" fill="transparent" style="cursor:pointer"/>`;
+  }
+  function multi(tx, y, w, lineas, tam, lh, color, peso, anchor) {
+    let o = '';
+    lineas.forEach((l, i) => {
+      o += `<text x="${tx}" y="${y + i * lh}" text-anchor="${anchor || 'middle'}" font-family="${FONT}" font-size="${tam}" font-weight="${peso || 500}" fill="${color}">${esc(l)}</text>`;
+    });
+    return o;
+  }
+
+  // arco con punta de flecha (para el ciclo, sentido horario)
+  function arcoFlecha(cx, cy, r, a1, a2, color, grosor) {
+    const p1 = { x: cx + r * Math.cos(a1), y: cy + r * Math.sin(a1) };
+    const p2 = { x: cx + r * Math.cos(a2), y: cy + r * Math.sin(a2) };
+    const large = (a2 - a1) > Math.PI ? 1 : 0;
+    const s = `<path d="M${p1.x},${p1.y} A${r},${r} 0 ${large} 1 ${p2.x},${p2.y}" fill="none" stroke="${color}" stroke-width="${grosor}" stroke-linecap="round"/>`;
+    // punta tangente en p2
+    const tx = -Math.sin(a2), ty = Math.cos(a2); // tangente horaria
+    const L = 13;
+    const bx = p2.x + tx * L, by = p2.y + ty * L;
+    const nx = Math.cos(a2) * 5.5, ny = Math.sin(a2) * 5.5;
+    const tri = `<polygon points="${p2.x + tx * L * 1.35},${p2.y + ty * L * 1.35} ${bx + nx},${by + ny} ${bx - nx},${by - ny}" fill="${color}"/>`;
+    return s + tri;
+  }
+
+  // ================= CICLO =================
+  function ciclo(cfg) {
+    const T = M26.render; // solo para utilidades; colores propios:
+    const A = cfg.color ? { hi: cfg.color, lo: shade(cfg.color, 0.62) }
+      : (cfg.acento === 'teal' ? { hi: '#2DD4BF', lo: '#0D9488' }
+        : cfg.acento === 'cielo' ? { hi: '#38BDF8', lo: '#0284C7' }
+          : { hi: '#34D399', lo: '#059669' });
+    const dark = (cfg.style !== 'light');
+    const bg1 = dark ? '#0B1220' : '#FBFBF9', bg2 = dark ? '#0F1A2E' : '#F3F4F0';
+    const ink = dark ? '#F2F6FB' : '#101418', ink2 = dark ? '#8B98AB' : '#5B6572';
+    const card = dark ? 'rgba(255,255,255,0.05)' : '#FFFFFF';
+    const cardBorder = dark ? 'rgba(255,255,255,0.11)' : 'rgba(16,20,24,0.10)';
+    const pasos = cfg.pasos || [];
+    const n = pasos.length;
+
+    const W = 1180, H = 1180;
+    const cx = W / 2, cy = H / 2 + 20;
+    const R = 400;
+    const CR = 92;                 // radio de cada tarjeta circular
+    const HR = 168;                // radio del hub
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += `<defs>
+      <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${A.hi}"/><stop offset="1" stop-color="${A.lo}"/>
+      </linearGradient>
+      <radialGradient id="cglow" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="${A.hi}" stop-opacity="${dark ? 0.20 : 0.10}"/>
+        <stop offset="1" stop-color="${A.hi}" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
+      </linearGradient>
+    </defs>`;
+    s += `<rect width="${W}" height="${H}" fill="url(#cbg)"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="330" fill="url(#cglow)"/>`;
+
+    // radios finos
+    const pos = pasos.map((p, i) => {
+      const ang = -Math.PI / 2 + i * 2 * Math.PI / n;
+      return { ang, x: cx + R * Math.cos(ang), y: cy + R * Math.sin(ang) };
+    });
+    pos.forEach(({ x, y }) => {
+      const ux = (x - cx) / R, uy = (y - cy) / R;
+      s += `<line x1="${cx + ux * (HR + 14)}" y1="${cy + uy * (HR + 14)}" x2="${x - ux * (CR + 8)}" y2="${y - uy * (CR + 8)}" stroke="${dark ? 'rgba(255,255,255,0.16)' : 'rgba(16,20,24,0.14)'}" stroke-width="1.5"/>`;
+    });
+
+    // arcos de ciclo con flechas (entre tarjetas, sentido horario)
+    for (let i = 0; i < n; i++) {
+      const a1 = pos[i].ang + 0.42, a2 = pos[(i + 1) % n].ang - 0.42;
+      let a2x = a2;
+      if (i === n - 1) a2x = pos[0].ang - 0.42 + 2 * Math.PI; // cierre del ciclo
+      s += arcoFlecha(cx, cy, R, a1, a2x, A.hi, 5);
+    }
+
+    // tarjetas circulares
+    pasos.forEach((p, i) => {
+      const { x, y } = pos[i];
+      s += `<circle cx="${x}" cy="${y}" r="${CR}" fill="${p.color || card}" stroke="${cardBorder}" stroke-width="1.5"/>`;
+      // insignia numerada arriba
+      s += `<circle cx="${x}" cy="${y - CR + 6}" r="20" fill="url(#cg)"/>
+            <text x="${x}" y="${y - CR + 7}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="15" font-weight="750" fill="#fff">${i + 1}</text>`;
+      // icono
+      s += logoIcon(p.icono || 'chispa', p.color ? '#fff' : A.hi, x - 19, y - 46, 38);
+      // etiqueta (hasta 3 líneas)
+      if (wrap(p.label, 15).length > 3) av(cfg, 'Paso ' + (i + 1) + ': el texto se ha recortado a 3 lineas');
+      s += multi(x, y + 24, CR * 1.6, wrap(p.label, 15).slice(0, 3), 12.5, 16, p.color ? textoSobre(p.color) : (dark ? '#E8EEF6' : '#101418'), 600);
+      s += hitC(i, x, y, CR);
+    });
+
+    // hub central
+    s += `<circle cx="${cx + 4}" cy="${cy + 5}" r="${HR}" fill="#000" opacity="${dark ? 0.4 : 0.08}"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${HR}" fill="url(#cg)"/>`;
+    if (cfg.logoIcono) s += logoIcon(cfg.logoIcono, 'rgba(255,255,255,0.9)', cx - 26, cy - HR + 42, 52);
+    if (wrap(cfg.titulo || '', 26).length > 3) av(cfg, 'El centro del ciclo se ha recortado a 3 lineas');
+    s += multi(cx, cy - 6, HR * 1.5, wrap(cfg.titulo || '', 26).slice(0, 3), 17, 23, '#FFFFFF', 750);
+    if (cfg.subtitulo) {
+      s += `<text x="${cx}" y="${cy + 58}" text-anchor="middle" font-family="${FONT}" font-size="12" font-weight="700" letter-spacing="3.5" fill="rgba(255,255,255,0.85)">${esc(cfg.subtitulo.toUpperCase())}</text>`;
+    }
+    s += hitC(-1, cx, cy, HR);  // hub editable = índice -1
+
+    s += '</svg>';
+    return s;
+  }
+
+  // ================= CONCEPTO (2 niveles radiales) =================
+  function concepto(cfg) {
+    const dark = (cfg.style !== 'light');
+    const A = cfg.color ? { hi: cfg.color, lo: shade(cfg.color, 0.62) }
+      : (cfg.acento === 'teal' ? { hi: '#2DD4BF', lo: '#0D9488' }
+        : cfg.acento === 'cielo' ? { hi: '#38BDF8', lo: '#0284C7' }
+          : { hi: '#34D399', lo: '#059669' });
+    const bg1 = dark ? '#0B1220' : '#FBFBF9', bg2 = dark ? '#0F1A2E' : '#F3F4F0';
+    const ink = dark ? '#F2F6FB' : '#101418', ink2 = dark ? '#8B98AB' : '#5B6572';
+    const card = dark ? 'rgba(255,255,255,0.05)' : '#FFFFFF';
+    const cardBorder = dark ? 'rgba(255,255,255,0.11)' : 'rgba(16,20,24,0.10)';
+
+    const cats = cfg.categorias || [];
+    const n = cats.length;
+    const W = 1660, H = 1150;
+    const cx = W / 2, cy = H / 2 + 30;
+    const RX = 430, RY = 340;
+    const CW = 300, CH = 118;      // tarjeta categoría
+    const SW = 224, SH = 44;       // chip sub-elemento
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += `<defs>
+      <linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${A.hi}"/><stop offset="1" stop-color="${A.lo}"/>
+      </linearGradient>
+      <linearGradient id="kbg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
+      </linearGradient>
+      <radialGradient id="kglow" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="${A.hi}" stop-opacity="${dark ? 0.18 : 0.09}"/>
+        <stop offset="1" stop-color="${A.hi}" stop-opacity="0"/>
+      </radialGradient>
+    </defs>`;
+    s += `<rect width="${W}" height="${H}" fill="url(#kbg)"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="360" fill="url(#kglow)"/>`;
+    // cabecera
+    s += `<text x="54" y="66" font-family="${FONT}" font-size="13" font-weight="700" letter-spacing="3" fill="${A.hi}">${esc((cfg.kicker || 'MAPA').toUpperCase())}</text>`;
+    s += `<text x="54" y="104" font-family="${FONT}" font-size="26" font-weight="750" fill="${ink}">${esc(cfg.titulo || '')}</text>`;
+
+    // posiciones de categorías en elipse
+    const pos = cats.map((c, i) => {
+      const ang = -Math.PI / 2 + i * 2 * Math.PI / n;
+      return { ang, x: cx + RX * Math.cos(ang), y: cy + RY * Math.sin(ang) };
+    });
+
+    // líneas centro→categoría y categoría→subs
+    pos.forEach(({ x, y }, i) => {
+      const ux = (x - cx) / Math.hypot(x - cx, y - cy), uy = (y - cy) / Math.hypot(x - cx, y - cy);
+      s += `<line x1="${cx + ux * 170}" y1="${cy + uy * 74}" x2="${x - ux * (CW / 2 + 8)}" y2="${y - uy * (CH / 2 + 6)}" stroke="${dark ? 'rgba(255,255,255,0.15)' : 'rgba(16,20,24,0.14)'}" stroke-width="1.5"/>`;
+      s += `<circle cx="${cx + ux * 170}" cy="${cy + uy * 74}" r="4" fill="${A.hi}"/>`;
+      // subs hacia fuera (dirección radial)
+      const cat = cats[i];
+      if ((cat.subs || []).length > 3) av(cfg, 'Categoria ' + (i + 1) + ': solo caben 3 sub-elementos');
+      const subs = (cat.subs || []).slice(0, 3);
+      const dirx = Math.cos(pos[i].ang), diry = Math.sin(pos[i].ang);
+      subs.forEach((sub, j) => {
+        const off = (j - (subs.length - 1) / 2) * (SH + 14) * Math.abs(diry > 0.55 || diry < -0.55 ? 0 : 1)
+          + 0; // separación perpendicular
+        const px = x + dirx * (CW / 2 + 30 + j * 0);
+        const py = y + (j - (subs.length - 1) / 2) * (SH + 16) * (diry >= 0 ? 1 : 1) + (diry >= 0 ? 0 : 0);
+        // colocación: apiladas verticalmente hacia el lado exterior
+        const sx = x + dirx * (CW / 2 + 26) + (diry > 0.55 || diry < -0.55 ? (j - (subs.length - 1) / 2) * (SW + 16) : dirx * 0);
+        const sy = y + (diry > 0.55 || diry < -0.55 ? diry * (CH / 2 + 40) : (j - (subs.length - 1) / 2) * (SH + 16));
+        s += `<line x1="${(x + dirx * (CW / 2 + 4))}" y1="${y + (diry > 0.55 || diry < -0.55 ? diry * (CH / 2 + 4) : (j - (subs.length - 1) / 2) * (SH + 16))}" x2="${sx + SW / 2 - (diry > 0.55 || diry < -0.55 ? 0 : dirx * SW / 2)}" y2="${sy}" stroke="${dark ? 'rgba(255,255,255,0.12)' : 'rgba(16,20,24,0.12)'}" stroke-width="1"/>`;
+        s += `<rect x="${sx - SW / 2 + (diry > 0.55 || diry < -0.55 ? 0 : dirx * SW / 2)}" y="${sy - SH / 2}" width="${SW}" height="${SH}" rx="22" fill="${dark ? 'rgba(255,255,255,0.04)' : '#F0F2EE'}" stroke="${cardBorder}" stroke-width="1"/>`;
+        s += `<text x="${sx - SW / 2 + (diry > 0.55 || diry < -0.55 ? 0 : dirx * SW / 2) + SW / 2}" y="${sy}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="12" font-weight="550" fill="${ink2}">${esc(String(sub).slice(0, 30))}</text>`;
+      });
+    });
+
+    // tarjetas de categoría
+    cats.forEach((c, i) => {
+      const { x, y } = pos[i];
+      const cc = c.color;
+      s += `<rect x="${x - CW / 2}" y="${y - CH / 2}" width="${CW}" height="${CH}" rx="18" fill="${cc || 'url(#kg)'}"/>`;
+      if (c.icono) s += logoIcon(c.icono, cc ? textoSobre(cc) : 'rgba(255,255,255,0.95)', x - CW / 2 + 20, y - CH / 2 + 18, 30);
+      if (wrap(c.label, Math.floor((CW - 60) / 8.4)).length > 3) av(cfg, 'Categoria ' + (i + 1) + ': el texto se ha recortado a 3 lineas');
+      s += multi(x, y + 14, CW - 56, wrap(c.label, Math.floor((CW - 60) / 8.4)).slice(0, 3), 14.5, 20, cc ? textoSobre(cc) : '#FFFFFF', 700);
+      s += hit(i, x - CW / 2, y - CH / 2, CW, CH);
+    });
+
+    // hub central (caja redondeada con gradiente)
+    const HW = 340, HH = 130;
+    s += `<rect x="${cx - HW / 2 + 5}" y="${cy - HH / 2 + 6}" width="${HW}" height="${HH}" rx="22" fill="#000" opacity="${dark ? 0.4 : 0.08}"/>`;
+    s += `<rect x="${cx - HW / 2}" y="${cy - HH / 2}" width="${HW}" height="${HH}" rx="22" fill="url(#kg)"/>`;
+    if (wrap(cfg.tituloCentral || cfg.titulo || '', 24).length > 3) av(cfg, 'El centro del mapa se ha recortado a 3 lineas');
+    s += multi(cx, cy - 4, HW - 56, wrap(cfg.tituloCentral || cfg.titulo || '', 24).slice(0, 3), 16.5, 22, '#FFFFFF', 750);
+    if (cfg.subtitulo) s += `<text x="${cx}" y="${cy + 44}" text-anchor="middle" font-family="${FONT}" font-size="11" font-weight="700" letter-spacing="3" fill="rgba(255,255,255,0.8)">${esc(cfg.subtitulo.toUpperCase())}</text>`;
+    s += hit(-1, cx - HW / 2, cy - HH / 2, HW, HH);  // hub editable
+
+    s += '</svg>';
+    return s;
+  }
+
+  function shade(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
+    return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+  }
+  function textoSobre(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    const L = 0.2126 * f((n >> 16) & 255) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255);
+    return L > 0.45 ? '#0B1220' : '#FFFFFF';
+  }
+
+  const LayoutsExtra = { render(cfg) {
+    if (cfg.layout === 'ciclo') return ciclo(cfg);
+    if (cfg.layout === 'concepto') return concepto(cfg);
+    return M26.render(cfg);
+  }, LOGOS };
+  root.LayoutsExtra = LayoutsExtra;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+// LAYOUT INFOGRAFÍA — formato institucional apaisado, alta densidad jerarquizada
+// Bandas: cabecera+intro → fuentes transversales → pasos (desc+bullets) → notas clave → cierre
+(function (root) {
+  'use strict';
+
+  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ESCAPES[c]);
+  const FONT = "'Helvetica Neue', 'Segoe UI', Arial, sans-serif";
+  const M26 = root.Motor2026 || (null);
+  const LOGOS = M26.LOGOS;
+
+  function wrap(texto, maxChars) {
+    const palabras = String(texto).split(/\s+/);
+    const lineas = []; let linea = '';
+    for (const p of palabras) {
+      if ((linea + ' ' + p).trim().length > maxChars && linea) { lineas.push(linea); linea = p; }
+      else linea = (linea + ' ' + p).trim();
+    }
+    if (linea) lineas.push(linea);
+    return lineas;
+  }
+  function textoBloque(x, y, w, lineas, tam, lh, color, peso, anchor) {
+    let o = '';
+    lineas.forEach((l, i) => {
+      o += `<text x="${x}" y="${y + i * lh}" text-anchor="${anchor || 'start'}" font-family="${FONT}" font-size="${tam}" font-weight="${peso || 400}" fill="${color}">${esc(l)}</text>`;
+    });
+    return o;
+  }
+  function logoIcon(tipo, color, x, y, size) {
+    const d = LOGOS[tipo] || LOGOS.hoja;
+    return `<g transform="translate(${x},${y}) scale(${size / 24})"><path d="${d}" fill="${color}"/></g>`;
+  }
+  function av(cfg, msg){ if (cfg && Array.isArray(cfg._avisos) && cfg._avisos.indexOf(msg) < 0) cfg._avisos.push(msg); }
+  function hit(i, x, y, w, h) {
+    return `<rect class="hit" data-i="${i}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent" style="cursor:pointer"/>`;
+  }
+
+  function render(cfg) {
+    const A = { hi: '#1FA971', lo: '#0E7A50' };           // verde institucional
+    const AZUL = '#132A3E';                                // tinta azul marino
+    const AZUL2 = '#51677C';
+    const CARD = '#FFFFFF', BORDE = 'rgba(19,42,62,0.12)';
+    const TINTA = { bg: '#F7FAF7', cajaIntro: '#E9F4EC', chevron: '#B9CFC2' };
+    const W = 2240;
+    const MARGEN = 70;
+    const GAP = 26;                                        // gap entre tarjetas de paso
+    const N = cfg.pasos.length;
+    const CW = Math.floor((W - 2 * MARGEN - (N - 1) * GAP) / N);
+    const CH = 470;
+    let y = 0;
+
+    // ---- alturas ----
+    const introH = 130;
+    const fuentesH = 120;
+    const notasN = (cfg.notas || []).length;
+    const notasH = notasN ? 100 : 0;
+    const cierreH = 96;
+    const H = 60 + introH + 24 + fuentesH + 24 + CH + 24 + notasH + 24 + cierreH + 60;
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += `<defs>
+      <linearGradient id="cierre" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="${A.lo}"/><stop offset="1" stop-color="${A.hi}"/>
+      </linearGradient>
+      <linearGradient id="numGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${A.hi}"/><stop offset="1" stop-color="${A.lo}"/>
+      </linearGradient>
+    </defs>`;
+    s += `<rect width="${W}" height="${H}" fill="${TINTA.bg}"/>`;
+
+    // ================= CABECERA: título+subtítulo (izq) + intro (der) =================
+    y = 60;
+    s += `<text x="${MARGEN}" y="${y + 44}" font-family="${FONT}" font-size="38" font-weight="750" fill="${AZUL}">${esc(cfg.titulo || '')}</text>`;
+    if (cfg.subtitulo) s += `<text x="${MARGEN}" y="${y + 82}" font-family="${FONT}" font-size="19" font-weight="500" fill="${A.lo}">${esc(cfg.subtitulo)}</text>`;
+    if (cfg.intro) {
+      const BW = 760, BX = W - MARGEN - BW;
+      const lineas = wrap(cfg.intro, Math.floor((BW - 44) / 8.2));
+      s += `<rect x="${BX}" y="${y}" width="${BW}" height="${introH}" rx="14" fill="${TINTA.cajaIntro}"/>`;
+      s += textoBloque(BX + 22, y + 34, BW, lineas, 14.5, 22, AZUL2, 450);
+    }
+    s += hit(-1, 0, 0, W, 60 + introH);  // cabecera editable (título + intro)
+
+    // ================= BANDA DE FUENTES TRANSVERSALES =================
+    y += introH + 24;
+    const fuentes = cfg.fuentes || [];
+    if (fuentes.length) {
+      const FW = Math.floor((W - 2 * MARGEN - 260) / fuentes.length);
+      s += textoBloque(MARGEN, y + 26, 300, ['FUENTES Y', 'HERRAMIENTAS'], 13, 20, A.lo, 750);
+      // nota con wrap en 3 líneas dentro de su columna
+      if (wrap(cfg.fuentesNota || '', 24).length > 4) av(cfg, 'La nota de fuentes se ha recortado a 4 lineas');
+      wrap(cfg.fuentesNota || 'Combinadas en todas las etapas', 24).slice(0, 4).forEach((l, i) => {
+        s += `<text x="${MARGEN}" y="${y + 56 + i * 17}" font-family="${FONT}" font-size="11" font-style="italic" fill="${AZUL2}">${esc(l)}</text>`;
+      });
+      fuentes.forEach((f, i) => {
+        const fx = MARGEN + 220 + i * FW;
+        s += `<rect x="${fx}" y="${y + 8}" width="${FW - 18}" height="96" rx="12" fill="${CARD}" stroke="${BORDE}" stroke-width="1"/>`;
+        s += logoIcon(f.icono, A.lo, fx + 16, y + 30, 30);
+        s += textoBloque(fx + 58, y + 42, FW - 80, wrap(f.label, Math.floor((FW - 90) / 8.4)), 13.5, 18, AZUL, 650);
+      });
+    }
+
+    // ================= PASOS =================
+    y += fuentesH + 24;
+    const pasosY = y;
+    cfg.pasos.forEach((p, i) => {
+      const x = MARGEN + i * (CW + GAP);
+      const last = i === N - 1;
+      // tarjeta
+      s += `<rect x="${x}" y="${pasosY}" width="${CW}" height="${CH}" rx="18" fill="${CARD}" stroke="${BORDE}" stroke-width="1.2"/>`;
+      // barra superior de acento en la primera y última
+      if (i === 0 || last) s += `<rect x="${x + 18}" y="${pasosY}" width="${CW - 36}" height="6" rx="3" fill="url(#numGrad)"/>`;
+      // número en círculo
+      s += `<circle cx="${x + 42}" cy="${pasosY + 56}" r="24" fill="url(#numGrad)"/>`;
+      s += `<text x="${x + 42}" y="${pasosY + 57}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="19" font-weight="750" fill="#fff">${i + 1}</text>`;
+      // título (hasta 2 líneas)
+      const maxT = Math.floor((CW - 92) / 9.4);
+      s += textoBloque(x + 78, pasosY + 48, CW, wrap(p.titulo, maxT).slice(0, 2), 16.5, 21, AZUL, 720);
+      // icono del paso
+      if (p.icono) s += logoIcon(p.icono, A.lo, x + 30, pasosY + 108, 34);
+      // descripción (después del icono)
+      const maxD = Math.floor((CW - 56) / 7.3);
+      const _d = wrap(p.desc || '', maxD);
+      if (_d.length > 6) av(cfg, 'Paso ' + (i + 1) + ': la descripcion se ha recortado a 6 lineas');
+      const desc = _d.slice(0, 6);
+      s += textoBloque(x + 28, pasosY + 190, CW, desc, 12.5, 18.5, AZUL2, 450);
+      // separador + herramientas — ALTURA FIJA en todas las tarjetas (alineadas)
+      const hy = pasosY + 190 + 6 * 18.5 + 22;
+      if (p.bullets && p.bullets.length) {
+        s += `<line x1="${x + 28}" y1="${hy - 10}" x2="${x + CW - 28}" y2="${hy - 10}" stroke="${BORDE}" stroke-width="1"/>`;
+        s += textoBloque(x + 28, hy + 18, CW, ['HERRAMIENTAS / INFORMACIÓN'], 10.5, 16, A.lo, 750);
+        let by = hy + 44;
+        if ((p.bullets || []).length > 3) av(cfg, 'Paso ' + (i + 1) + ': solo caben 3 sub-elementos');
+        (p.bullets || []).slice(0, 3).forEach(b => {
+          const bl = wrap(b, Math.floor((CW - 62) / 6.9)).slice(0, 2);
+          s += `<circle cx="${x + 34}" cy="${by - 5}" r="3" fill="${A.hi}"/>`;
+          s += textoBloque(x + 48, by, CW, bl, 11.5, 17, AZUL2, 500);
+          by += bl.length * 17 + 8;
+        });
+      }
+      // chevron hacia la siguiente
+      if (!last) {
+        const cxh = x + CW + GAP / 2, cyh = pasosY + CH / 2;
+        s += `<path d="M${cxh - 7},${cyh - 12} L${cxh + 7},${cyh} L${cxh - 7},${cyh + 12}" fill="none" stroke="${TINTA.chevron}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+      s += hit(i, x, pasosY, CW, CH);
+    });
+
+    // ================= NOTAS CLAVE =================
+    y = pasosY + CH + 24;
+    if (notasN) {
+      const NW = Math.floor((W - 2 * MARGEN - (notasN - 1) * GAP) / notasN);
+      (cfg.notas || []).forEach((n, i) => {
+        const nx = MARGEN + i * (NW + GAP);
+        s += `<rect x="${nx}" y="${y}" width="${NW}" height="${notasH}" rx="14" fill="${TINTA.cajaIntro}" opacity="0.85"/>`;
+        s += logoIcon(n.icono || 'chispa', A.lo, nx + 22, y + 26, 26);
+        s += textoBloque(nx + 62, y + 36, NW, wrap(n.texto, Math.floor((NW - 90) / 7.6)), 12.5, 18, AZUL2, 500);
+      });
+    }
+
+    // ================= CIERRE =================
+    y += notasH + 24;
+    s += `<rect x="${MARGEN}" y="${y}" width="${W - 2 * MARGEN}" height="${cierreH}" rx="18" fill="url(#cierre)"/>`;
+    s += logoIcon('hoja', '#FFFFFF', MARGEN + 34, y + cierreH / 2 - 19, 38);
+    s += `<text x="${MARGEN + 96}" y="${y + cierreH / 2}" dominant-baseline="middle" font-family="${FONT}" font-size="23" font-weight="700" fill="#FFFFFF">${esc(cfg.cierre || '')}</text>`;
+
+    // pie sin firma (la tool no mete atribución automática)
+    s += '</svg>';
+    return s;
+  }
+
+  const LayoutInfografia = { render };
+  root.LayoutInfografia = LayoutInfografia;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+// Catálogo de ejemplos — uno por layout (universal: node + navegador)
+// Ejemplos de referencia — uno por layout, con contenido real de zonas tranquilas
+var EJEMPLOS = {
+  vertical: {
+    layout: 'vertical', style: 'dark', color: '#34D399', logo: 'hoja',
+    kicker: 'Tarea 3 · Metodología', titulo: 'Evolución de una zona tranquila',
+    nodos: [
+      { label: 'Identificación preliminar → APT' },
+      { label: 'Selección de espacios candidatos → AC' },
+      { label: 'Validación → ACV' },
+      { label: 'Delimitación + caracterización → ZTP' },
+      { label: 'Verificación y seguimiento → ZT' }
+    ]
+  },
+  horizontal: {
+    layout: 'horizontal', style: 'light', color: '#A3E635', logo: 'montana',
+    kicker: 'Fases', titulo: 'Proceso en fases',
+    nodos: [
+      { label: 'Identificación' }, { label: 'Selección' }, { label: 'Validación' },
+      { label: 'Delimitación' }, { label: 'Seguimiento' }
+    ]
+  },
+  radial: {
+    layout: 'radial', style: 'dark', color: '#38BDF8', logo: 'chispa',
+    kicker: 'Síntesis', titulo: 'Área Potencialmente Tranquila',
+    nodos: [
+      { label: 'APT' }, { label: 'Criterios acústicos' }, { label: 'Criterios territoriales' },
+      { label: 'Criterios ambientales' }, { label: 'Paisaje sonoro' }, { label: 'Uso social' },
+      { label: 'Gestión' }
+    ]
+  },
+  cards: {
+    layout: 'cards', style: 'light', color: '#2DD4BF', logo: 'onda', destacada: 0,
+    kicker: 'Criterios', titulo: 'Criterios de evaluación',
+    nodos: [
+      { label: 'Acústicos: niveles y umbrales' }, { label: 'Territoriales y urbanísticos' },
+      { label: 'Ambientales y ecológicos' }, { label: 'Paisaje sonoro' },
+      { label: 'Sociales y funcionales' }, { label: 'Gestión y participación' }
+    ]
+  },
+  ciclo: {
+    layout: 'ciclo', style: 'dark', color: '#34D399',
+    titulo: 'Metodología de zonas tranquilas', subtitulo: 'Mejora continua', logoIcono: 'arbol',
+    nodos: [
+      { label: 'Identificación preliminar', icono: 'lupa' },
+      { label: 'Selección de candidatos', icono: 'mapa' },
+      { label: 'Validación', icono: 'documento' },
+      { label: 'Delimitación', icono: 'pin' },
+      { label: 'Caracterización', icono: 'barras' },
+      { label: 'Propuesta ZT', icono: 'hoja' },
+      { label: 'Evaluación técnica', icono: 'portapapeles' }
+    ]
+  },
+  concepto: {
+    layout: 'concepto', style: 'light', color: '#34D399', logo: 'bd',
+    kicker: 'Tarea 3 · Herramientas', titulo: 'Herramientas para la identificación',
+    tituloCentral: 'Herramientas de identificación y delimitación',
+    nodos: [
+      { label: 'Cartografía acústica', icono: 'mapa', subs: ['MER', 'Isofonas', 'Indicadores acústicos'] },
+      { label: 'Sistemas de Información Geográfica', icono: 'bd', subs: ['Delimitación cartográfica', 'Catastro', 'Parcelario'] },
+      { label: 'Participación', icono: 'pajaro', subs: ['Encuestas', 'Cuestionarios', 'Percepción ciudadana'] },
+      { label: 'Información ambiental', icono: 'arbol', subs: ['Espacios protegidos', 'Red Natura 2000'] },
+      { label: 'Mediciones acústicas', icono: 'micro', subs: ['Validación', 'Caracterización acústica'] }
+    ]
+  },
+  infografia: {
+    layout: 'infografia', style: 'light', color: '#1FA971', logo: 'hoja',
+    titulo: 'Proceso de identificación y delimitación de zonas tranquilas',
+    subtitulo: 'Una aproximación integral para preservar los espacios tranquilos',
+    intro: 'La identificación y delimitación requiere la utilización combinada de fuentes de información cartográficas, ambientales, territoriales, funcionales y perceptivas.',
+    nodos: [
+      { label: 'Identificación preliminar', icono: 'lupa', desc: 'Revisión de la información disponible para localizar espacios con condiciones favorables.', subs: ['Cartografía acústica', 'Espacios protegidos', 'Uso del suelo'] },
+      { label: 'Selección de candidatos', icono: 'escudo', desc: 'Aplicación de criterios acústicos, territoriales y funcionales para escoger la mejor candidatura.', subs: ['Criterios multicriterio', 'Accesibilidad', 'Compatibilidad de usos'] },
+      { label: 'Validación', icono: 'pajaro', desc: 'Contraste de la información con trabajo de campo y comprobación de afecciones.', subs: ['Mediciones acústicas', 'Verificación in situ', 'Encuestas de percepción'] },
+      { label: 'Delimitación', icono: 'pin', desc: 'Definición del perímetro con límites reconocibles y coherencia funcional.', subs: ['SIG y cartografía', 'Límites naturales', 'Planeamiento'] },
+      { label: 'Caracterización', icono: 'documento', desc: 'Descripción integral del espacio: valores acústicos, ambientales y sociales.', subs: ['Paisaje sonoro', 'Indicadores ambientales', 'Valores sociales'] },
+      { label: 'Gestión y seguimiento', icono: 'onda', desc: 'Mantenimiento de las condiciones de tranquilidad con seguimiento periódico.', subs: ['Fichas de seguimiento', 'Indicadores de control', 'Plan de medidas'] },
+      { label: 'Evaluación', icono: 'chispa', desc: 'Valoración técnica de resultados y revisión de objetivos.', subs: ['Valoración técnica', 'Revisión periódica', 'Actualización MER'] }
+    ],
+    fuentes: [
+      { icono: 'mapa', label: 'Cartografía oficial (MER)' },
+      { icono: 'micro', label: 'Mediciones in situ' },
+      { icono: 'bd', label: 'Sistemas de Información Geográfica' },
+      { icono: 'arbol', label: 'Información ambiental' },
+      { icono: 'pajaro', label: 'Participación ciudadana' }
+    ],
+    fuentesNota: 'Se utilizan de forma combinada a lo largo de todas las etapas del proceso',
+    notas: [
+      { icono: 'chispa', texto: 'El enfoque es flexible y se adapta al tipo de territorio (aglomeración o campo abierto).' },
+      { icono: 'bd', texto: 'Los SIG y los Mapas Estratégicos de Ruido constituyen el apoyo técnico principal.' },
+      { icono: 'pajaro', texto: 'La percepción social y la participación ciudadana matizan la evaluación final.' }
+    ],
+    cierre: 'Una aproximación integral para preservar y poner en valor los espacios tranquilos'
+  }
+};
+
+
+if (typeof window !== 'undefined') window.EJEMPLOS = EJEMPLOS;
+
+</script>
+<script>
+'use strict';
+(function(){
+var ICONOS = Motor2026.LOGOS;
+var $ = function(id){ return document.getElementById(id); };
+var ESC = { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' };
+function escH(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return ESC[c]; }); }
+['gesturestart','gesturechange','gesturecancel'].forEach(function(t){
+  document.addEventListener(t, function(e){ e.preventDefault(); }, { passive:false });
+});
+document.addEventListener('touchmove', function(e){ if(e.touches.length>1) e.preventDefault(); }, { passive:false });
+
+var LAYOUTS = ['vertical','horizontal','radial','cards','ciclo','concepto','infografia'];
+var DESC_L = { vertical:'Proceso paso a paso', horizontal:'Timeline en fila', radial:'Hub con satélites',
+  cards:'Rejilla de tarjetas', ciclo:'Círculo de mejora continua', concepto:'Mapa con sub-elementos', infografia:'Lámina institucional con bandas' };
+var CAMPOS = { vertical:{}, horizontal:{}, radial:{hub:true}, cards:{},
+  ciclo:{ico:true}, concepto:{ico:true,subs:true}, infografia:{ico:true,desc:true,subs:true} };
+
+var S = null, editIdx = null, vista = { x:0, y:0, k:1 }, baseTam = { w:800, h:600 };
+function clonar(o){ return JSON.parse(JSON.stringify(o)); }
+
+function nuevoEstado(layout){
+  var ej = clonar(EJEMPLOS[layout]);
+  return { layout:layout, style:ej.style||'dark', color:ej.color||'#059669',
+    titulo:ej.titulo||'', kicker:ej.kicker||'', subtitulo:ej.subtitulo||'', intro:ej.intro||'',
+    logo:ej.logo||'hoja',
+    nodos:(ej.nodos||[]).map(function(n){ return { label:n.label||'', icono:n.icono||'', color:n.color||'', desc:n.desc||'', subs:(n.subs||[]).slice() }; }) };
+}
+function cfgMotor(st){
+  var c = { layout:st.layout, style:st.style, color:st.color, titulo:st.titulo,
+    kicker:st.kicker, subtitulo:st.subtitulo, logo:st.logo, _avisos:[] };
+  if(st.layout==='ciclo'){
+    c.logoIcono = st.logo;
+    c.pasos = st.nodos.map(function(n){ return { label:n.label, icono:n.icono||'lupa', color:n.color||undefined }; });
+  } else if(st.layout==='concepto'){
+    c.tituloCentral = st.titulo;
+    c.categorias = st.nodos.map(function(n){ return { label:n.label, icono:n.icono||'bd', subs:n.subs, color:n.color||undefined }; });
+  } else if(st.layout==='infografia'){
+    c.intro = st.intro; c.cierre = st.subtitulo;
+    var ej = EJEMPLOS.infografia;
+    c.fuentes = clonar(ej.fuentes); c.fuentesNota = ej.fuentesNota; c.notas = clonar(ej.notas);
+    c.pasos = st.nodos.map(function(n){ return { titulo:n.label, icono:n.icono||'lupa', desc:n.desc, bullets:n.subs, color:n.color||undefined }; });
+  } else {
+    c.nodos = st.nodos.map(function(n){ return { label:n.label, color:n.color||undefined }; });
+  }
+  return c;
+}
+function renderSvg(c){
+  if(c.layout==='ciclo'||c.layout==='concepto') return LayoutsExtra.render(c);
+  if(c.layout==='infografia') return LayoutInfografia.render(c);
+  return Motor2026.render(c);
+}
+function pintar(){
+  var cfg = cfgMotor(S);
+  var svgStr = renderSvg(cfg);
+  $('svgwrap').innerHTML = svgStr;
+  var svg = $('svgwrap').querySelector('svg');
+  var vb = svg.viewBox.baseVal || { width:svg.width.baseVal.value, height:svg.height.baseVal.value };
+  baseTam = { w:vb.width, h:vb.height };
+  ajustarZoom(); aplicarVista(); guardarLocal();
+  // avisos de recorte
+  var av = $('aviso');
+  if(cfg._avisos.length){ av.textContent = '⚠ ' + cfg._avisos[0] + (cfg._avisos.length>1 ? ' (+' + (cfg._avisos.length-1) + ')' : ''); av.style.display='block'; }
+  else av.style.display='none';
+  $('nombreLay').textContent = S.layout.charAt(0).toUpperCase()+S.layout.slice(1);
+}
+function ajustarZoom(){
+  var l = $('lienzo').getBoundingClientRect();
+  var caber = Math.min((l.width*0.94)/baseTam.w, (l.height*0.88)/baseTam.h);
+  vista.k = Math.max(0.12, Math.min(caber, 1.5)); vista.x = 0; vista.y = 0;
+}
+function aplicarVista(){
+  $('svgwrap').style.transform = 'translate(-50%,-50%) translate('+vista.x+'px,'+vista.y+'px) scale('+vista.k+')';
+}
+
+// interacción: tap=editar · pan · pinch
+(function(){
+  var pointers = new Map(), pinch0 = null, movido = false, t0 = 0, zona = $('lienzo');
+  zona.addEventListener('pointerdown', function(e){
+    pointers.set(e.pointerId, { x:e.clientX, y:e.clientY }); movido = false; t0 = Date.now();
+    if(pointers.size===2){ var p = Array.from(pointers.values()); pinch0 = { d: Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y), k: vista.k }; }
+  });
+  zona.addEventListener('pointermove', function(e){
+    if(!pointers.has(e.pointerId)) return;
+    var ant = pointers.get(e.pointerId), nx = e.clientX, ny = e.clientY;
+    if(pointers.size===2 && pinch0){
+      var p = Array.from(pointers.values()), d = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+      vista.k = Math.max(0.12, Math.min(4, pinch0.k * d/pinch0.d)); aplicarVista(); movido = true;
+    } else if(pointers.size===1){
+      var dx = nx-ant.x, dy = ny-ant.y;
+      if(Math.abs(dx)+Math.abs(dy) > 5 || Date.now()-t0 > 260) movido = true;
+      if(movido){ vista.x += dx; vista.y += dy; aplicarVista(); }
+    }
+    pointers.set(e.pointerId, { x:nx, y:ny });
+  });
+  function fin(e){ pointers.delete(e.pointerId); if(pointers.size<2) pinch0 = null; }
+  zona.addEventListener('pointerup', function(e){
+    var esTap = !movido && (Date.now()-t0) < 350; fin(e); if(!esTap) return;
+    var h = e.target.closest && e.target.closest('.hit');
+    if(h){ var i = parseInt(h.dataset.i, 10); if(i >= 0) abrirNodo(i); else abrirDoc(); }
+    else cerrarSheets();
+  });
+  zona.addEventListener('pointercancel', fin);
+  zona.addEventListener('wheel', function(e){
+    e.preventDefault();
+    vista.k = Math.max(0.12, Math.min(4, vista.k * (e.deltaY<0?1.1:0.9)));
+    aplicarVista();
+  }, { passive:false });
+})();
+
+function abrirNodo(i){
+  if(!S || !S.nodos[i]) return;
+  editIdx = i;
+  var n = S.nodos[i], campos = CAMPOS[S.layout];
+  $('snNum').textContent = i+1;
+  $('snTipo').textContent = S.layout==='concepto' ? 'Categoría' : (S.layout==='infografia' ? 'Paso' : (S.layout==='radial' && i===0 ? 'Centro' : 'Nodo'));
+  $('snText').value = n.label;
+  $('snDesc').value = n.desc || '';
+  $('snDescW').style.display = campos.desc ? 'block' : 'none';
+  $('snIcoW').style.display = campos.ico || campos.hub ? 'block' : 'none';
+  $('snSubsW').style.display = campos.subs ? 'block' : 'none';
+  var ic = $('snIco'); ic.innerHTML = '';
+  Object.keys(ICONOS).forEach(function(k){
+    var b = document.createElement('button'); b.className = 'ch' + ((n.icono||'lupa')===k?' on':'');
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="'+ICONOS[k]+'"/></svg>';
+    b.onclick = function(){ n.icono = k; pintar(); abrirNodo(i); };
+    ic.appendChild(b);
+  });
+  var cc = $('snColor'); cc.innerHTML = '';
+  var auto = document.createElement('button'); auto.className='ch'+(n.color?'':' on'); auto.textContent='Auto';
+  auto.onclick = function(){ n.color=''; pintar(); abrirNodo(i); };
+  cc.appendChild(auto);
+  PALETA.forEach(function(c){
+    var b = document.createElement('button'); b.className='ch color'+(n.color===c?' on':''); b.style.background=c;
+    b.onclick = function(){ n.color = c; pintar(); abrirNodo(i); };
+    cc.appendChild(b);
+  });
+  var inp = document.createElement('input'); inp.type='color'; inp.value=n.color||'#2563eb';
+  inp.className='ch color'; inp.style.padding='2px';
+  inp.oninput = function(){ n.color=this.value; pintarDebounc(); };
+  cc.appendChild(inp);
+  renderSubs();
+  $('snPrev').style.visibility = i===0 ? 'hidden':'visible';
+  $('snNext').style.visibility = i===S.nodos.length-1 ? 'hidden':'visible';
+  mostrar('sheetNodo');
+  setTimeout(function(){ asegurarVisible(i); }, 130);
+}
+function renderSubs(){
+  var cont = $('snSubs'); cont.innerHTML = '';
+  var n = S.nodos[editIdx];
+  (n.subs||[]).forEach(function(s, j){
+    var c = document.createElement('span'); c.className='sub';
+    c.innerHTML = escH(s)+' <button aria-label="quitar">×</button>';
+    c.querySelector('button').onclick = function(){ n.subs.splice(j,1); pintar(); renderSubs(); };
+    cont.appendChild(c);
+  });
+  var add = document.createElement('button'); add.className='addChip'; add.textContent='+ Añadir';
+  add.onclick = function(){ var v = prompt('Nuevo sub-elemento:'); if(v&&v.trim()){ (n.subs=n.subs||[]).push(v.trim()); pintar(); renderSubs(); } };
+  cont.appendChild(add);
+}
+var _deb; function pintarDebounc(){ clearTimeout(_deb); _deb = setTimeout(pintar, 330); }
+$('snText').addEventListener('input', function(){ if(editIdx==null||!S.nodos[editIdx]) return; S.nodos[editIdx].label = this.value; pintarDebounc(); });
+$('snDesc').addEventListener('input', function(){ if(editIdx==null||!S.nodos[editIdx]) return; S.nodos[editIdx].desc = this.value; pintarDebounc(); });
+$('snPrev').onclick = function(){ var j=editIdx-1; if(j<0)return; var t=S.nodos[editIdx];S.nodos[editIdx]=S.nodos[j];S.nodos[j]=t; editIdx=j; pintar(); abrirNodo(j); };
+$('snNext').onclick = function(){ var j=editIdx+1; if(j>=S.nodos.length)return; var t=S.nodos[editIdx];S.nodos[editIdx]=S.nodos[j];S.nodos[j]=t; editIdx=j; pintar(); abrirNodo(j); };
+$('snDup').onclick = function(){ S.nodos.splice(editIdx+1,0,clonar(S.nodos[editIdx])); pintar(); abrirNodo(editIdx+1); };
+$('snDel').onclick = function(){ if(S.nodos.length<=1){ toast('Debe quedar al menos un nodo'); return; } S.nodos.splice(editIdx,1); cerrarSheets(); pintar(); };
+$('snMas').onclick = function(){
+  var campos = CAMPOS[S.layout];
+  var n = { label:'Nuevo', icono:campos.ico?'lupa':'', color:'', desc:'', subs:[] };
+  var pos = editIdx==null ? S.nodos.length : editIdx+1;
+  S.nodos.splice(pos, 0, n); pintar(); abrirNodo(pos);
+  $('snText').focus(); $('snText').select();
+};
+
+var PALETA = ['#059669','#10B981','#34D399','#2DD4BF','#65A30D','#84CC16','#F97316','#FBBF24','#2563eb','#6366F1','#F472B6','#8B5CF6'];
+function abrirDoc(){
+  editIdx = null;
+  $('sdTitulo').value = S.titulo; $('sdKicker').value = S.kicker;
+  $('sdSub').value = S.subtitulo; $('sdIntro').value = S.intro;
+  $('sdSubW').style.display = (S.layout==='ciclo'||S.layout==='infografia') ? 'block':'none';
+  $('sdIntroW').style.display = S.layout==='infografia' ? 'block':'none';
+  var cc = $('sdColor'); cc.innerHTML='';
+  PALETA.forEach(function(c){
+    var b=document.createElement('button'); b.className='ch color'+(S.color===c?' on':''); b.style.background=c;
+    b.onclick=function(){ S.color=c; pintar(); abrirDoc(); };
+    cc.appendChild(b);
+  });
+  var st = $('sdStyle'); st.innerHTML='';
+  [['dark','Oscuro'],['light','Claro']].forEach(function(p){
+    var b=document.createElement('button'); b.className='ch'+(S.style===p[0]?' on':''); b.textContent=p[1];
+    b.onclick=function(){ S.style=p[0]; pintar(); abrirDoc(); };
+    st.appendChild(b);
+  });
+  var lg = $('sdLogo'); lg.innerHTML='';
+  Object.keys(ICONOS).forEach(function(k){
+    var b=document.createElement('button'); b.className='ch'+(S.logo===k?' on':'');
+    b.innerHTML='<svg viewBox="0 0 24 24"><path d="'+ICONOS[k]+'"/></svg>';
+    b.onclick=function(){ S.logo=k; pintar(); abrirDoc(); };
+    lg.appendChild(b);
+  });
+  mostrar('sheetDoc');
+}
+$('sdTitulo').addEventListener('input', function(){ S.titulo=this.value; pintarDebounc(); });
+$('sdKicker').addEventListener('input', function(){ S.kicker=this.value; pintarDebounc(); });
+$('sdSub').addEventListener('input', function(){ S.subtitulo=this.value; pintarDebounc(); });
+$('sdIntro').addEventListener('input', function(){ S.intro=this.value; pintarDebounc(); });
+
+function mostrar(id){
+  ['sheetNodo','sheetDoc','sheetMenu'].forEach(function(s){ $(s).classList.toggle('on', s===id); });
+  var a=$('ayuda'); if(a && a.style.opacity!=='0'){ a.style.opacity='0'; setTimeout(function(){ if(a.parentNode) a.remove(); },700); }
+}
+function cerrarSheets(){
+  ['sheetNodo','sheetDoc','sheetMenu'].forEach(function(s){ $(s).classList.remove('on'); });
+  setTimeout(function(){ vista.y = Math.max(-60, Math.min(60, vista.y*0.3)); aplicarVista(); }, 60);
+}
+document.querySelectorAll('[data-cerrar]').forEach(function(b){ b.onclick = cerrarSheets; });
+function asegurarVisible(i){
+  if(window.matchMedia('(min-width:900px)').matches) return;
+  var hitEl = document.querySelector('#svgwrap .hit[data-i="'+i+'"]');
+  if(!hitEl) return;
+  var l = $('lienzo').getBoundingClientRect(), r = hitEl.getBoundingClientRect();
+  var c = r.top + r.height/2, arriba = l.top + l.height*0.40;
+  if(c > arriba){ vista.y -= (c - arriba + 12); aplicarVista(); }
+}
+
+// galería
+function construirGaleria(){
+  var g = $('gGrid'); g.innerHTML='';
+  LAYOUTS.forEach(function(k){
+    var c = document.createElement('div'); c.className='layCard'; c.dataset.k=k;
+    var st = nuevoEstado(k);
+    var stMini = clonar(st);
+    if(stMini.nodos.length > 4) stMini.nodos = stMini.nodos.slice(0, k==='radial'?4:(k==='infografia'?3:4));
+    var svg = renderSvg(cfgMotor(stMini));
+    svg = svg.replace(/<svg /, '<svg preserveAspectRatio="xMidYMid meet" ').replace(/width="[^"]*" height="[^"]*"/, '');
+    c.innerHTML = '<div class="thumb">'+svg+'</div><div class="nombre">'+k.charAt(0).toUpperCase()+k.slice(1)+'</div><div class="desc">'+DESC_L[k]+'</div>';
+    c.onclick = function(){ cambiarLayout(k); $('galeria').classList.remove('on'); };
+    g.appendChild(c);
+  });
+}
+function cambiarLayout(k){
+  var viejo = S;
+  S = nuevoEstado(k);
+  if(viejo){
+    S.style = viejo.style; S.color = viejo.color;
+    if(viejo.titulo && viejo.titulo !== EJEMPLOS[viejo.layout].titulo) S.titulo = viejo.titulo;
+    var editado = viejo.titulo !== (EJEMPLOS[viejo.layout]||{}).titulo ||
+      JSON.stringify(viejo.nodos.map(function(n){return n.label;})) !== JSON.stringify((EJEMPLOS[viejo.layout]||{nodos:[]}).nodos.map(function(n){return n.label;}));
+    if(editado && viejo.layout !== k){
+      var campos = CAMPOS[k];
+      S.nodos = viejo.nodos.map(function(n){
+        return { label:n.label, icono:campos.ico?n.icono:'', color:n.color||'', desc:campos.desc?n.desc:'', subs:campos.subs?(n.subs||[]):[] };
+      });
+      toast('Tu contenido se ha conservado');
+    }
+  }
+  vista = { x:0, y:0, k:1 };
+  cerrarSheets(); pintar();
+}
+
+// barra
+$('bTipo').onclick = function(){ $('galeria').classList.add('on'); };
+$('gCerrar').onclick = function(){ $('galeria').classList.remove('on'); };
+$('bNodo').onclick = function(){
+  var campos = CAMPOS[S.layout];
+  S.nodos.push({ label:'Nodo '+(S.nodos.length+1), icono:campos.ico?'lupa':'', color:'', desc:'', subs:[] });
+  pintar(); abrirNodo(S.nodos.length-1);
+  $('snText').focus(); $('snText').select();
+};
+$('bEstilo').onclick = abrirDoc;
+$('bPNG').onclick = exportarPng;
+$('bMenu').onclick = function(){ mostrar('sheetMenu'); };
+$('mPNG').onclick = function(){ exportarPng(); cerrarSheets(); };
+$('mSVG').onclick = function(){ exportarSvg(); cerrarSheets(); };
+$('mGuardar').onclick = function(){
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));
+  a.download='smartart.json'; a.click(); URL.revokeObjectURL(a.href); toast('Guardado');
+};
+$('mAbrir').onclick = function(){ $('mFile').click(); };
+$('mFile').onchange = function(e){
+  var f=e.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){ try{
+    var p=JSON.parse(r.result);
+    if(!p.layout||!p.nodos) throw 0;
+    S=p; S.intro=S.intro||''; S.logo=S.logo||'hoja';
+    S.nodos=S.nodos.map(function(n){ return { label:n.label||'', icono:n.icono||'', color:n.color||'', desc:n.desc||'', subs:n.subs||[] }; });
+    cerrarSheets(); ajustarZoom(); pintar(); toast('Proyecto abierto');
+  }catch(err){ toast('Archivo no válido'); } };
+  r.readAsText(f); e.target.value='';
+};
+$('mEj').onclick = function(){ S = nuevoEstado(S.layout); cerrarSheets(); pintar(); toast('Ejemplo recargado'); };
+$('mIr').onclick = function(){ window.location.href = './'; };
+
+// exportar: SVG limpio sin zonas de edición ni hover
+function svgLimpio(){
+  var svg = $('svgwrap').querySelector('svg'); if(!svg) return null;
+  var c = clonar(svg);
+  c.querySelectorAll('.hit').forEach(function(h){ h.remove(); });
+  var vb = svg.viewBox.baseVal || { width:svg.width.baseVal.value, height:svg.height.baseVal.value };
+  c.setAttribute('width', Math.round(vb.width*2)); c.setAttribute('height', Math.round(vb.height*2));
+  return c;
+}
+function nombre(){ return (S.titulo||'diagrama').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42); }
+function exportarPng(){
+  var c = svgLimpio(); if(!c){ toast('Nada que exportar'); return; }
+  var esc = new XMLSerializer().serializeToString(c), img = new Image();
+  var url = URL.createObjectURL(new Blob([esc],{type:'image/svg+xml;charset=utf-8'}));
+  img.onload = function(){
+    var cv = document.createElement('canvas');
+    cv.width = +c.getAttribute('width'); cv.height = +c.getAttribute('height');
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    URL.revokeObjectURL(url);
+    cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b);
+      a.download=nombre()+'.png'; a.click(); URL.revokeObjectURL(a.href); toast('PNG descargado'); },'image/png');
+  };
+  img.onerror=function(){ toast('Error al exportar'); };
+  img.src = url;
+}
+function exportarSvg(){
+  var c = svgLimpio(); if(!c) return;
+  c.removeAttribute('width'); c.removeAttribute('height');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(c)],{type:'image/svg+xml'}));
+  a.download=nombre()+'.svg'; a.click(); URL.revokeObjectURL(a.href); toast('SVG descargado');
+}
+
+function guardarLocal(){ try{ localStorage.setItem('smartart', JSON.stringify(S)); }catch(e){} }
+function cargarLocal(){
+  try{
+    var p = JSON.parse(localStorage.getItem('smartart'));
+    if(p && p.layout && p.nodos && p.nodos.length){
+      S=p; S.intro=S.intro||''; S.logo=S.logo||'hoja';
+      S.nodos.forEach(function(n){ n.subs=n.subs||[]; });
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('on');},2100); }
+setTimeout(function(){ var a=$('ayuda'); if(a){ a.style.opacity='0'; setTimeout(function(){ if(a.parentNode) a.remove(); },700); } }, 6500);
+
+window.addEventListener('resize', function(){ ajustarZoom(); aplicarVista(); });
+if(!cargarLocal()) S = nuevoEstado('vertical');
+construirGaleria();
+pintar();
+})();
+</script>
+</body>
+</html>
