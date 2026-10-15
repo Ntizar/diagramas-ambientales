@@ -18,7 +18,9 @@ jobs:
         run: node scripts/compilar.js
       - name: Verificar 300 plantillas
         run: node scripts/verificar.js
-      - name: Verificar bundle de la UI
+      - name: Verificar motor SmartArt (7 layouts + avisos)
+        run: node scripts/verificar-smartart.js
+      - name: Verificar bundles de las dos apps
         run: node scripts/verificar-bundle.js
       - name: Sin referencias externas ni nombres prohibidos
         run: node scripts/verificar-higiene.js

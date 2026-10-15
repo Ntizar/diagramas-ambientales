@@ -5,15 +5,21 @@
 const fs = require('fs');
 const path = require('path');
 
-const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const raiz = path.join(__dirname, '..');
+let totalExt = 0, totalProhibidos = 0;
+for (const fichero of ['index.html', 'smartart/index.html']) {
+  const ruta = path.join(raiz, fichero);
+  if (!fs.existsSync(ruta)) { console.log('FALTA ' + fichero + ' — ejecuta scripts/compilar.js'); process.exit(1); }
+  const html = fs.readFileSync(ruta, 'utf8');
+  const externos = html.match(/(src|href)="https?:\/\//gi) || [];
+  const prohibidos = html.match(/ineco|antizar|ntizar|david/gi) || [];
+  totalExt += externos.length; totalProhibidos += prohibidos.length;
+  if (externos.length || prohibidos.length) {
+    console.log(fichero + ': ' + externos.length + ' externas, ' + [...new Set(prohibidos)].join(', '));
+  }
+}
+console.log(`Referencias externas: ${totalExt}`);
+console.log(`Nombres prohibidos: ${totalProhibidos}`);
 
-const externos = html.match(/(src|href)="https?:\/\//gi) || [];
-console.log(`Referencias externas: ${externos.length}`);
-externos.forEach(x => console.log('  ' + x));
-
-const prohibidos = html.match(/ineco|antizar|ntizar|david/gi) || [];
-console.log(`Nombres prohibidos: ${prohibidos.length}`);
-[...new Set(prohibidos)].forEach(x => console.log('  ENCONTRADO: ' + x));
-
-if (externos.length || prohibidos.length) process.exit(1);
+if (totalExt || totalProhibidos) process.exit(1);
 console.log('HIGIENE OK');
