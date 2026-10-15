@@ -80,6 +80,12 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   aside.on{transform:none}
   main{padding:12px 12px 32px}
 }
+#menu{position:fixed;inset:0;z-index:70;background:rgba(19,42,62,.28);display:none;align-items:center;justify-content:center;padding:20px}
+#menu.on{display:flex}
+#menu .caja{background:var(--card);border-radius:16px;padding:18px;width:100%;max-width:420px;box-shadow:var(--sombra)}
+#menu h3{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--verdeOsc);margin-bottom:12px}
+#menu .op{display:flex;flex-direction:column;gap:8px}
+#menu .op button{justify-content:flex-start;width:100%}
 #toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--tinta);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.22s;
   pointer-events:none;z-index:80;max-width:88%;text-align:center}
@@ -104,6 +110,16 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   <h3>Elige el tipo de diagrama <button class="btn" id="gCerrar">✕</button></h3>
   <div class="ggrid" id="gGrid"></div>
 </div>
+<div id="menu"><div class="caja"><h3>Proyecto</h3><div class="op">
+  <button class="btn pri" id="mCopiar">Copiar imagen (pegar en Word con Ctrl+V)</button>
+  <button class="btn" id="mPNG">Descargar PNG (con DPI para Word)</button>
+  <button class="btn" id="mSVG">Descargar SVG (vectorial)</button>
+  <button class="btn" id="mGuardar">Guardar proyecto (.json)</button>
+  <button class="btn" id="mAbrir">Abrir proyecto (.json)</button>
+  <button class="btn" id="mRevisar">Revisar solapes y desbordes</button>
+  <button class="btn" id="mNueva">Empezar de cero</button>
+  <button class="btn" id="mCerrar">Cerrar</button>
+</div></div></div>
 <div id="toast"></div>
 
 <script>
@@ -1042,6 +1058,37 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
     c.querySelectorAll('[data-e]').forEach(g => g.removeAttribute('data-e'));
     return c;
   }
+  function pngBlob(){
+    return new Promise((resolve)=>{
+      const c = svgLimpio(); if (!c) return resolve(null);
+      const vb = c.viewBox.baseVal, esc2 = 2.5;
+      c.setAttribute('width', Math.round(vb.width*esc2)); c.setAttribute('height', Math.round(vb.height*esc2));
+      const str = new XMLSerializer().serializeToString(c);
+      const img = new Image();
+      img.onload = ()=>{
+        const cv = document.createElement('canvas');
+        cv.width = +c.getAttribute('width'); cv.height = +c.getAttribute('height');
+        const ctx = cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+        ctx.drawImage(img,0,0,cv.width,cv.height);
+        cv.toBlob(b=>{ b.arrayBuffer().then(ab=>{
+          const conDpi = pngConDpi(ab, Math.round(96*esc2));
+          resolve(new Blob([conDpi],{type:'image/png'}));
+        }); },'image/png');
+      };
+      img.onerror = ()=>resolve(null);
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str);
+    });
+  }
+  async function copiarImagen(){
+    const b = await pngBlob();
+    if (!b) return toast('No se pudo preparar la imagen');
+    try{
+      await navigator.clipboard.write([new ClipboardItem({'image/png': b})]);
+      toast('Imagen copiada · pégala en Word con Ctrl+V');
+    }catch(e){
+      toast('El navegador no deja copiar: usa «Descargar PNG»');
+    }
+  }
   function exportarPNG(){
     const c = svgLimpio(); if (!c) return;
     const vb = c.viewBox.baseVal, esc2 = 2.5;                    // ~300 ppp en A4
@@ -1075,21 +1122,16 @@ aside h2{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppe
   function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2100); }
 
   /* ---------- menú ---------- */
-  $('bMenu').onclick = ()=>{
-    const op = ['exportar SVG','guardar .json','abrir .json','nueva lámina','revisar solapes'];
-    const inp = prompt('Escribe: ' + op.join(' / '), 'revisar solapes');
-    if (inp === null) return;
-    const q = inp.toLowerCase().trim();
-    if (q.indexOf('svg')>=0) exportarSVG();
-    else if (q.indexOf('guardar')>=0){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'})); a.download=nombreArchivo()+'.json'; a.click(); toast('Proyecto guardado'); }
-    else if (q.indexOf('abrir')>=0){ const f=document.createElement('input'); f.type='file'; f.accept='.json'; f.onchange=()=>{ const fr=new FileReader(); fr.onload=()=>{ try{ const p=JSON.parse(fr.result); if(!p.tipo||!p.datos) throw 0; S=p; sel=null; pintar(); panel(); toast('Proyecto abierto'); }catch(e){ toast('Archivo no válido'); } }; fr.readAsText(f.files[0]); }; f.click(); }
-    else if (q.indexOf('nueva')>=0) cambiarTipo(S.tipo);
-    else {
-      const p = pintar();
-      toast(p ? '⚠ ' + p + ' elemento(s) a revisar' : 'Todo encaja: 0 solapes, 0 desbordes');
-      if (p) console.warn('Auditoría:', ultimoError);
-    }
-  };
+  $('bMenu').onclick = ()=>{ $('menu').classList.add('on'); };
+  $('mCerrar').onclick = ()=>{ $('menu').classList.remove('on'); };
+  $('mCopiar').onclick = ()=>{ copiarImagen(); $('menu').classList.remove('on'); };
+  $('mPNG').onclick = ()=>{ exportarPNG(); $('menu').classList.remove('on'); };
+  $('mSVG').onclick = ()=>{ exportarSVG(); $('menu').classList.remove('on'); };
+  $('mGuardar').onclick = ()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'})); a.download=nombreArchivo()+'.json'; a.click(); toast('Proyecto guardado'); $('menu').classList.remove('on'); };
+  $('mAbrir').onclick = ()=>{ const f=document.createElement('input'); f.type='file'; f.accept='.json'; f.onchange=()=>{ const fr=new FileReader(); fr.onload=()=>{ try{ const p=JSON.parse(fr.result); if(!p.tipo||!p.datos) throw 0; S=p; sel=null; pintar(); panel(); toast('Proyecto abierto'); }catch(e){ toast('Archivo no válido'); } }; fr.readAsText(f.files[0]); }; f.click(); $('menu').classList.remove('on'); };
+  $('mRevisar').onclick = ()=>{ const p=pintar(); toast(p ? '\u26a0 '+p+' elemento(s) a revisar' : 'Todo encaja: 0 solapes, 0 desbordes'); $('menu').classList.remove('on'); };
+  $('mNueva').onclick = ()=>{ cambiarTipo(S.tipo); toast('Lámina nueva con el ejemplo del tipo'); $('menu').classList.remove('on'); };
+
   $('bTipo').onclick = galeria;
   $('gCerrar').onclick = ()=>$('galeria').classList.remove('on');
   $('bPNG').onclick = exportarPNG;

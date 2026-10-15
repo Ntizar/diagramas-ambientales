@@ -100,6 +100,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(600);
   const despues = await ev(`document.querySelector('#lienzoWrap svg').innerHTML.indexOf('PRUEBAX')>=0`);
   const ed = typeof edit === 'string' ? JSON.parse(edit) : edit;
+  // el menú debe ser un panel real (nada de prompt) con los botones de exportación
+  const menuRaw = await ev("JSON.stringify({menu:!!document.getElementById('menu'), botones:document.querySelectorAll('#menu .op button').length, copiar:!!document.getElementById('mCopiar'), hayPrompt:/window.prompt\\(/.test(document.documentElement.innerHTML)})");
+  const mo = typeof menuRaw === 'string' ? JSON.parse(menuRaw) : menuRaw;
+  console.log('  menú: ' + JSON.stringify(mo));
+  if (!mo.menu || mo.botones < 6 || !mo.copiar || mo.hayPrompt) { console.log('  ✗ menú incompleto (o queda un prompt)'); fallos++; }
   console.log('\n  edición: panel=' + (ed.hayPanel ? 'sí' : 'NO') + ' · campo=' + ed.campo + ' · ¿la lámina refleja el cambio? ' + (despues ? 'SÍ ✅' : 'NO ✗'));
   if (!ed.hayPanel || !despues) fallos++;
 
